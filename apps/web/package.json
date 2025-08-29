@@ -5,28 +5,40 @@
   "private": true,
   "description": "Next.js frontend for the multichain faucet",
   "scripts": {
-    "dev": "next dev --turbopack --port 3000",
+    "dev": "next dev --port 3000",
     "build": "next build",
     "start": "next start",
     "lint": "next lint --max-warnings 0",
     "check-types": "tsc --noEmit"
   },
   "dependencies": {
-    "@thefaucet/ui": "workspace:*",
-    "@thefaucet/core": "workspace:*",
+    "@radix-ui/react-slot": "^1.2.3",
     "@thefaucet/contracts": "workspace:*",
+    "@thefaucet/core": "workspace:*",
     "@thefaucet/db": "workspace:*",
+    "@thefaucet/ui": "workspace:*",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.542.0",
     "next": "^14.2.0",
     "react": "^18.3.0",
-    "react-dom": "^18.3.0"
+    "react-dom": "^18.3.0",
+    "tailwind-merge": "^3.3.1",
+    "zustand": "^5.0.8"
   },
   "devDependencies": {
+    "@shadcn/ui": "^0.0.4",
+    "@tailwindcss/forms": "^0.5.10",
+    "@tailwindcss/typography": "^0.5.16",
     "@thefaucet/eslint-config": "workspace:*",
     "@thefaucet/typescript-config": "workspace:*",
     "@types/node": "^20.14.0",
     "@types/react": "^18.3.0",
     "@types/react-dom": "^18.3.0",
+    "autoprefixer": "^10.4.21",
     "eslint": "^8.0.0",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^3.4.0",
     "typescript": "^5.9.2"
   }
 }

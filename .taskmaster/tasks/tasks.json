@@ -155,7 +155,7 @@
         "dependencies": [
           1
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -163,7 +163,7 @@
             "description": "Create a new Next.js 14 application in the apps/web directory with App Router architecture and configure it to work within the monorepo structure.",
             "dependencies": [],
             "details": "1. Navigate to the root of the monorepo\n2. Run `pnpm create next-app@latest apps/web` with the following options:\n   - Use TypeScript: Yes\n   - Use ESLint: Yes\n   - Use Tailwind CSS: Yes\n   - Use App Router: Yes\n   - Import alias: @/*\n3. Update apps/web/package.json to include dependencies on shared packages:\n   - Add `\"dependencies\": { \"@repo/ui\": \"workspace:*\", \"@repo/config\": \"workspace:*\" }`\n4. Configure apps/web/tsconfig.json to extend from packages/config/tsconfig/nextjs.json\n5. Update turbo.json to include the web app in the build pipeline\n6. Create apps/web/next.config.js with transpilePackages for monorepo packages",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "1. Verify Next.js app builds successfully with `pnpm --filter web build`\n2. Test development server starts correctly with `pnpm --filter web dev`\n3. Confirm the app can import from shared packages\n4. Verify App Router is correctly configured by checking the file structure"
           },
           {
@@ -174,7 +174,7 @@
               "3.1"
             ],
             "details": "1. In apps/web directory, verify Tailwind CSS is installed or add it: `pnpm add -D tailwindcss postcss autoprefixer`\n2. Initialize Tailwind: `npx tailwindcss init -p`\n3. Update apps/web/tailwind.config.js to include proper content paths for monorepo:\n   - Add paths for components from @repo/ui\n   - Configure theme extensions\n4. Install shadcn/ui: `pnpm add -D @shadcn-ui/cli`\n5. Initialize shadcn/ui: `npx shadcn-ui@latest init` with the following options:\n   - Style: Default\n   - Base color: Slate\n   - CSS location: app/globals.css\n   - Components directory: components\n   - React server components: Yes\n   - Components to import: button, card, form, input\n6. Create apps/web/components.json for shadcn/ui configuration",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "1. Verify Tailwind CSS styles are applied correctly\n2. Test shadcn/ui components render properly\n3. Confirm component styling is consistent across different parts of the application\n4. Verify that the Tailwind configuration correctly processes styles from imported packages"
           },
           {
@@ -186,7 +186,7 @@
               "3.2"
             ],
             "details": "1. Create apps/web/app/layout.tsx with RootLayout component:\n   - Import global CSS\n   - Set up metadata configuration\n   - Implement HTML structure with proper viewport settings\n2. Create apps/web/components/layout/navbar.tsx:\n   - Implement responsive navigation with shadcn/ui components\n   - Add placeholder for authentication state\n3. Create apps/web/components/layout/footer.tsx with site information and links\n4. Set up error handling:\n   - Create apps/web/app/error.tsx for client-side error boundary\n   - Create apps/web/app/not-found.tsx for 404 handling\n   - Create apps/web/app/global-error.tsx for global error handling\n5. Implement apps/web/app/loading.tsx for suspense fallback",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "1. Test layout components render correctly in different viewport sizes\n2. Verify error boundaries catch and display errors properly\n3. Test navigation between pages works correctly\n4. Confirm loading states display appropriately during page transitions"
           },
           {
@@ -197,7 +197,7 @@
               "3.3"
             ],
             "details": "1. Create apps/web/app/metadata.ts with default metadata configuration:\n   - Define title template\n   - Set up description, keywords, and other meta tags\n   - Configure Open Graph and Twitter card metadata\n   - Set up robots and sitemap configuration\n2. Update apps/web/app/layout.tsx to import and use metadata\n3. Create apps/web/app/sitemap.ts to generate dynamic sitemap\n4. Create apps/web/app/robots.ts for robots.txt configuration\n5. Add apps/web/public/favicon.ico and other required icons\n6. Configure apps/web/app/manifest.ts for PWA support",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "1. Verify metadata is correctly rendered in HTML head\n2. Test Open Graph tags with Facebook/LinkedIn debuggers\n3. Validate Twitter card metadata\n4. Check sitemap.xml and robots.txt are generated correctly\n5. Test favicon and app icons load properly"
           },
           {
@@ -209,7 +209,7 @@
               "3.4"
             ],
             "details": "1. Create apps/web/app/page.tsx for the home page with:\n   - Hero section\n   - Feature highlights\n   - Call-to-action components\n2. Set up claim pages:\n   - Create apps/web/app/claim/layout.tsx for shared claim layout\n   - Create apps/web/app/claim/native/page.tsx for native token claims\n   - Create apps/web/app/claim/erc20/page.tsx for ERC20 token claims\n   - Create apps/web/app/claim/nft/page.tsx for NFT claims\n3. Implement user dashboard:\n   - Create apps/web/app/dashboard/layout.tsx with protected route wrapper\n   - Create apps/web/app/dashboard/page.tsx for main dashboard\n   - Create apps/web/app/dashboard/claims/page.tsx for user claims history\n4. Set up authentication pages:\n   - Create apps/web/app/auth/login/page.tsx\n   - Create apps/web/app/auth/register/page.tsx\n   - Create apps/web/app/auth/forgot-password/page.tsx",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "1. Test navigation between all routes\n2. Verify layouts are applied correctly to child routes\n3. Test responsive design on all pages\n4. Confirm route parameters and dynamic segments work as expected\n5. Verify protected routes redirect unauthenticated users"
           }
         ]
@@ -1436,7 +1436,7 @@
     ],
     "metadata": {
       "created": "2025-08-29T08:49:37.007Z",
-      "updated": "2025-08-29T09:35:05.880Z",
+      "updated": "2025-08-29T10:16:09.475Z",
       "description": "Tasks for master context"
     }
   }

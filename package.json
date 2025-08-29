@@ -7,6 +7,9 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
+    "dev:web": "pnpm --filter @thefaucet/web dev",
+    "build:web": "pnpm --filter @thefaucet/web build",
+    "start:web": "pnpm --filter @thefaucet/web start",
     "lint": "turbo run lint",
     "test": "turbo run test",
     "format": "prettier --write \"**/*.{ts,tsx,md,json}\"",

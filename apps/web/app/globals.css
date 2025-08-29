@@ -1,37 +1,158 @@
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    /* Light mode - Softer, less bright version */
+    --background: 33 12% 92%; /* Softer than #F7F5F2 */
+    --foreground: 220 25% 20%;
+    --card: 33 12% 88%;
+    --card-foreground: 220 25% 20%;
+    --popover: 33 12% 88%;
+    --popover-foreground: 220 25% 20%;
+    --primary: 221.2 83.2% 53.3%;
+    --primary-foreground: 33 12% 92%;
+    --secondary: 33 12% 82%;
+    --secondary-foreground: 220 25% 20%;
+    --muted: 33 12% 82%;
+    --muted-foreground: 220 15% 40%;
+    --accent: 33 12% 82%;
+    --accent-foreground: 220 25% 20%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 33 12% 92%;
+    --border: 33 12% 78%;
+    --input: 33 12% 78%;
+    --ring: 221.2 83.2% 53.3%;
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    /* Dark mode - #141F33 base */
+    --background: 213 43% 14%; /* #141F33 */
+    --foreground: 210 40% 92%;
+    --card: 213 43% 16%;
+    --card-foreground: 210 40% 92%;
+    --popover: 213 43% 16%;
+    --popover-foreground: 210 40% 92%;
+    --primary: 217.2 91.2% 59.8%;
+    --primary-foreground: 213 43% 14%;
+    --secondary: 213 43% 20%;
+    --secondary-foreground: 210 40% 92%;
+    --muted: 213 43% 20%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 213 43% 20%;
+    --accent-foreground: 210 40% 92%;
+    --destructive: 0 62.8% 50%;
+    --destructive-foreground: 210 40% 92%;
+    --border: 213 43% 22%;
+    --input: 213 43% 22%;
+    --ring: 224.3 76.3% 80%;
+    --chart-1: 220 70% 60%;
+    --chart-2: 160 60% 55%;
+    --chart-3: 30 80% 65%;
+    --chart-4: 280 65% 70%;
+    --chart-5: 340 75% 65%;
   }
 }
 
-html,
-body {
-  max-width: 100vw;
-  overflow-x: hidden;
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    /* Light mode textures - warm tones to complement #F7F5F2 */
+    background-image: 
+      radial-gradient(circle at 20% 50%, rgba(139, 92, 46, 0.04) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(168, 85, 247, 0.03) 0%, transparent 50%),
+      radial-gradient(circle at 40% 80%, rgba(59, 130, 246, 0.03) 0%, transparent 50%);
+  }
+  
+  .dark body {
+    /* Dark mode textures - cool tones to complement #141F33 */
+    background-image: 
+      radial-gradient(circle at 20% 50%, rgba(59, 130, 246, 0.06) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(168, 85, 247, 0.05) 0%, transparent 50%),
+      radial-gradient(circle at 40% 80%, rgba(34, 197, 94, 0.04) 0%, transparent 50%);
+  }
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
+/* Custom animations */
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  33% { transform: translateY(-20px) rotate(1deg); }
+  66% { transform: translateY(10px) rotate(-1deg); }
 }
 
-* {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
+@keyframes float-delayed {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  33% { transform: translateY(15px) rotate(-1deg); }
+  66% { transform: translateY(-10px) rotate(1deg); }
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
+@keyframes gradient {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-float {
+  animation: float 8s ease-in-out infinite;
+}
+
+.animate-float-delayed {
+  animation: float-delayed 10s ease-in-out infinite;
+}
+
+.animate-spin-slow {
+  animation: spin-slow 20s linear infinite;
+}
+
+.animate-gradient {
+  background-size: 200% 200%;
+  animation: gradient 3s ease infinite;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.8s ease-out forwards;
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.8s ease-out 0.2s forwards;
+  opacity: 0;
+}
+
+.animate-fade-in-up-delayed {
+  animation: fade-in-up 0.8s ease-out 0.4s forwards;
+  opacity: 0;
+}
+
+.animate-fade-in-up-delayed-2 {
+  animation: fade-in-up 0.8s ease-out 0.6s forwards;
+  opacity: 0;
+}
+
+/* Keep existing styles for theme images */
 .imgDark {
   display: none;
 }
