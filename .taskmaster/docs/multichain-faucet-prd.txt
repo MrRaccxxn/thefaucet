@@ -1,0 +1,256 @@
+<context>
+# Overview  
+The Multichain Faucet is an EVM-first, chain-agnostic developer tool that provides testnet tokens, ERC20 dev tokens, and NFTs to developers across multiple blockchain networks. The platform solves the friction developers face when testing applications across different chains by providing a unified interface for claiming assets with GitHub-based anti-abuse protection and event-specific redeem codes for hackathons and conferences.
+
+The product targets developers building on testnets, hackathon participants, and event organizers who need to distribute boosted token amounts. The core value proposition is eliminating the tedious process of finding and using individual chain faucets while providing robust abuse prevention and event management capabilities.
+
+# Core Features  
+**Multi-Asset Claiming System**
+- Per-asset claiming interface (native tokens, ERC20 dev tokens, or ERC721 NFTs)
+- One claim type per request to maintain simplicity and clear rate limiting
+- Chain selection with automatic network detection and wallet switching prompts
+- Real-time balance checking and availability validation before claims
+
+**GitHub OAuth Anti-Abuse Protection**  
+- GitHub authentication required for all claims to establish user identity
+- Server-side rate limiting with Redis-backed tracking per user/asset/chain
+- Configurable GitHub account requirements (age, followers, repositories)
+- IP-based secondary abuse detection for additional protection
+
+**Event Redeem Code System**
+- Hackathon and event organizers can generate time-limited redeem codes
+- Codes provide boosted claim amounts beyond normal daily limits  
+- Support for single-use and multi-use codes with usage tracking
+- Optional GitHub ID binding for exclusive distribution
+
+**Chain-Agnostic Backend Architecture**
+- Adapter pattern designed for future non-EVM chain support (Solana, Stellar)
+- EVM-first implementation with standardized interfaces for expansion
+- Centralized balance monitoring and low-fund alerting across all chains
+- Unified configuration management for chain parameters and limits
+
+**Wallet Integration & UX**
+- EIP-3085 "Add Network" functionality for seamless chain onboarding
+- Automatic network switching prompts when wallet is on wrong chain
+- Primary wallet address linking with multi-wallet support
+- Transaction hash tracking and history for all claims
+
+# User Experience  
+**Primary User Personas:**
+- **Testnet Developers**: Need quick access to gas tokens and test assets across multiple chains
+- **Hackathon Participants**: Require boosted amounts via event codes for development sprints
+- **Event Organizers**: Must distribute controlled amounts of tokens to participants
+- **dApp Testing Teams**: Need consistent token distribution for QA and integration testing
+
+**Key User Flows:**
+1. **First-Time User**: GitHub OAuth → Wallet Connection → Chain Selection → Asset Claiming
+2. **Returning Developer**: Quick chain switch → Check limits → Claim assets → View transaction
+3. **Event Participant**: Enter redeem code → Receive boosted amounts → Continue development
+4. **Organizer**: Generate codes → Distribute to participants → Monitor usage analytics
+
+**UI/UX Considerations:**
+- Mobile-responsive design for developers working on various devices
+- Clear visual indicators for remaining claim limits and cooldown periods
+- One-click chain switching with automatic wallet prompts
+- Transaction status tracking with links to block explorers
+- Error handling with clear explanations and suggested actions
+</context>
+
+<PRD>
+# Technical Architecture  
+**Monorepo Structure (Turborepo + pnpm):**
+```
+faucet/
+  apps/
+    web/                    # Next.js frontend with tRPC API routes
+    admin/                  # Admin dashboard (future)
+  packages/
+    contracts/              # Foundry smart contracts (DevToken, DevNFT, FaucetManager)
+    db/                     # Drizzle ORM schema and migrations  
+    ui/                     # Shared UI components (Tailwind + shadcn)
+    core/                   # Chain adapters, balance module, rate limiters
+    config/                 # Shared configuration and types
+  infra/
+    docker/                 # Local development environment (Postgres, Redis)
+  .github/workflows/        # CI/CD pipelines
+```
+
+**System Components:**
+- **Frontend**: Next.js 14 with App Router, Tailwind CSS, shadcn/ui components
+- **Authentication**: NextAuth.js with GitHub OAuth provider
+- **Web3 Integration**: Wagmi + Viem for wallet connections, ethers v6 for backend operations
+- **State Management**: Zustand for client-side state, tRPC for server communication
+- **Database**: PostgreSQL with Drizzle ORM for type-safe database operations
+- **Caching/Rate Limiting**: Redis for rate limit tracking and balance caching
+- **Smart Contracts**: Foundry framework with OpenZeppelin base contracts
+
+**Data Models:**
+- **Users**: GitHub identity, linked wallets, claim history, rate limit tracking
+- **Chains**: Network configurations, RPC endpoints, contract addresses, default amounts
+- **Tokens/NFTs**: Asset metadata, mint vs transfer modes, per-asset limits
+- **Redeem Codes**: Hashed codes, usage limits, expiry, asset specifications
+- **Claims**: Transaction records, amounts, timestamps, code associations
+
+**APIs and Integrations:**
+- **tRPC Routers**: Type-safe API layer with claim, chain, user, and admin endpoints
+- **GitHub API**: User profile verification and account validation
+- **RPC Providers**: Primary and fallback endpoints per chain with automatic failover
+- **Block Explorers**: Transaction verification and user-facing links
+
+**Infrastructure Requirements:**
+- **Production**: Vercel (web hosting), Neon/Supabase (PostgreSQL), Upstash (Redis)
+- **Development**: Docker Compose with local Postgres, Redis, and Anvil nodes
+- **Security**: AWS KMS or similar for private key management, HTTPS everywhere
+- **Monitoring**: Structured logging, metrics collection, alerting for low balances
+
+# Development Roadmap  
+**Phase 1: Core MVP Foundation (Weeks 1-4)**
+- Monorepo setup with Turborepo and pnpm workspace configuration
+- Smart contract development: FaucetManager, DevToken, DevNFT with comprehensive tests
+- Database schema design and Drizzle ORM integration with migrations
+- NextAuth GitHub OAuth integration with user model and wallet linking
+- Basic tRPC router structure with type definitions and error handling
+
+**Phase 2: Chain Integration & Balance Management (Weeks 5-8)**  
+- EVM adapter implementation with ethers v6 for multi-chain support
+- Balance monitoring module with Redis caching and low-fund alerting
+- Chain configuration system with support for 2-3 initial testnets
+- Rate limiting implementation using Redis with per-user/asset tracking
+- Smart contract deployment scripts and verification for testnet chains
+
+**Phase 3: Core Claiming Functionality (Weeks 9-12)**
+- Native token claiming with server-side validation and transaction handling
+- ERC20 token claiming with mint and transfer mode support
+- NFT minting with per-user limits and collection management
+- Transaction tracking, history, and user-facing status updates
+- Error handling and retry logic for failed transactions
+
+**Phase 4: Redeem Code System (Weeks 13-16)**
+- Code generation system with hashing, expiry, and usage tracking
+- Admin interface for code creation with bulk generation capabilities
+- Code redemption flow with validation and boosted amount distribution
+- Integration with existing claim system for seamless user experience
+- Analytics and monitoring for code usage patterns
+
+**Phase 5: UI/UX & Wallet Integration (Weeks 17-20)**
+- Responsive web interface with Tailwind CSS and shadcn components
+- Wagmi integration for wallet connections and network management
+- EIP-3085 network addition and automatic switching functionality
+- User dashboard with claim history, limits, and account management
+- Mobile optimization and cross-browser compatibility testing
+
+**Phase 6: Production Deployment & Monitoring (Weeks 21-24)**
+- CI/CD pipeline setup with automated testing and deployment
+- Production environment configuration with proper secret management
+- Monitoring and alerting system implementation
+- Load testing and performance optimization
+- Security audit and penetration testing
+
+# Logical Dependency Chain
+**Foundation Layer (Must be built first):**
+1. Monorepo configuration and development environment setup
+2. Smart contract architecture with comprehensive testing suite
+3. Database schema and ORM integration with proper indexing
+4. Authentication system with GitHub OAuth and user management
+5. Chain adapter interface and EVM implementation
+
+**Core Service Layer (Built upon foundation):**
+6. Balance monitoring and caching system with alerting
+7. Rate limiting infrastructure with Redis integration  
+8. Basic tRPC API structure with error handling
+9. Smart contract deployment and verification processes
+10. Chain configuration management system
+
+**Business Logic Layer (Requires core services):**
+11. Native token claiming with validation and limits
+12. ERC20 token claiming with mint/transfer modes
+13. NFT minting with collection and user limits
+14. Transaction tracking and history management
+15. User wallet linking and management
+
+**Advanced Features Layer (Built on business logic):**
+16. Redeem code generation and validation system
+17. Code redemption with boosted amounts
+18. Admin interface for code management
+19. Analytics and usage monitoring
+20. Advanced abuse prevention mechanisms
+
+**User Interface Layer (Final integration):**
+21. Responsive web interface with wallet integration
+22. User dashboard with claim history and limits
+23. Network switching and EIP-3085 implementation
+24. Mobile optimization and accessibility features
+25. Production deployment and monitoring setup
+
+**Getting to Usable Frontend Quickly:**
+- Prioritize basic claim functionality over advanced features
+- Implement simple UI components before complex interactions
+- Focus on single-chain support initially, expand to multi-chain
+- Use mock data for UI development while backend is being built
+- Deploy staging environment early for continuous user feedback
+
+**Atomic Feature Development:**
+- Each claiming type (native, ERC20, NFT) as separate, complete features
+- Rate limiting as standalone module that can be enhanced independently
+- Chain support added incrementally without affecting existing functionality
+- Redeem codes as optional enhancement that doesn't break core flows
+- Admin features developed in parallel without blocking user-facing features
+
+# Risks and Mitigations  
+**Technical Challenges:**
+- **Smart Contract Security**: Risk of funds being drained through contract vulnerabilities
+  - Mitigation: Comprehensive testing, OpenZeppelin base contracts, security audits, limited hot wallet balances
+- **RPC Provider Reliability**: Chain RPC endpoints may experience downtime or rate limiting
+  - Mitigation: Multiple provider configuration per chain, automatic failover, exponential backoff retry logic
+- **Private Key Management**: Backend private keys could be compromised
+  - Mitigation: AWS KMS or similar HSM solution, minimal hot wallet balances, regular key rotation
+
+**MVP Scope Management:**
+- **Feature Creep**: Tendency to add complex features before core functionality is solid
+  - Mitigation: Strict MVP definition, feature freeze after requirements lock, regular stakeholder alignment
+- **Multi-Chain Complexity**: Supporting many chains simultaneously increases complexity exponentially  
+  - Mitigation: Start with 2-3 well-tested chains, standardized adapter interface, incremental rollout
+- **Performance Under Load**: System may not handle high claim volumes during events
+  - Mitigation: Redis-based rate limiting, queue system for claims, load testing before events
+
+**Resource Constraints:**
+- **Development Timeline**: 24-week timeline may be aggressive for full feature set
+  - Mitigation: Prioritize core claiming over admin features, parallel development tracks, regular milestone reviews
+- **Testnet Token Availability**: Maintaining adequate balances across multiple chains
+  - Mitigation: Automated balance monitoring, multiple funding sources, emergency refill procedures
+- **Operational Complexity**: Managing private keys, balances, and monitoring across chains
+  - Mitigation: Infrastructure as code, automated deployment, comprehensive monitoring and alerting
+
+**User Experience Risks:**
+- **Wallet Connection Friction**: Users may struggle with multiple wallet interactions
+  - Mitigation: Clear UI instructions, automatic network switching, comprehensive error messages
+- **GitHub Authentication Barriers**: Some users may not want to connect GitHub accounts
+  - Mitigation: Clear privacy policy, minimal permission requests, education on anti-abuse necessity
+
+# Appendix  
+**Research Findings:**
+- Analysis of existing faucet solutions shows fragmentation across chains and poor user experience
+- GitHub OAuth provides effective Sybil resistance while maintaining accessibility
+- Event organizers consistently need higher token distribution limits for hackathons
+- Mobile usage accounts for 40%+ of developer tool interactions, requiring responsive design
+
+**Technical Specifications:**
+- **Supported Chains (MVP)**: Ethereum Sepolia, Polygon Amoy, BSC Testnet
+- **Rate Limits**: 0.02 ETH native/day, 1,000 dev tokens/day, 5 NFTs total per user
+- **Code Boost Amounts**: 0.05 ETH native, 5,000 dev tokens, 1-3 NFTs per redemption
+- **Performance Targets**: <600ms claim API response (excluding on-chain confirmation)
+- **Security Requirements**: All funds in owner-controlled contracts, no direct user callable methods
+
+**Integration Considerations:**
+- **Monorepo Routing**: Apps communicate through shared packages, no direct cross-app imports
+- **API Gateway**: Single tRPC endpoint in web app serves all frontend requests
+- **Database Migrations**: Drizzle migrations run automatically on deployment
+- **Contract Deployments**: Environment-gated GitHub Actions for testnet deployments
+- **Secret Management**: Platform-native secret stores (Vercel env vars, AWS Secrets Manager)
+
+**Future Extensibility:**
+- **Non-EVM Support**: Adapter interface ready for Solana/Stellar implementations
+- **On-Chain Codes**: EIP-712 voucher system for gasless redemptions
+- **Multi-Faucet Registry**: Support for third-party funded faucets with attribution
+- **Advanced Analytics**: Geographic usage patterns, organizer dashboards, public metrics
+</PRD>
