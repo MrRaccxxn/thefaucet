@@ -27,6 +27,11 @@ out/
 build
 dist
 
+# Database files (PostgreSQL data)
+infra/docker/volumes/
+*.db
+*.sqlite
+*.sqlite3
 
 # Debug
 npm-debug.log*

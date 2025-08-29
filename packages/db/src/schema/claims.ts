@@ -1,13 +1,13 @@
 import { pgTable, text, timestamp, integer, uuid, decimal, jsonb, index, boolean } from 'drizzle-orm/pg-core';
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
-import { users } from './users';
+import { users } from './auth';
 import { assets } from './assets';
 
 // Claims table - stores all faucet claims
 export const claims = pgTable('claims', {
   id: uuid('id').primaryKey().defaultRandom(),
-  userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  userId: text('user_id').notNull(),
   assetId: uuid('asset_id').references(() => assets.id, { onDelete: 'cascade' }).notNull(),
   walletAddress: text('wallet_address').notNull(),
   amount: decimal('amount', { precision: 20, scale: 18 }), // Amount for native/ERC20 tokens
@@ -47,7 +47,7 @@ export const redeemCodes = pgTable('redeem_codes', {
 export const codeRedemptions = pgTable('code_redemptions', {
   id: uuid('id').primaryKey().defaultRandom(),
   codeId: uuid('code_id').references(() => redeemCodes.id, { onDelete: 'cascade' }).notNull(),
-  userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  userId: text('user_id').notNull(),
   claimId: uuid('claim_id').references(() => claims.id, { onDelete: 'cascade' }).notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 }, (table) => ({

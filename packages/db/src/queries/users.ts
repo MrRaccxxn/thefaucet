@@ -17,12 +17,6 @@ export const userQueries = {
     return user || null;
   },
 
-  // Find user by GitHub ID
-  async findByGitHubId(githubId: string): Promise<User | null> {
-    const [user] = await db.select().from(users).where(eq(users.githubId, githubId));
-    return user || null;
-  },
-
   // Find user by email
   async findByEmail(email: string): Promise<User | null> {
     const [user] = await db.select().from(users).where(eq(users.email, email));
@@ -33,7 +27,7 @@ export const userQueries = {
   async update(id: string, data: Partial<NewUser>): Promise<User | null> {
     const [user] = await db
       .update(users)
-      .set({ ...data, updatedAt: new Date() })
+      .set(data)
       .where(eq(users.id, id))
       .returning();
     return user || null;
@@ -47,7 +41,7 @@ export const userQueries = {
 
   // List users with pagination
   async list(limit = 10, offset = 0): Promise<User[]> {
-    return db.select().from(users).orderBy(desc(users.createdAt)).limit(limit).offset(offset);
+    return db.select().from(users).limit(limit).offset(offset);
   },
 };
 

@@ -7,7 +7,7 @@ export const useNetworkStore = create<NetworkStore>()(
   persist(
     (set, get) => ({
       chains: CHAINS,
-      selectedChain: DEFAULT_CHAIN,
+      selectedChain: DEFAULT_CHAIN!,
 
       setSelectedChain: (chain: Chain) => {
         set({ selectedChain: chain });

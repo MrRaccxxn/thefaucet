@@ -302,7 +302,7 @@
             "description": "Install NextAuth.js and configure it with GitHub OAuth provider in the web application",
             "dependencies": [],
             "details": "In apps/web/: 1. Install NextAuth.js: `pnpm add next-auth@beta`. 2. Create apps/web/app/api/auth/[...nextauth]/route.ts to set up the NextAuth API route. 3. Configure GitHub provider with required scopes (user:email, read:user). 4. Create a GitHub OAuth application in GitHub Developer Settings for both development and production environments. 5. Add environment variables in apps/web/.env.local: NEXTAUTH_URL, NEXTAUTH_SECRET, GITHUB_ID, GITHUB_SECRET. 6. Update packages/config/src/env.ts to include these environment variables in the schema validation.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "1. Verify NextAuth.js installation and configuration. 2. Test environment variable loading. 3. Validate GitHub OAuth application settings for correct redirect URIs."
           },
           {
@@ -313,7 +313,7 @@
               "5.1"
             ],
             "details": "In packages/db/: 1. Create or update packages/db/schema/user.ts to include GitHub-specific fields (githubId, email, name, image, account creation date, followers count, repo count). 2. Update packages/db/schema/session.ts for NextAuth session storage. 3. Create packages/db/src/auth.ts to handle user creation/lookup upon successful authentication. 4. Configure database adapter in apps/web/app/api/auth/[...nextauth]/route.ts using the PrismaAdapter. 5. Set up session strategy as 'database' in the NextAuth configuration.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "1. Test user creation in database after first GitHub login. 2. Verify session persistence across page refreshes. 3. Test user lookup functionality. 4. Validate database schema with sample data."
           },
           {
@@ -1436,7 +1436,7 @@
     ],
     "metadata": {
       "created": "2025-08-29T08:49:37.007Z",
-      "updated": "2025-08-29T12:02:59.413Z",
+      "updated": "2025-08-29T12:27:32.609Z",
       "description": "Tasks for master context"
     }
   }
