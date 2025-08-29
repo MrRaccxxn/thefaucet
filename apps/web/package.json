@@ -1,8 +1,9 @@
 {
-  "name": "web",
+  "name": "@thefaucet/web",
   "version": "0.1.0",
   "type": "module",
   "private": true,
+  "description": "Next.js frontend for the multichain faucet",
   "scripts": {
     "dev": "next dev --turbopack --port 3000",
     "build": "next build",
@@ -11,18 +12,21 @@
     "check-types": "tsc --noEmit"
   },
   "dependencies": {
-    "@repo/ui": "workspace:*",
-    "next": "^15.5.0",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "@thefaucet/ui": "workspace:*",
+    "@thefaucet/core": "workspace:*",
+    "@thefaucet/contracts": "workspace:*",
+    "@thefaucet/db": "workspace:*",
+    "next": "^14.2.0",
+    "react": "^18.3.0",
+    "react-dom": "^18.3.0"
   },
   "devDependencies": {
-    "@repo/eslint-config": "workspace:*",
-    "@repo/typescript-config": "workspace:*",
-    "@types/node": "^22.15.3",
-    "@types/react": "19.1.0",
-    "@types/react-dom": "19.1.1",
-    "eslint": "^9.34.0",
-    "typescript": "5.9.2"
+    "@thefaucet/eslint-config": "workspace:*",
+    "@thefaucet/typescript-config": "workspace:*",
+    "@types/node": "^20.14.0",
+    "@types/react": "^18.3.0",
+    "@types/react-dom": "^18.3.0",
+    "eslint": "^8.0.0",
+    "typescript": "^5.9.2"
   }
 }

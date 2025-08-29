@@ -1,0 +1,1443 @@
+{
+  "master": {
+    "tasks": [
+      {
+        "id": 1,
+        "title": "Setup Monorepo Structure with Turborepo and pnpm",
+        "description": "Initialize the project repository with Turborepo and pnpm workspace configuration following the specified structure in the PRD.",
+        "status": "done",
+        "dependencies": [],
+        "priority": "high",
+        "details": "1. Initialize a new repository\n2. Install pnpm globally: `npm install -g pnpm`\n3. Create a new Turborepo project: `pnpm dlx create-turbo@latest`\n4. Configure the workspace structure according to PRD:\n   - apps/web (Next.js 14 with App Router)\n   - apps/admin (placeholder for future)\n   - packages/contracts\n   - packages/db\n   - packages/ui\n   - packages/core\n   - packages/config\n   - infra/docker\n   - .github/workflows\n5. Set up shared tsconfig and eslint configurations in packages/config\n6. Configure Turborepo pipelines in turbo.json for build, test, lint\n7. Set up pnpm-workspace.yaml to define workspace packages\n8. Create README.md with setup instructions\n\nUse the latest versions:\n- Turborepo v2.0.0 or newer\n- pnpm v8.0.0 or newer\n- TypeScript v5.0.0 or newer\n- ESLint v8.0.0 or newer",
+        "testStrategy": "1. Verify workspace structure matches PRD requirements\n2. Ensure all package.json files are properly configured with correct dependencies\n3. Test build pipeline with `pnpm build` to confirm Turborepo correctly builds all packages\n4. Verify that packages can import from each other correctly\n5. Test development environment with `pnpm dev`",
+        "subtasks": [
+          {
+            "id": 2,
+            "title": "Configure Monorepo Directory Structure",
+            "description": "Create the complete directory structure for the monorepo according to the PRD specifications.",
+            "status": "done",
+            "dependencies": [],
+            "details": "1. Create the following directory structure:\n   - apps/web (Next.js 14 app)\n   - apps/admin (empty placeholder with basic package.json)\n   - packages/contracts (with package.json)\n   - packages/db (with package.json)\n   - packages/ui (with package.json)\n   - packages/core (with package.json)\n   - packages/config (with package.json)\n   - infra/docker (for Docker configurations)\n   - .github/workflows (for CI/CD)\n2. Initialize each package with appropriate package.json files\n3. Set up proper dependencies between packages in their respective package.json files\n4. Configure each package with the correct build, test, and lint scripts",
+            "testStrategy": "1. Verify all directories exist with the correct structure\n2. Validate each package.json has the correct name, version, and dependencies\n3. Check that workspace references are correctly configured\n4. Ensure each package has the required scripts defined"
+          },
+          {
+            "id": 3,
+            "title": "Set Up Shared Configuration Packages",
+            "description": "Create and configure the shared configuration packages for TypeScript, ESLint, and other tooling.",
+            "status": "done",
+            "dependencies": [],
+            "details": "1. In packages/config/tsconfig:\n   - Create base tsconfig.json with common settings\n   - Create specialized configs: tsconfig.next.json, tsconfig.react.json, tsconfig.node.json\n   - Configure path aliases for monorepo packages\n2. In packages/config/eslint:\n   - Set up base ESLint configuration with latest ESLint v8.x.x\n   - Create specialized configs: eslint-next.js, eslint-react.js, eslint-node.js\n   - Configure import rules for monorepo packages\n3. Create packages/config/prettier with shared Prettier configuration\n4. Set up packages/config/jest with common test configuration\n5. Update package.json in packages/config with proper exports",
+            "testStrategy": "1. Validate TypeScript configurations with `tsc --noEmit`\n2. Test ESLint configurations with sample files\n3. Verify path aliases work correctly between packages\n4. Ensure prettier formatting works consistently across packages\n5. Test that Jest configuration can be properly imported and used"
+          },
+          {
+            "id": 4,
+            "title": "Configure Turborepo Pipeline and Workspace Dependencies",
+            "description": "Set up the Turborepo build pipeline configuration and establish proper dependencies between workspace packages.",
+            "status": "done",
+            "dependencies": [],
+            "details": "1. Create turbo.json in the root directory with the following pipelines:\n   - build: Configure build order respecting dependencies\n   - test: Set up test pipeline with dependencies on build\n   - lint: Configure linting pipeline\n   - dev: Set up development pipeline\n2. Configure package dependencies in each package.json:\n   - apps/web should depend on packages/ui, packages/core, packages/contracts, packages/db\n   - packages/ui should depend on packages/config\n   - packages/db should depend on packages/config\n   - packages/contracts should depend on packages/config\n   - packages/core should depend on packages/config, packages/contracts, packages/db\n3. Set up proper workspace references using workspace: protocol in package.json files\n4. Configure build caching settings in turbo.json",
+            "testStrategy": "1. Test the build pipeline with `pnpm build` and verify correct build order\n2. Verify dependency graph with `pnpm turbo run build --graph`\n3. Test incremental builds to ensure caching works correctly\n4. Validate that workspace references resolve correctly\n5. Test cross-package imports to ensure they work as expected"
+          },
+          {
+            "id": 5,
+            "title": "Create Documentation and Setup Instructions",
+            "description": "Create comprehensive documentation for the monorepo structure, including setup instructions and development workflows.",
+            "status": "done",
+            "dependencies": [],
+            "details": "1. Create README.md in the root directory with:\n   - Project overview and architecture description\n   - Setup instructions for new developers\n   - Commands for common tasks (build, test, lint, dev)\n   - Monorepo structure explanation\n   - Package dependency diagram\n2. Create package-specific README.md files in each package directory\n3. Document TypeScript path aliases and import conventions\n4. Create CONTRIBUTING.md with development workflow guidelines\n5. Add documentation for environment variables in .env.example\n6. Document the build pipeline and dependencies in turbo.json\n7. Create scripts/setup.sh for automated initial setup",
+            "testStrategy": "1. Verify all documentation files exist in the correct locations\n2. Test setup instructions by following them on a clean environment\n3. Validate that all commands mentioned in documentation work as expected\n4. Ensure environment variable documentation is complete and accurate\n5. Check that package-specific documentation accurately reflects the package structure and purpose"
+          },
+          {
+            "id": 6,
+            "title": "Verify Final Monorepo Structure and Build Pipeline",
+            "description": "Perform final verification of the monorepo structure and ensure the build pipeline works correctly for all packages.",
+            "status": "done",
+            "dependencies": [
+              1,
+              2,
+              3,
+              4,
+              5
+            ],
+            "details": "1. Verify the final directory structure matches the PRD requirements:\n   - apps/web (Next.js 14 frontend with @thefaucet/web naming)\n   - packages/contracts (Smart contract interactions with @thefaucet/contracts naming)\n   - packages/db (Database schema with @thefaucet/db naming)\n   - packages/core (Business logic with @thefaucet/core naming)\n   - packages/ui (Shared components with @thefaucet/ui naming)\n   - packages/config with eslint-config and typescript-config subdirectories\n   - infra/docker for containerization\n2. Test the build pipeline with `pnpm build` to ensure all packages build successfully\n3. Verify workspace dependencies are correctly configured with @thefaucet/* naming convention\n4. Ensure all packages properly reference each other via workspace:* protocol\n5. Validate that placeholder files and TypeScript configurations are in place for all packages",
+            "testStrategy": "1. Run `pnpm build` and verify successful build of all packages\n2. Check package naming conventions follow @thefaucet/* pattern\n3. Verify directory structure matches the documented final structure\n4. Test cross-package imports to ensure dependencies are correctly configured\n5. Validate that the monorepo is ready for subsequent tasks"
+          },
+          {
+            "id": 1,
+            "title": "Initialize Repository and Install Core Dependencies",
+            "description": "Set up the base repository structure with git, install pnpm globally, and create the initial Turborepo project.",
+            "dependencies": [],
+            "details": "1. Initialize a new git repository: `git init`\n2. Install pnpm globally: `npm install -g pnpm@8.x.x`\n3. Create a new Turborepo project: `pnpm dlx create-turbo@latest`\n4. Create initial .gitignore file with appropriate entries for node_modules, .turbo, dist directories\n5. Initialize the root package.json with proper workspace configuration\n6. Create pnpm-workspace.yaml file in the root directory with workspace package definitions\n<info added on 2025-08-29T09:10:23.133Z>\nSince an existing Turborepo structure has been found, update the repository instead of creating a new one:\n\n1. Skip creating a new Turborepo project and instead restructure the existing one\n2. Keep the current Turbo 2.5.6 and pnpm 9.0.0 configuration\n3. Modify the repository structure according to PRD requirements:\n   - Retain apps/web (main frontend)\n   - Remove apps/docs directory\n   - Create new packages:\n     - packages/contracts (for smart contract interactions)\n     - packages/db (for database schema and queries)\n     - packages/core (for shared business logic)\n     - packages/config (move existing typescript and eslint configs here)\n   - Create infra/docker directory for containerization\n4. Update root package.json to reflect the new structure\n5. Modify turbo.json to include build configurations for the new packages\n6. Update pnpm-workspace.yaml to include the new directory structure\n7. Adjust .gitignore if needed for the new package structure\n</info added on 2025-08-29T09:10:23.133Z>\n<info added on 2025-08-29T09:23:54.867Z>\nThe monorepo initialization has been successfully completed with the following structure:\n\n- Repository restructured according to multichain faucet requirements\n- Monorepo organized with apps/web for the frontend\n- Package directories created for modular development:\n  * packages/contracts for smart contract interactions\n  * packages/db for database schema using Drizzle\n  * packages/core for business logic\n  * packages/ui for shared components\n  * packages/config for shared configurations\n- Configuration packages properly organized in packages/config/\n- Docker configuration directory established in infra/docker\n- All package.json files updated with @thefaucet/* naming convention\n- Root configuration files (turbo.json, pnpm-workspace.yaml) updated to reflect the new structure\n- Placeholder files and TypeScript configurations created for all packages\n- Dependencies successfully installed with pnpm\n\nThe repository is now properly structured and ready for the next development phases.\n</info added on 2025-08-29T09:23:54.867Z>",
+            "status": "done",
+            "testStrategy": "1. Verify pnpm is installed correctly with `pnpm --version`\n2. Confirm the repository is initialized with `git status`\n3. Check that the basic Turborepo structure is created\n4. Validate pnpm-workspace.yaml contains the correct workspace definitions"
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "title": "Configure Docker Development Environment",
+        "description": "Set up Docker Compose configuration for local development with Postgres, Redis, and Anvil nodes.",
+        "details": "1. Create `infra/docker/docker-compose.yml` with the following services:\n   - PostgreSQL 15 (latest stable) with persistent volume\n   - Redis 7 (latest stable) with persistent volume\n   - Anvil nodes for each supported testnet (Ethereum Sepolia, Polygon Amoy, BSC Testnet)\n2. Configure environment variables for database connection\n3. Set up proper networking between containers\n4. Create initialization scripts for PostgreSQL\n5. Configure Redis for persistence and proper memory settings\n6. Set up Anvil nodes with appropriate chain IDs and forking configurations\n7. Create helper scripts in package.json for starting/stopping the environment\n8. Add documentation for environment usage\n\nUse the following images and versions:\n- postgres:15-alpine\n- redis:7-alpine\n- Use foundry's official Docker image for Anvil or create a custom one based on foundry/foundry:latest",
+        "testStrategy": "1. Test docker-compose up and verify all services start correctly\n2. Verify database connection from host machine\n3. Test Redis connection and basic operations\n4. Verify Anvil nodes are accessible and properly configured for each chain\n5. Test persistence of data across container restarts\n6. Verify proper network isolation and communication between services",
+        "priority": "high",
+        "dependencies": [
+          1
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create Docker Compose Configuration File",
+            "description": "Create the docker-compose.yml file with PostgreSQL, Redis, and Anvil node services with proper volume configurations",
+            "dependencies": [],
+            "details": "Create `infra/docker/docker-compose.yml` with the following services:\n- PostgreSQL 15 using postgres:15-alpine image with persistent volume at `infra/docker/volumes/postgres`\n- Redis 7 using redis:7-alpine image with persistent volume at `infra/docker/volumes/redis`\n- Three Anvil nodes using foundry/foundry:latest for Ethereum Sepolia, Polygon Amoy, and BSC Testnet\nDefine proper container names, ports, and network settings for all services\nEnsure services restart automatically unless stopped manually",
+            "status": "pending",
+            "testStrategy": "Verify docker-compose.yml syntax with `docker-compose config`\nTest starting all services with `docker-compose up -d`\nVerify all containers are running with `docker-compose ps`\nCheck volume creation and persistence"
+          },
+          {
+            "id": 2,
+            "title": "Configure Database Initialization Scripts",
+            "description": "Create PostgreSQL initialization scripts for database setup and user permissions",
+            "dependencies": [
+              "2.1"
+            ],
+            "details": "Create `infra/docker/postgres/init/` directory for initialization scripts\nAdd `01-create-databases.sql` to create main and test databases\nAdd `02-create-users.sql` to set up application users with proper permissions\nAdd `03-extensions.sql` to enable required PostgreSQL extensions\nUpdate docker-compose.yml to mount these scripts to /docker-entrypoint-initdb.d/ in the PostgreSQL container\nEnsure scripts are compatible with packages/db schema requirements",
+            "status": "pending",
+            "testStrategy": "Verify scripts execute on container startup\nTest database connection and user authentication\nVerify all required databases and extensions are created\nTest connection from host machine using database client"
+          },
+          {
+            "id": 3,
+            "title": "Configure Redis and Anvil Node Settings",
+            "description": "Set up Redis configuration and Anvil node forking configurations for each testnet",
+            "dependencies": [
+              "2.1"
+            ],
+            "details": "Create `infra/docker/redis/redis.conf` with appropriate memory settings, persistence configuration, and security settings\nCreate `infra/docker/anvil/` directory with separate configuration files for each testnet:\n- `sepolia.sh` for Ethereum Sepolia (chain ID: 11155111)\n- `amoy.sh` for Polygon Amoy (chain ID: 80002)\n- `bsc-testnet.sh` for BSC Testnet (chain ID: 97)\nConfigure each Anvil node with appropriate RPC URL for forking, block number, and chain ID\nUpdate docker-compose.yml to use these configuration files",
+            "status": "pending",
+            "testStrategy": "Test Redis connection and verify configuration is applied\nVerify Redis persistence across container restarts\nTest each Anvil node's RPC endpoint\nVerify chain IDs and forking configurations are correct\nTest interaction with each chain using ethers.js"
+          },
+          {
+            "id": 4,
+            "title": "Create Environment Configuration Files",
+            "description": "Set up environment variable templates and configuration files for local development",
+            "dependencies": [
+              "2.1",
+              "2.2",
+              "2.3"
+            ],
+            "details": "Create `infra/docker/.env.example` with all required environment variables\nCreate `infra/docker/.env` (gitignored) for local development\nAdd database connection variables (POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB, DATABASE_URL)\nAdd Redis connection variables (REDIS_URL, REDIS_PASSWORD)\nAdd Anvil node connection variables for each chain (SEPOLIA_RPC_URL, AMOY_RPC_URL, BSC_TESTNET_RPC_URL)\nUpdate packages/config to read these environment variables\nEnsure environment variables are properly passed to containers in docker-compose.yml",
+            "status": "pending",
+            "testStrategy": "Verify all environment variables are properly loaded\nTest connection strings from application code\nVerify environment variables are accessible in all containers\nTest configuration with packages/config module"
+          },
+          {
+            "id": 5,
+            "title": "Create Helper Scripts and Documentation",
+            "description": "Add npm scripts for Docker environment management and create documentation",
+            "dependencies": [
+              "2.1",
+              "2.2",
+              "2.3",
+              "2.4"
+            ],
+            "details": "Update root package.json to add the following scripts:\n- `docker:up`: Start all Docker services\n- `docker:down`: Stop all Docker services\n- `docker:restart`: Restart all Docker services\n- `docker:logs`: View Docker logs\n- `docker:clean`: Remove volumes and containers\nCreate `infra/docker/README.md` with comprehensive documentation including:\n- Setup instructions\n- Available services and ports\n- Environment variable configuration\n- Troubleshooting guide\n- Development workflow\nUpdate main project README.md to reference Docker setup\nAdd Docker environment setup to onboarding documentation",
+            "status": "pending",
+            "testStrategy": "Test all npm scripts to ensure they work correctly\nVerify documentation accuracy by following setup instructions\nTest the complete development workflow from setup to teardown\nGet feedback from team members on documentation clarity"
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "title": "Set Up Next.js Frontend with App Router",
+        "description": "Initialize the Next.js 14 frontend application with App Router, Tailwind CSS, and shadcn/ui components.",
+        "details": "1. Create Next.js 14 app in apps/web: `pnpm create next-app@latest`\n2. Configure App Router architecture with proper folder structure\n3. Set up Tailwind CSS: `pnpm add -D tailwindcss postcss autoprefixer`\n4. Initialize Tailwind: `npx tailwindcss init -p`\n5. Install and configure shadcn/ui: `pnpm add @shadcn/ui`\n6. Set up component CLI: `npx shadcn-ui@latest init`\n7. Create basic layout components:\n   - RootLayout\n   - Navbar\n   - Footer\n   - Error boundaries\n8. Configure metadata and SEO settings\n9. Set up basic routing structure for:\n   - Home page\n   - Claim pages (native/erc20/nft)\n   - User dashboard\n   - Authentication pages\n\nUse the following versions:\n- Next.js 14.0.0 or newer\n- React 18.2.0 or newer\n- Tailwind CSS 3.3.0 or newer\n- shadcn/ui latest version",
+        "testStrategy": "1. Verify Next.js app builds successfully\n2. Test development server starts correctly\n3. Validate App Router configuration with basic navigation\n4. Test responsive design with different viewport sizes\n5. Verify Tailwind CSS is properly configured\n6. Test shadcn/ui components render correctly\n7. Validate metadata and SEO settings",
+        "priority": "high",
+        "dependencies": [
+          1
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Initialize Next.js 14 App with App Router in Monorepo",
+            "description": "Create a new Next.js 14 application in the apps/web directory with App Router architecture and configure it to work within the monorepo structure.",
+            "dependencies": [],
+            "details": "1. Navigate to the root of the monorepo\n2. Run `pnpm create next-app@latest apps/web` with the following options:\n   - Use TypeScript: Yes\n   - Use ESLint: Yes\n   - Use Tailwind CSS: Yes\n   - Use App Router: Yes\n   - Import alias: @/*\n3. Update apps/web/package.json to include dependencies on shared packages:\n   - Add `\"dependencies\": { \"@repo/ui\": \"workspace:*\", \"@repo/config\": \"workspace:*\" }`\n4. Configure apps/web/tsconfig.json to extend from packages/config/tsconfig/nextjs.json\n5. Update turbo.json to include the web app in the build pipeline\n6. Create apps/web/next.config.js with transpilePackages for monorepo packages",
+            "status": "pending",
+            "testStrategy": "1. Verify Next.js app builds successfully with `pnpm --filter web build`\n2. Test development server starts correctly with `pnpm --filter web dev`\n3. Confirm the app can import from shared packages\n4. Verify App Router is correctly configured by checking the file structure"
+          },
+          {
+            "id": 2,
+            "title": "Configure Tailwind CSS and UI Foundation",
+            "description": "Set up Tailwind CSS configuration with proper integration for the monorepo structure and initialize shadcn/ui components library.",
+            "dependencies": [
+              "3.1"
+            ],
+            "details": "1. In apps/web directory, verify Tailwind CSS is installed or add it: `pnpm add -D tailwindcss postcss autoprefixer`\n2. Initialize Tailwind: `npx tailwindcss init -p`\n3. Update apps/web/tailwind.config.js to include proper content paths for monorepo:\n   - Add paths for components from @repo/ui\n   - Configure theme extensions\n4. Install shadcn/ui: `pnpm add -D @shadcn-ui/cli`\n5. Initialize shadcn/ui: `npx shadcn-ui@latest init` with the following options:\n   - Style: Default\n   - Base color: Slate\n   - CSS location: app/globals.css\n   - Components directory: components\n   - React server components: Yes\n   - Components to import: button, card, form, input\n6. Create apps/web/components.json for shadcn/ui configuration",
+            "status": "pending",
+            "testStrategy": "1. Verify Tailwind CSS styles are applied correctly\n2. Test shadcn/ui components render properly\n3. Confirm component styling is consistent across different parts of the application\n4. Verify that the Tailwind configuration correctly processes styles from imported packages"
+          },
+          {
+            "id": 3,
+            "title": "Implement Core Layout Components",
+            "description": "Create the foundational layout components including RootLayout, Navbar, Footer, and error boundaries following the App Router architecture.",
+            "dependencies": [
+              "3.1",
+              "3.2"
+            ],
+            "details": "1. Create apps/web/app/layout.tsx with RootLayout component:\n   - Import global CSS\n   - Set up metadata configuration\n   - Implement HTML structure with proper viewport settings\n2. Create apps/web/components/layout/navbar.tsx:\n   - Implement responsive navigation with shadcn/ui components\n   - Add placeholder for authentication state\n3. Create apps/web/components/layout/footer.tsx with site information and links\n4. Set up error handling:\n   - Create apps/web/app/error.tsx for client-side error boundary\n   - Create apps/web/app/not-found.tsx for 404 handling\n   - Create apps/web/app/global-error.tsx for global error handling\n5. Implement apps/web/app/loading.tsx for suspense fallback",
+            "status": "pending",
+            "testStrategy": "1. Test layout components render correctly in different viewport sizes\n2. Verify error boundaries catch and display errors properly\n3. Test navigation between pages works correctly\n4. Confirm loading states display appropriately during page transitions"
+          },
+          {
+            "id": 4,
+            "title": "Configure SEO and Metadata",
+            "description": "Set up comprehensive SEO configuration and metadata for the Next.js application using the App Router metadata API.",
+            "dependencies": [
+              "3.3"
+            ],
+            "details": "1. Create apps/web/app/metadata.ts with default metadata configuration:\n   - Define title template\n   - Set up description, keywords, and other meta tags\n   - Configure Open Graph and Twitter card metadata\n   - Set up robots and sitemap configuration\n2. Update apps/web/app/layout.tsx to import and use metadata\n3. Create apps/web/app/sitemap.ts to generate dynamic sitemap\n4. Create apps/web/app/robots.ts for robots.txt configuration\n5. Add apps/web/public/favicon.ico and other required icons\n6. Configure apps/web/app/manifest.ts for PWA support",
+            "status": "pending",
+            "testStrategy": "1. Verify metadata is correctly rendered in HTML head\n2. Test Open Graph tags with Facebook/LinkedIn debuggers\n3. Validate Twitter card metadata\n4. Check sitemap.xml and robots.txt are generated correctly\n5. Test favicon and app icons load properly"
+          },
+          {
+            "id": 5,
+            "title": "Implement Basic Routing Structure",
+            "description": "Create the foundational routing structure for the application including home page, claim pages, user dashboard, and authentication pages.",
+            "dependencies": [
+              "3.3",
+              "3.4"
+            ],
+            "details": "1. Create apps/web/app/page.tsx for the home page with:\n   - Hero section\n   - Feature highlights\n   - Call-to-action components\n2. Set up claim pages:\n   - Create apps/web/app/claim/layout.tsx for shared claim layout\n   - Create apps/web/app/claim/native/page.tsx for native token claims\n   - Create apps/web/app/claim/erc20/page.tsx for ERC20 token claims\n   - Create apps/web/app/claim/nft/page.tsx for NFT claims\n3. Implement user dashboard:\n   - Create apps/web/app/dashboard/layout.tsx with protected route wrapper\n   - Create apps/web/app/dashboard/page.tsx for main dashboard\n   - Create apps/web/app/dashboard/claims/page.tsx for user claims history\n4. Set up authentication pages:\n   - Create apps/web/app/auth/login/page.tsx\n   - Create apps/web/app/auth/register/page.tsx\n   - Create apps/web/app/auth/forgot-password/page.tsx",
+            "status": "pending",
+            "testStrategy": "1. Test navigation between all routes\n2. Verify layouts are applied correctly to child routes\n3. Test responsive design on all pages\n4. Confirm route parameters and dynamic segments work as expected\n5. Verify protected routes redirect unauthenticated users"
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "title": "Implement Database Schema with Drizzle ORM",
+        "description": "Design and implement the database schema using Drizzle ORM with proper migrations for all required data models.",
+        "details": "1. Set up Drizzle ORM in packages/db: `pnpm add drizzle-orm pg @neondatabase/serverless`\n2. Add Drizzle Kit for migrations: `pnpm add -D drizzle-kit`\n3. Create schema definitions for the following models:\n   - Users (id, githubId, createdAt, updatedAt)\n   - UserWallets (id, userId, address, isPrimary, createdAt)\n   - Chains (id, name, chainId, rpcUrl, blockExplorerUrl, isActive)\n   - Assets (id, chainId, type, address, symbol, name, decimals, isActive)\n   - ClaimLimits (id, assetId, standardAmount, cooldownPeriod)\n   - Claims (id, userId, assetId, amount, txHash, status, createdAt)\n   - RedeemCodes (id, code, assetId, boostedAmount, maxUses, expiresAt, createdAt)\n   - CodeRedemptions (id, codeId, userId, claimId, createdAt)\n4. Set up proper indexes for query optimization\n5. Configure relations between tables\n6. Create migration scripts\n7. Set up connection pooling\n8. Create helper functions for common queries\n\nUse the latest versions:\n- Drizzle ORM 0.28.0 or newer\n- Drizzle Kit 0.19.0 or newer\n- pg 8.11.0 or newer",
+        "testStrategy": "1. Run migrations against test database\n2. Verify all tables are created with correct schema\n3. Test CRUD operations for each model\n4. Verify relations work correctly\n5. Test query performance with indexes\n6. Validate constraints and foreign keys\n7. Test migration rollback functionality\n8. Verify connection pooling works correctly under load",
+        "priority": "high",
+        "dependencies": [
+          1,
+          2
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Set up Drizzle ORM and dependencies in packages/db",
+            "description": "Initialize Drizzle ORM with PostgreSQL and Neon database adapter in the packages/db directory, including configuration for connection pooling.",
+            "dependencies": [],
+            "details": "Create or modify the following files in packages/db:\n1. Update package.json to add dependencies: drizzle-orm@0.28.0+, pg@8.11.0+, @neondatabase/serverless, and drizzle-kit@0.19.0+ as devDependency\n2. Create src/index.ts to export all database functionality\n3. Create src/config.ts for database configuration including environment variables\n4. Create src/client.ts to set up the database client with connection pooling\n5. Update packages/config/src/schema.ts to include database environment variables\n6. Update turbo.json to include build dependencies for the db package",
+            "status": "pending",
+            "testStrategy": "1. Verify package installation with pnpm list\n2. Test database connection to development database\n3. Validate connection pooling configuration\n4. Ensure proper error handling for connection failures\n5. Test environment variable loading"
+          },
+          {
+            "id": 2,
+            "title": "Define schema models and relationships in packages/db",
+            "description": "Create schema definitions for all required data models with proper relationships, types, and constraints using Drizzle ORM.",
+            "dependencies": [
+              "4.1"
+            ],
+            "details": "Create the following files in packages/db/src/schema/:\n1. Create index.ts to export all schema models\n2. Create users.ts for Users and UserWallets models\n3. Create chains.ts for Chains model\n4. Create assets.ts for Assets and ClaimLimits models\n5. Create claims.ts for Claims, RedeemCodes, and CodeRedemptions models\n\nEach schema file should define:\n- Table structure with proper column types\n- Primary keys and foreign key relationships\n- Indexes for query optimization\n- Default values and constraints\n- TypeScript types for each model\n\nEnsure proper relations are defined between tables using Drizzle's relations API.",
+            "status": "pending",
+            "testStrategy": "1. Validate schema definitions against requirements\n2. Verify proper types for all columns\n3. Check relationship definitions between tables\n4. Ensure indexes are defined for frequently queried fields\n5. Validate constraints and default values"
+          },
+          {
+            "id": 3,
+            "title": "Configure Drizzle migrations in packages/db",
+            "description": "Set up Drizzle Kit for database migrations, including configuration files and scripts for generating and running migrations.",
+            "dependencies": [
+              "4.2"
+            ],
+            "details": "Create or modify the following files in packages/db:\n1. Create drizzle.config.ts with migration configuration pointing to the correct schema files and output directory\n2. Create migrations/ directory to store generated migrations\n3. Add migration scripts to package.json:\n   - \"generate\": \"drizzle-kit generate:pg\"\n   - \"migrate\": \"tsx src/migrate.ts\"\n   - \"studio\": \"drizzle-kit studio\"\n4. Create src/migrate.ts script to programmatically run migrations\n5. Update README.md with migration instructions\n6. Update .gitignore to include appropriate drizzle files",
+            "status": "pending",
+            "testStrategy": "1. Test migration generation with drizzle-kit\n2. Verify migration files are created correctly\n3. Test running migrations against a test database\n4. Validate rollback functionality\n5. Test migration script with different environment configurations"
+          },
+          {
+            "id": 4,
+            "title": "Implement database query helpers in packages/db",
+            "description": "Create helper functions and utilities for common database operations to simplify data access across the application.",
+            "dependencies": [
+              "4.2",
+              "4.3"
+            ],
+            "details": "Create the following files in packages/db/src/queries/:\n1. Create index.ts to export all query helpers\n2. Create users.ts with functions for user operations (create, find, update)\n3. Create wallets.ts with functions for wallet management\n4. Create claims.ts with functions for claim operations and history\n5. Create assets.ts with functions for asset and chain queries\n6. Create codes.ts with functions for redeem code operations\n\nEach query file should include:\n- Type-safe query functions using Drizzle's query builder\n- Transaction support for multi-table operations\n- Error handling and validation\n- Pagination helpers for list operations\n- Common filtering patterns",
+            "status": "pending",
+            "testStrategy": "1. Test each query function with sample data\n2. Verify transaction handling for multi-table operations\n3. Test error cases and validation\n4. Benchmark query performance\n5. Test pagination and filtering functionality"
+          },
+          {
+            "id": 5,
+            "title": "Integrate database package with tRPC routers",
+            "description": "Connect the database package with tRPC routers in the application to enable type-safe database access from API endpoints.",
+            "dependencies": [
+              "4.4"
+            ],
+            "details": "Create or modify the following files:\n1. Update packages/db/src/index.ts to export all necessary types and functions\n2. Create packages/db/src/trpc.ts with context helpers for tRPC integration\n3. Modify apps/web/src/server/api/trpc.ts to include database client in the context\n4. Update apps/web/src/server/api/routers/ files to use database queries:\n   - user.ts for user-related endpoints\n   - claim.ts for claim-related endpoints\n   - asset.ts for asset-related endpoints\n5. Update packages/db/package.json to include proper exports\n6. Update tsconfig.json files to ensure proper path resolution",
+            "status": "pending",
+            "testStrategy": "1. Test tRPC endpoints that use database queries\n2. Verify type safety between tRPC and database layer\n3. Test context creation and database client initialization\n4. Validate error handling and propagation\n5. Test with mock database for unit testing"
+          }
+        ]
+      },
+      {
+        "id": 5,
+        "title": "Implement GitHub OAuth with NextAuth.js",
+        "description": "Set up authentication using NextAuth.js with GitHub OAuth provider and implement user management functionality.",
+        "details": "1. Install NextAuth.js: `pnpm add next-auth@beta`\n2. Configure NextAuth.js with GitHub provider\n3. Create GitHub OAuth application for development and production\n4. Set up authentication API routes in Next.js app\n5. Implement session management and persistence\n6. Create user creation/lookup in database upon successful authentication\n7. Implement middleware for protected routes\n8. Add sign-in/sign-out UI components\n9. Configure user profile data retrieval from GitHub API\n10. Implement validation for GitHub account requirements:\n    - Account age check\n    - Followers count verification\n    - Repository count validation\n11. Set up JWT handling and session security\n\nUse the following versions and configurations:\n- NextAuth.js 4.24.0 or newer (beta for App Router support)\n- GitHub OAuth scopes: user:email, read:user\n- Database session strategy for persistence\n- JWT with proper secret rotation",
+        "testStrategy": "1. Test GitHub OAuth flow end-to-end\n2. Verify user creation in database after first login\n3. Test session persistence across page refreshes\n4. Validate protected routes redirect unauthenticated users\n5. Test sign-out functionality\n6. Verify GitHub account validation rules work correctly\n7. Test error handling for authentication failures\n8. Validate security of JWT implementation\n9. Test with various GitHub account types (new, established)",
+        "priority": "high",
+        "dependencies": [
+          3,
+          4
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Set up NextAuth.js with GitHub OAuth Provider",
+            "description": "Install NextAuth.js and configure it with GitHub OAuth provider in the web application",
+            "dependencies": [],
+            "details": "In apps/web/: 1. Install NextAuth.js: `pnpm add next-auth@beta`. 2. Create apps/web/app/api/auth/[...nextauth]/route.ts to set up the NextAuth API route. 3. Configure GitHub provider with required scopes (user:email, read:user). 4. Create a GitHub OAuth application in GitHub Developer Settings for both development and production environments. 5. Add environment variables in apps/web/.env.local: NEXTAUTH_URL, NEXTAUTH_SECRET, GITHUB_ID, GITHUB_SECRET. 6. Update packages/config/src/env.ts to include these environment variables in the schema validation.",
+            "status": "pending",
+            "testStrategy": "1. Verify NextAuth.js installation and configuration. 2. Test environment variable loading. 3. Validate GitHub OAuth application settings for correct redirect URIs."
+          },
+          {
+            "id": 2,
+            "title": "Implement Database Integration for User Authentication",
+            "description": "Set up database schema and integration for user authentication and session management",
+            "dependencies": [
+              "5.1"
+            ],
+            "details": "In packages/db/: 1. Create or update packages/db/schema/user.ts to include GitHub-specific fields (githubId, email, name, image, account creation date, followers count, repo count). 2. Update packages/db/schema/session.ts for NextAuth session storage. 3. Create packages/db/src/auth.ts to handle user creation/lookup upon successful authentication. 4. Configure database adapter in apps/web/app/api/auth/[...nextauth]/route.ts using the PrismaAdapter. 5. Set up session strategy as 'database' in the NextAuth configuration.",
+            "status": "pending",
+            "testStrategy": "1. Test user creation in database after first GitHub login. 2. Verify session persistence across page refreshes. 3. Test user lookup functionality. 4. Validate database schema with sample data."
+          },
+          {
+            "id": 3,
+            "title": "Implement GitHub Account Validation",
+            "description": "Create validation logic for GitHub account requirements",
+            "dependencies": [
+              "5.1",
+              "5.2"
+            ],
+            "details": "In packages/core/: 1. Create packages/core/src/auth/github-validation.ts to implement validation functions for GitHub account requirements: account age check, followers count verification, and repository count validation. 2. Add GitHub API integration to fetch additional user data not provided by basic OAuth. 3. Create a custom callback in apps/web/app/api/auth/[...nextauth]/route.ts to run these validations during authentication. 4. Update packages/db/src/auth.ts to store validation results. 5. Implement error handling for failed validations.",
+            "status": "pending",
+            "testStrategy": "1. Test validation logic with various GitHub accounts. 2. Verify account age validation works correctly. 3. Test followers count verification. 4. Validate repository count checks. 5. Test error handling for accounts that don't meet requirements."
+          },
+          {
+            "id": 4,
+            "title": "Create Authentication Middleware and Protected Routes",
+            "description": "Implement middleware for route protection and session handling",
+            "dependencies": [
+              "5.1",
+              "5.2",
+              "5.3"
+            ],
+            "details": "In apps/web/: 1. Create apps/web/middleware.ts to implement NextAuth middleware for protected routes. 2. Configure middleware to check authentication status and redirect unauthenticated users. 3. Update apps/web/app/layout.tsx to include session provider. 4. Create apps/web/lib/auth.ts with helper functions for checking authentication status and getting session data. 5. Update packages/core/src/auth/index.ts to export types and utilities for authentication across the monorepo. 6. Configure JWT handling with proper secret rotation in the NextAuth setup.",
+            "status": "pending",
+            "testStrategy": "1. Test protected routes redirect unauthenticated users. 2. Verify authenticated users can access protected routes. 3. Test session provider works across the application. 4. Validate JWT handling and security. 5. Test middleware configuration with different route patterns."
+          },
+          {
+            "id": 5,
+            "title": "Implement Authentication UI Components",
+            "description": "Create sign-in/sign-out UI components and user profile display",
+            "dependencies": [
+              "5.1",
+              "5.4"
+            ],
+            "details": "In packages/ui/ and apps/web/: 1. Create packages/ui/src/auth/SignInButton.tsx component for GitHub authentication. 2. Create packages/ui/src/auth/SignOutButton.tsx component. 3. Create packages/ui/src/auth/UserProfile.tsx to display user information. 4. Implement packages/ui/src/auth/AuthStatus.tsx to show current authentication status. 5. Add these components to apps/web/app/components/Navbar.tsx. 6. Create apps/web/app/profile/page.tsx to display user profile information. 7. Update apps/web/app/page.tsx to conditionally render content based on authentication status.",
+            "status": "pending",
+            "testStrategy": "1. Test sign-in functionality with GitHub OAuth. 2. Verify sign-out works correctly. 3. Test user profile display with authenticated users. 4. Validate conditional rendering based on authentication status. 5. Test UI components across different screen sizes."
+          }
+        ]
+      },
+      {
+        "id": 6,
+        "title": "Develop Smart Contracts with Foundry",
+        "description": "Develop and test the required smart contracts using Foundry framework with OpenZeppelin base contracts.",
+        "details": "1. Set up Foundry in packages/contracts: `curl -L https://foundry.paradigm.xyz | bash && foundryup`\n2. Initialize Foundry project: `forge init`\n3. Install OpenZeppelin Contracts: `forge install OpenZeppelin/openzeppelin-contracts`\n4. Develop the following contracts:\n   - FaucetManager.sol: Central contract for managing token distribution with owner controls\n   - DevToken.sol: ERC20 implementation with mint functionality for test tokens\n   - DevNFT.sol: ERC721 implementation for test NFTs with metadata support\n5. Implement access control with OpenZeppelin's Ownable and AccessControl\n6. Add rate limiting and distribution logic in FaucetManager\n7. Create comprehensive test suite for all contracts\n8. Implement deployment scripts using Forge scripts\n9. Add contract verification scripts for block explorers\n10. Document contract interfaces and usage\n\nUse the following versions:\n- Foundry latest version\n- Solidity 0.8.20 or newer\n- OpenZeppelin Contracts 5.0.0 or newer",
+        "testStrategy": "1. Write unit tests for all contract functions\n2. Test access control mechanisms\n3. Verify rate limiting functionality\n4. Test token distribution for various scenarios\n5. Validate NFT minting and metadata\n6. Test contract interactions and integration\n7. Perform gas optimization analysis\n8. Run fuzzing tests for edge cases\n9. Test deployment scripts on local Anvil node\n10. Verify contract verification scripts work with block explorers",
+        "priority": "high",
+        "dependencies": [
+          1,
+          2
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Set up Foundry and initialize project structure",
+            "description": "Set up the Foundry development environment in packages/contracts and initialize the project structure with proper configuration for the monorepo.",
+            "dependencies": [],
+            "details": "1. Install Foundry in packages/contracts using `curl -L https://foundry.paradigm.xyz | bash && foundryup`\n2. Initialize Foundry project with `forge init`\n3. Configure foundry.toml with appropriate settings for Solidity 0.8.20+\n4. Install OpenZeppelin Contracts 5.0.0+ using `forge install OpenZeppelin/openzeppelin-contracts`\n5. Set up proper directory structure in packages/contracts:\n   - src/ for contract source files\n   - test/ for test files\n   - script/ for deployment scripts\n6. Update package.json to include Foundry commands\n7. Configure remappings.txt for proper import paths\n8. Update turbo.json to include contracts package in the build pipeline",
+            "status": "pending",
+            "testStrategy": "1. Verify Foundry installation with `forge --version`\n2. Check OpenZeppelin installation in lib/\n3. Validate project structure matches monorepo standards\n4. Test build process with `forge build`\n5. Ensure proper integration with other packages in the monorepo"
+          },
+          {
+            "id": 2,
+            "title": "Develop FaucetManager.sol contract",
+            "description": "Create the central FaucetManager contract that handles token distribution with proper access controls and rate limiting.",
+            "dependencies": [
+              "6.1"
+            ],
+            "details": "1. Create packages/contracts/src/FaucetManager.sol with Solidity 0.8.20+\n2. Implement OpenZeppelin's Ownable and AccessControl for permission management\n3. Define roles: ADMIN_ROLE, DISTRIBUTOR_ROLE\n4. Implement rate limiting functionality with mapping of user addresses to timestamps\n5. Create distribution functions for native tokens, ERC20 tokens, and NFTs\n6. Add configuration functions for setting limits and pausing/unpausing\n7. Implement events for all major actions\n8. Add functions to whitelist/blacklist addresses\n9. Create emergency withdrawal functions for contract owner\n10. Document all functions with NatSpec comments",
+            "status": "pending",
+            "testStrategy": "1. Create packages/contracts/test/FaucetManager.t.sol\n2. Test all access control mechanisms\n3. Verify rate limiting functionality works correctly\n4. Test distribution functions with various scenarios\n5. Test configuration functions\n6. Validate event emissions\n7. Test emergency functions\n8. Perform gas optimization analysis"
+          },
+          {
+            "id": 3,
+            "title": "Develop DevToken.sol ERC20 contract",
+            "description": "Create the DevToken ERC20 implementation with minting functionality for test tokens.",
+            "dependencies": [
+              "6.1"
+            ],
+            "details": "1. Create packages/contracts/src/DevToken.sol with Solidity 0.8.20+\n2. Extend OpenZeppelin's ERC20 implementation\n3. Implement minting functionality with access control\n4. Add pausable functionality for emergency situations\n5. Implement token burning capabilities\n6. Create functions for the FaucetManager to interact with\n7. Add metadata for token name, symbol, and decimals\n8. Implement transfer hooks for potential future extensions\n9. Add cap on total supply if needed\n10. Document all functions with NatSpec comments",
+            "status": "pending",
+            "testStrategy": "1. Create packages/contracts/test/DevToken.t.sol\n2. Test token initialization with correct metadata\n3. Verify minting functionality and access control\n4. Test pausing and unpausing\n5. Validate burning functionality\n6. Test interactions with FaucetManager\n7. Verify events are emitted correctly\n8. Test against common ERC20 vulnerabilities"
+          },
+          {
+            "id": 4,
+            "title": "Develop DevNFT.sol ERC721 contract",
+            "description": "Create the DevNFT ERC721 implementation for test NFTs with metadata support.",
+            "dependencies": [
+              "6.1"
+            ],
+            "details": "1. Create packages/contracts/src/DevNFT.sol with Solidity 0.8.20+\n2. Extend OpenZeppelin's ERC721 implementation\n3. Implement minting functionality with access control\n4. Add metadata support with baseURI and tokenURI functions\n5. Implement enumerable extension for easier token tracking\n6. Create batch minting capabilities for efficiency\n7. Add pausable functionality for emergency situations\n8. Implement royalty standard (ERC2981) if needed\n9. Create functions for the FaucetManager to interact with\n10. Document all functions with NatSpec comments",
+            "status": "pending",
+            "testStrategy": "1. Create packages/contracts/test/DevNFT.t.sol\n2. Test NFT initialization with correct metadata\n3. Verify minting functionality and access control\n4. Test metadata retrieval and URI construction\n5. Validate batch minting capabilities\n6. Test pausing and unpausing\n7. Verify interactions with FaucetManager\n8. Test enumeration functions\n9. Validate royalty calculations if implemented"
+          },
+          {
+            "id": 5,
+            "title": "Create deployment scripts and documentation",
+            "description": "Implement deployment scripts, contract verification, and comprehensive documentation for all contracts.",
+            "dependencies": [
+              "6.2",
+              "6.3",
+              "6.4"
+            ],
+            "details": "1. Create packages/contracts/script/Deploy.s.sol for deployment\n2. Implement separate deployment scripts for each contract\n3. Add script for full system deployment with proper constructor arguments\n4. Create verification scripts for block explorers in packages/contracts/script/Verify.s.sol\n5. Generate ABI files and place them in packages/core/src/abi/\n6. Create TypeScript type definitions in packages/core/src/types/contracts.ts\n7. Document contract interfaces in packages/contracts/docs/\n8. Create integration examples in packages/contracts/examples/\n9. Update README.md with comprehensive usage instructions\n10. Generate and export contract addresses for different networks in packages/config/src/contracts.ts",
+            "status": "pending",
+            "testStrategy": "1. Test deployment scripts on local anvil chain\n2. Verify contract verification scripts work correctly\n3. Test deployment on testnet environments\n4. Validate ABI files match compiled contracts\n5. Test TypeScript type definitions with frontend components\n6. Verify documentation accuracy\n7. Test integration examples\n8. Validate contract addresses configuration"
+          }
+        ]
+      },
+      {
+        "id": 7,
+        "title": "Implement tRPC API Structure",
+        "description": "Set up tRPC router structure with type definitions, error handling, and core endpoints for the application.",
+        "details": "1. Install tRPC and dependencies: `pnpm add @trpc/server @trpc/client @trpc/next @trpc/react-query zod`\n2. Set up tRPC server in Next.js API routes\n3. Create base router with proper error formatting\n4. Implement authentication middleware for protected routes\n5. Define core router structure with the following routers:\n   - userRouter: User management and profile\n   - chainRouter: Chain information and configuration\n   - assetRouter: Asset metadata and availability\n   - claimRouter: Token claiming functionality\n   - codeRouter: Redeem code validation and usage\n   - adminRouter: Administrative functions (protected)\n6. Implement proper error handling with Zod validation\n7. Set up context providers for database and authentication\n8. Create client-side hooks for API consumption\n9. Add rate limiting middleware for API endpoints\n\nUse the following versions:\n- tRPC v10.43.0 or newer\n- Zod v3.22.0 or newer\n- React Query v4.0.0 or newer",
+        "testStrategy": "1. Test API endpoint accessibility\n2. Verify authentication middleware works correctly\n3. Test input validation with Zod schemas\n4. Validate error handling for various scenarios\n5. Test rate limiting functionality\n6. Verify context providers work correctly\n7. Test client-side hooks with mock data\n8. Validate type safety across client-server boundary\n9. Test performance under load",
+        "priority": "high",
+        "dependencies": [
+          3,
+          4,
+          5
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Set up tRPC server and base router",
+            "description": "Install tRPC dependencies and create the base router structure with error formatting in the Next.js application",
+            "dependencies": [],
+            "details": "In packages/core/: Create src/trpc/index.ts for the base router setup with proper error formatting. Create src/trpc/context.ts for context providers. In apps/web/: Create pages/api/trpc/[trpc].ts for the Next.js API route handler. Install dependencies with `pnpm add @trpc/server @trpc/client @trpc/next @trpc/react-query zod` in both packages/core and apps/web. Update packages/config/tsconfig/base.json to include path mappings for the new tRPC modules.",
+            "status": "pending",
+            "testStrategy": "Verify the tRPC server initializes correctly. Test error formatting with sample errors. Ensure the context providers can be initialized. Validate the API route responds to basic requests."
+          },
+          {
+            "id": 2,
+            "title": "Implement authentication middleware",
+            "description": "Create authentication middleware for protected routes with role-based access control",
+            "dependencies": [
+              "7.1"
+            ],
+            "details": "In packages/core/src/trpc/middleware/: Create auth.ts to implement authentication middleware using the existing auth system from Task 3. Implement isAuthed and hasRole middleware functions. Create admin.ts middleware specifically for admin routes. Update context.ts to include user information when authenticated. Modify the base router to support middleware attachment. Test integration with the existing authentication system from packages/core/src/auth/.",
+            "status": "pending",
+            "testStrategy": "Test middleware with authenticated and unauthenticated requests. Verify role-based access control works correctly. Test middleware composition for routes requiring multiple checks. Ensure proper error responses for unauthorized access."
+          },
+          {
+            "id": 3,
+            "title": "Define core router structure",
+            "description": "Create the core router structure with all required routers and their basic endpoints",
+            "dependencies": [
+              "7.1",
+              "7.2"
+            ],
+            "details": "In packages/core/src/trpc/routers/: Create individual router files: userRouter.ts, chainRouter.ts, assetRouter.ts, claimRouter.ts, codeRouter.ts, and adminRouter.ts. Implement basic endpoints for each router with Zod validation schemas. In packages/core/src/trpc/: Create router.ts to combine all routers into a single application router. Update the export in index.ts to expose the combined router. Ensure proper typing throughout the router structure. Connect routers to the database models from packages/db/.",
+            "status": "pending",
+            "testStrategy": "Test each router's basic endpoints. Verify Zod validation works for input validation. Test router composition and namespacing. Ensure database connections work correctly through the routers."
+          },
+          {
+            "id": 4,
+            "title": "Implement rate limiting middleware",
+            "description": "Add rate limiting middleware to protect API endpoints from abuse",
+            "dependencies": [
+              "7.1",
+              "7.3"
+            ],
+            "details": "In packages/core/src/trpc/middleware/: Create rateLimit.ts to implement rate limiting using Redis from packages/db/src/redis/. Configure different rate limits for different endpoint types (public, authenticated, admin). Update the router structure to apply rate limiting middleware to appropriate routes. Implement IP-based rate limiting for unauthenticated routes and user-based rate limiting for authenticated routes. Create configuration in packages/config/src/rate-limits.ts for centralized rate limit settings.",
+            "status": "pending",
+            "testStrategy": "Test rate limiting with rapid sequential requests. Verify different limits apply to different route types. Test IP-based and user-based rate limiting. Ensure Redis connection works correctly for tracking limits. Test rate limit reset behavior."
+          },
+          {
+            "id": 5,
+            "title": "Create client-side hooks and providers",
+            "description": "Set up client-side tRPC hooks and providers for API consumption in the frontend",
+            "dependencies": [
+              "7.1",
+              "7.3"
+            ],
+            "details": "In packages/core/src/trpc/client/: Create hooks.ts with custom hooks for common API operations. Create provider.tsx for the tRPC provider component. In apps/web/src/: Update _app.tsx to wrap the application with the tRPC provider. Create utils/api.ts for client-side tRPC initialization. Implement proper error handling and loading states in the hooks. Add React Query integration for caching and invalidation. Update packages/ui/src/providers/index.tsx to compose the tRPC provider with other application providers.",
+            "status": "pending",
+            "testStrategy": "Test hooks with mock data. Verify caching and invalidation work correctly. Test error handling in the client. Ensure provider properly initializes the tRPC client. Test integration with existing UI components. Verify SSR compatibility of the setup."
+          }
+        ]
+      },
+      {
+        "id": 8,
+        "title": "Implement Chain Adapter Interface and EVM Implementation",
+        "description": "Create a chain-agnostic adapter interface and implement the EVM adapter using ethers v6 for multi-chain support.",
+        "details": "1. Create packages/core with chain adapter module\n2. Define ChainAdapter interface with the following methods:\n   - getBalance(address): Get native token balance\n   - getTokenBalance(address, tokenAddress): Get ERC20 token balance\n   - getNFTBalance(address, nftAddress): Get NFT balance\n   - sendNativeToken(to, amount): Send native tokens\n   - sendToken(to, tokenAddress, amount): Send ERC20 tokens\n   - mintToken(to, tokenAddress, amount): Mint ERC20 tokens\n   - mintNFT(to, nftAddress): Mint NFT\n   - getTransactionStatus(txHash): Check transaction status\n3. Implement EVMAdapter class using ethers v6\n4. Add support for multiple RPC providers with failover\n5. Implement retry logic with exponential backoff\n6. Add gas estimation and optimization\n7. Create factory function for adapter instantiation based on chain\n8. Implement proper error handling and logging\n\nUse the following versions:\n- ethers v6.8.0 or newer\n- viem 1.19.0 or newer (for types compatibility with wagmi)",
+        "testStrategy": "1. Unit test adapter interface methods\n2. Test EVM implementation against local Anvil nodes\n3. Verify failover between RPC providers\n4. Test retry logic with simulated failures\n5. Validate gas estimation accuracy\n6. Test transaction status monitoring\n7. Verify error handling for various scenarios\n8. Test with multiple EVM chains to ensure compatibility\n9. Benchmark performance for different operations",
+        "priority": "high",
+        "dependencies": [
+          1,
+          2,
+          6
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create packages/core structure and ChainAdapter interface",
+            "description": "Set up the packages/core directory structure and define the ChainAdapter interface with all required methods for chain-agnostic operations.",
+            "dependencies": [],
+            "details": "Create the following files:\n1. packages/core/package.json - Define dependencies including ethers v6.8.0+ and viem 1.19.0+\n2. packages/core/tsconfig.json - Configure TypeScript with proper path mappings\n3. packages/core/src/chain/index.ts - Export all chain adapter components\n4. packages/core/src/chain/types.ts - Define ChainAdapter interface with all required methods (getBalance, getTokenBalance, getNFTBalance, sendNativeToken, sendToken, mintToken, mintNFT, getTransactionStatus)\n5. packages/core/src/chain/errors.ts - Define custom error classes for chain operations\n\nUpdate turbo.json to include the new package in the build pipeline.",
+            "status": "pending",
+            "testStrategy": "Create unit tests in packages/core/src/chain/__tests__/types.test.ts to validate interface definitions and type safety."
+          },
+          {
+            "id": 2,
+            "title": "Implement EVMAdapter class with basic functionality",
+            "description": "Create the EVMAdapter implementation using ethers v6 that implements the ChainAdapter interface for Ethereum-compatible chains.",
+            "dependencies": [
+              "8.1"
+            ],
+            "details": "Create the following files:\n1. packages/core/src/chain/evm/EVMAdapter.ts - Implement the adapter class with constructor accepting provider configuration\n2. packages/core/src/chain/evm/types.ts - Define EVM-specific types and configurations\n3. packages/core/src/chain/evm/constants.ts - Define constants for EVM chains\n\nImplement the following methods in EVMAdapter:\n- getBalance(address)\n- getTokenBalance(address, tokenAddress)\n- getNFTBalance(address, nftAddress)\n- sendNativeToken(to, amount)\n- sendToken(to, tokenAddress, amount)\n- mintToken(to, tokenAddress, amount)\n- mintNFT(to, nftAddress)\n- getTransactionStatus(txHash)\n\nEnsure proper error handling and type safety throughout the implementation.",
+            "status": "pending",
+            "testStrategy": "Create unit tests in packages/core/src/chain/evm/__tests__/EVMAdapter.test.ts to test each method against a mock provider."
+          },
+          {
+            "id": 3,
+            "title": "Implement RPC provider management with failover",
+            "description": "Add support for multiple RPC providers with automatic failover and retry logic with exponential backoff.",
+            "dependencies": [
+              "8.2"
+            ],
+            "details": "Create the following files:\n1. packages/core/src/chain/evm/providers/ProviderManager.ts - Implement a class to manage multiple providers with failover\n2. packages/core/src/chain/evm/providers/types.ts - Define provider configuration types\n3. packages/core/src/chain/evm/providers/retry.ts - Implement retry logic with exponential backoff\n\nUpdate EVMAdapter to use the ProviderManager for all RPC calls. Implement methods to:\n- Add/remove providers dynamically\n- Detect failed providers and switch to backups\n- Implement health checks for providers\n- Track provider performance metrics\n\nUpdate packages/config/src/chains.ts to include RPC configuration for supported chains.",
+            "status": "pending",
+            "testStrategy": "Create tests in packages/core/src/chain/evm/providers/__tests__/ProviderManager.test.ts to verify failover behavior with simulated provider failures and retry logic."
+          },
+          {
+            "id": 4,
+            "title": "Implement gas estimation and optimization",
+            "description": "Add gas estimation and optimization features to the EVMAdapter for efficient transaction execution.",
+            "dependencies": [
+              "8.2",
+              "8.3"
+            ],
+            "details": "Create the following files:\n1. packages/core/src/chain/evm/gas/estimator.ts - Implement gas estimation functions\n2. packages/core/src/chain/evm/gas/optimizer.ts - Implement gas optimization strategies\n3. packages/core/src/chain/evm/gas/types.ts - Define gas-related types and configurations\n\nUpdate EVMAdapter to use the gas estimation and optimization for all transaction methods. Implement:\n- Dynamic fee estimation based on network conditions\n- Gas limit calculation for different transaction types\n- EIP-1559 support with maxFeePerGas and maxPriorityFeePerGas\n- Gas price suggestions (slow, average, fast)\n- Gas optimization strategies for different chains",
+            "status": "pending",
+            "testStrategy": "Create tests in packages/core/src/chain/evm/gas/__tests__/estimator.test.ts and packages/core/src/chain/evm/gas/__tests__/optimizer.test.ts to verify gas estimation accuracy and optimization strategies."
+          },
+          {
+            "id": 5,
+            "title": "Create adapter factory and integration with apps",
+            "description": "Implement a factory function for adapter instantiation based on chain and integrate the adapter with other packages in the monorepo.",
+            "dependencies": [
+              "8.1",
+              "8.2",
+              "8.3",
+              "8.4"
+            ],
+            "details": "Create the following files:\n1. packages/core/src/chain/factory.ts - Implement factory function to create appropriate adapter instances\n2. packages/core/src/chain/registry.ts - Create a registry of supported chains and their configurations\n3. packages/core/src/index.ts - Export all core functionality\n\nUpdate the following files to integrate the adapter:\n1. apps/web/src/lib/chain.ts - Create a client-side wrapper for the adapter\n2. apps/web/src/server/api/routers/chain.ts - Create tRPC endpoints for chain operations\n3. packages/db/src/schema/transaction.ts - Update schema to store transaction data\n\nEnsure proper error handling, logging, and type safety throughout the integration. Update turbo.json to reflect the dependencies between packages.",
+            "status": "pending",
+            "testStrategy": "Create integration tests in packages/core/src/chain/__tests__/factory.test.ts to verify adapter creation for different chains. Create end-to-end tests in apps/web/e2e/chain.test.ts to verify the complete flow from API to adapter to blockchain."
+          }
+        ]
+      },
+      {
+        "id": 9,
+        "title": "Implement Balance Monitoring and Caching System",
+        "description": "Create a balance monitoring module with Redis caching and low-fund alerting for all supported chains and assets.",
+        "details": "1. Create balance monitoring service in packages/core\n2. Implement Redis caching for balance data with appropriate TTL\n3. Create scheduled job for balance checking across all chains\n4. Implement alerting system for low balances with configurable thresholds\n5. Add support for monitoring:\n   - Native token balances\n   - ERC20 token balances\n   - NFT collection balances\n6. Create admin API endpoints for balance checking\n7. Implement balance history tracking for trend analysis\n8. Add automatic retry and failover for RPC errors\n9. Create dashboard data endpoints for balance visualization\n\nUse the following technologies:\n- Redis for caching (via Upstash Redis or similar)\n- Node-cron or similar for scheduled jobs\n- Proper logging with structured data\n- Alert delivery via email/Slack/Discord webhooks",
+        "testStrategy": "1. Test balance retrieval for different chains and assets\n2. Verify Redis caching works correctly with proper TTL\n3. Test scheduled job execution and reliability\n4. Validate alerting thresholds and notifications\n5. Test failover between RPC providers\n6. Verify accuracy of balance data\n7. Test performance under load with multiple chains\n8. Validate dashboard data endpoints\n9. Test error handling and recovery",
+        "priority": "high",
+        "dependencies": [
+          2,
+          8
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create Balance Monitoring Service in packages/core",
+            "description": "Implement the core balance monitoring service with support for native tokens, ERC20 tokens, and NFT collections across all chains.",
+            "dependencies": [],
+            "details": "Create the following files in packages/core/src/services/balance:\n- BalanceMonitorService.ts: Main service class with methods for checking balances\n- types.ts: Type definitions for balance data structures\n- providers/index.ts: Provider factory for different chain implementations\n- providers/evm.ts: EVM-specific balance checking logic\n- providers/solana.ts: Solana-specific balance checking logic\n- utils/formatters.ts: Utilities for formatting balance data\n\nImplement interfaces for different asset types in types.ts:\n- NativeTokenBalance\n- ERC20TokenBalance\n- NFTCollectionBalance\n\nEnsure the service uses the chain configuration from packages/config/chains.ts and properly handles RPC provider selection with failover.",
+            "status": "pending",
+            "testStrategy": "Create unit tests in packages/core/src/services/balance/__tests__ with mocked providers. Test balance retrieval for each asset type and chain. Verify error handling and failover between RPC providers. Use Jest for testing with proper mocking of external dependencies."
+          },
+          {
+            "id": 2,
+            "title": "Implement Redis Caching for Balance Data",
+            "description": "Create a Redis caching layer for balance data with appropriate TTL and invalidation strategies.",
+            "dependencies": [
+              "9.1"
+            ],
+            "details": "Create the following files in packages/core/src/services/balance/cache:\n- RedisBalanceCache.ts: Implementation of caching layer using Redis\n- CacheStrategy.ts: Interface and implementations for different caching strategies\n\nModify packages/core/src/config/redis.ts to include balance-specific Redis configuration with appropriate TTL settings.\n\nUpdate packages/core/src/services/balance/BalanceMonitorService.ts to use the caching layer with the following features:\n- Cache balance data with configurable TTL per asset type\n- Implement cache invalidation on balance updates\n- Add force-refresh option to bypass cache\n- Implement batch cache operations for efficiency\n\nEnsure proper error handling if Redis is unavailable with graceful fallback to direct RPC calls.",
+            "status": "pending",
+            "testStrategy": "Create integration tests in packages/core/src/services/balance/cache/__tests__ using a Redis mock. Test cache hit/miss scenarios, TTL expiration, and invalidation strategies. Verify performance improvements with cached vs. non-cached requests."
+          },
+          {
+            "id": 3,
+            "title": "Create Scheduled Balance Checking Jobs",
+            "description": "Implement scheduled jobs for regular balance checking across all chains and assets with proper logging and error handling.",
+            "dependencies": [
+              "9.1",
+              "9.2"
+            ],
+            "details": "Create the following files in packages/core/src/jobs:\n- balanceMonitor.ts: Main job definition for balance checking\n- scheduler.ts: Scheduler implementation using node-cron\n\nUpdate packages/core/src/index.ts to register and initialize the balance monitoring jobs.\n\nImplement in balanceMonitor.ts:\n- Configurable schedule for different asset types (more frequent for native tokens)\n- Parallel processing of balance checks across chains\n- Proper error handling with automatic retries\n- Structured logging of job execution and results\n- Circuit breaker pattern for failing RPC endpoints\n\nAdd configuration in packages/config/src/jobs.ts for job schedules and retry policies.",
+            "status": "pending",
+            "testStrategy": "Create tests in packages/core/src/jobs/__tests__ to verify job scheduling and execution. Test error handling and retry logic. Use time manipulation to verify scheduled execution without waiting for actual intervals."
+          },
+          {
+            "id": 4,
+            "title": "Implement Low Balance Alerting System",
+            "description": "Create an alerting system for low balances with configurable thresholds and multiple notification channels.",
+            "dependencies": [
+              "9.1",
+              "9.3"
+            ],
+            "details": "Create the following files in packages/core/src/services/alerts:\n- AlertService.ts: Main service for generating and sending alerts\n- channels/index.ts: Factory for different notification channels\n- channels/email.ts: Email notification implementation\n- channels/slack.ts: Slack webhook implementation\n- channels/discord.ts: Discord webhook implementation\n- thresholds.ts: Configuration for balance thresholds\n\nUpdate packages/config/src/alerts.ts with configuration for:\n- Threshold definitions per asset and chain\n- Alert frequency and cooldown periods\n- Channel-specific configuration\n\nModify packages/core/src/jobs/balanceMonitor.ts to check thresholds after balance updates and trigger alerts when needed.\n\nImplement alert aggregation to prevent alert storms and add alert history tracking in the database.",
+            "status": "pending",
+            "testStrategy": "Create tests in packages/core/src/services/alerts/__tests__ to verify threshold detection and alert generation. Test each notification channel with mocked external services. Verify alert cooldown and aggregation logic works correctly."
+          },
+          {
+            "id": 5,
+            "title": "Create Admin API and Dashboard Data Endpoints",
+            "description": "Implement admin API endpoints for balance checking, history tracking, and dashboard visualization data.",
+            "dependencies": [
+              "9.1",
+              "9.2",
+              "9.3",
+              "9.4"
+            ],
+            "details": "Create the following files in packages/core/src/api/admin:\n- balanceRoutes.ts: API route definitions for balance-related endpoints\n- balanceController.ts: Controller implementation for balance endpoints\n\nImplement the following endpoints in balanceController.ts:\n- GET /api/admin/balances: Get current balances across all chains and assets\n- GET /api/admin/balances/history: Get historical balance data with filtering\n- GET /api/admin/balances/alerts: Get alert history and status\n- POST /api/admin/balances/check: Force refresh balance check\n- GET /api/admin/balances/dashboard: Get aggregated data for dashboard visualization\n\nCreate database models in packages/db/src/schema/balance.ts for storing:\n- Balance history records\n- Alert history\n- Threshold configurations\n\nImplement data transformation utilities in packages/core/src/utils/dashboard.ts for preparing visualization-ready data formats.",
+            "status": "pending",
+            "testStrategy": "Create API tests in packages/core/src/api/admin/__tests__ to verify endpoint functionality. Test data retrieval, filtering, and aggregation. Verify authorization middleware correctly restricts access to admin users only. Test dashboard data formatting and aggregation logic."
+          }
+        ]
+      },
+      {
+        "id": 10,
+        "title": "Implement Rate Limiting with Redis",
+        "description": "Create a Redis-backed rate limiting system for tracking claim limits per user, asset, and chain with configurable cooldown periods.",
+        "details": "1. Create rate limiting module in packages/core\n2. Implement Redis-based token bucket algorithm for rate limiting\n3. Create separate limiters for:\n   - Native token claims (0.02 ETH/day per user)\n   - ERC20 token claims (1,000 tokens/day per user)\n   - NFT claims (5 NFTs total per user)\n4. Add support for boosted limits with redeem codes\n5. Implement sliding window rate limiting for more accurate tracking\n6. Create admin API for limit configuration\n7. Add user-facing endpoints for remaining limits and cooldown periods\n8. Implement IP-based secondary rate limiting for additional protection\n9. Create monitoring and analytics for rate limit usage\n\nUse the following technologies:\n- Redis for rate limit tracking\n- Sliding window algorithm for accurate time-based limiting\n- IP detection with appropriate headers for proxy support",
+        "testStrategy": "1. Test rate limiting for different asset types\n2. Verify cooldown periods work correctly\n3. Test limit reset functionality\n4. Validate boosted limits with redeem codes\n5. Test IP-based rate limiting\n6. Verify accuracy of remaining limit calculations\n7. Test concurrent requests handling\n8. Validate admin configuration changes\n9. Test performance under high load\n10. Verify rate limit persistence across server restarts",
+        "priority": "high",
+        "dependencies": [
+          2,
+          4,
+          7
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create Redis-backed Rate Limiting Module",
+            "description": "Implement the core rate limiting module in packages/core with Redis integration and sliding window algorithm",
+            "dependencies": [],
+            "details": "Create the following files in packages/core/src/rateLimit/:\n- index.ts: Export all rate limiting functionality\n- types.ts: Define interfaces for rate limiters and configurations\n- redisClient.ts: Configure Redis connection with proper error handling\n- slidingWindowLimiter.ts: Implement sliding window algorithm\n- config.ts: Define default rate limit configurations\n\nUpdate packages/core/package.json to include Redis dependencies (ioredis). Modify packages/core/tsconfig.json to ensure proper path resolution. Update turbo.json to include the new module in the build order.",
+            "status": "pending",
+            "testStrategy": "Create unit tests in packages/core/src/rateLimit/__tests__/ to verify Redis connection, sliding window algorithm accuracy, and error handling. Mock Redis for testing. Test with various time windows and limit configurations."
+          },
+          {
+            "id": 2,
+            "title": "Implement Asset-specific Rate Limiters",
+            "description": "Create separate rate limiters for native tokens, ERC20 tokens, and NFTs with configurable limits",
+            "dependencies": [
+              "10.1"
+            ],
+            "details": "Create the following files in packages/core/src/rateLimit/limiters/:\n- nativeTokenLimiter.ts: Implement 0.02 ETH/day per user limit\n- erc20TokenLimiter.ts: Implement 1,000 tokens/day per user limit\n- nftLimiter.ts: Implement 5 NFTs total per user limit\n- factory.ts: Factory pattern to create appropriate limiter based on asset type\n\nUpdate packages/core/src/rateLimit/index.ts to export the new limiters. Modify packages/config/src/limits.ts to define default limits for each asset type. Ensure proper integration with existing asset types in packages/db/schema/assets.ts.",
+            "status": "pending",
+            "testStrategy": "Create tests in packages/core/src/rateLimit/limiters/__tests__/ to verify each limiter enforces correct limits. Test scenarios should include: limit reached, limit reset, concurrent requests, and cross-asset limit independence."
+          },
+          {
+            "id": 3,
+            "title": "Implement Admin API for Rate Limit Configuration",
+            "description": "Create admin endpoints for configuring and managing rate limits across different asset types",
+            "dependencies": [
+              "10.1",
+              "10.2"
+            ],
+            "details": "Create the following files:\n- packages/core/src/rateLimit/admin.ts: Admin functions for managing rate limits\n- apps/api/src/routers/admin/rateLimits.ts: tRPC router for admin rate limit operations\n\nUpdate apps/api/src/routers/admin/index.ts to include the new rate limit router. Modify packages/db/schema/rateLimit.ts to store configurable rate limit settings. Implement functions for:\n- Getting current rate limit configurations\n- Updating rate limits for specific asset types\n- Temporarily disabling rate limits\n- Viewing rate limit usage statistics",
+            "status": "pending",
+            "testStrategy": "Create integration tests in apps/api/src/routers/admin/__tests__/rateLimits.test.ts to verify admin API endpoints. Test authorization, configuration updates, and validation of inputs. Verify changes are properly persisted to the database and reflected in the rate limiting behavior."
+          },
+          {
+            "id": 4,
+            "title": "Implement User-facing Rate Limit Endpoints",
+            "description": "Create endpoints for users to check their remaining limits and cooldown periods",
+            "dependencies": [
+              "10.1",
+              "10.2",
+              "10.3"
+            ],
+            "details": "Create the following files:\n- packages/core/src/rateLimit/user.ts: User-facing functions for checking limits\n- apps/api/src/routers/user/rateLimits.ts: tRPC router for user rate limit queries\n\nUpdate apps/api/src/routers/user/index.ts to include the new rate limit router. Implement endpoints for:\n- Getting remaining limits for all asset types\n- Checking cooldown periods for specific assets\n- Retrieving limit usage history\n- Calculating time until limit reset\n\nModify apps/web/src/hooks/useRateLimits.ts to fetch and display rate limit information in the UI.",
+            "status": "pending",
+            "testStrategy": "Create integration tests in apps/api/src/routers/user/__tests__/rateLimits.test.ts to verify user-facing endpoints. Test scenarios should include: new users, users near limits, users who have exceeded limits, and limit reset behavior. Test UI integration with mock data."
+          },
+          {
+            "id": 5,
+            "title": "Implement Enhanced Rate Limiting Features",
+            "description": "Add boosted limits with redeem codes and IP-based secondary rate limiting for additional protection",
+            "dependencies": [
+              "10.1",
+              "10.2",
+              "10.3",
+              "10.4"
+            ],
+            "details": "Create the following files:\n- packages/core/src/rateLimit/boostedLimits.ts: Logic for redeem code-based limit boosts\n- packages/core/src/rateLimit/ipLimiter.ts: IP-based rate limiting implementation\n- packages/db/schema/redeemCodes.ts: Schema for storing redeem codes and associated boosts\n\nUpdate packages/core/src/rateLimit/index.ts to export the new functionality. Modify apps/api/src/middleware/rateLimit.ts to include IP-based limiting. Create apps/api/src/routers/user/redeemCodes.ts for redeem code endpoints. Implement monitoring in packages/core/src/rateLimit/analytics.ts to track rate limit usage patterns and potential abuse.",
+            "status": "pending",
+            "testStrategy": "Create tests for redeem code validation, boosted limit application, and IP-based rate limiting. Test scenarios should include: valid/invalid redeem codes, IP detection behind proxies, and limit boosting behavior. Test monitoring accuracy for detecting abuse patterns."
+          }
+        ]
+      },
+      {
+        "id": 11,
+        "title": "Implement Wallet Integration with Wagmi",
+        "description": "Integrate Wagmi and Viem for wallet connections, network management, and Web3 interactions in the frontend.",
+        "details": "1. Install Wagmi and dependencies: `pnpm add wagmi viem @wagmi/core @wagmi/connectors`\n2. Set up Wagmi provider in Next.js app\n3. Configure supported chains for initial testnets:\n   - Ethereum Sepolia\n   - Polygon Amoy\n   - BSC Testnet\n4. Implement wallet connection components:\n   - Connect button\n   - Account display\n   - Network switcher\n5. Add EIP-3085 \"Add Network\" functionality\n6. Implement automatic network switching prompts\n7. Create hooks for common wallet interactions:\n   - useWalletConnection\n   - useNetworkSwitcher\n   - useBalance\n   - useTransaction\n8. Add persistent wallet connection with localStorage\n9. Implement proper error handling for wallet interactions\n\nUse the following versions:\n- Wagmi v1.4.0 or newer\n- Viem v1.19.0 or newer\n- Support for multiple wallet providers (MetaMask, WalletConnect, Coinbase Wallet)",
+        "testStrategy": "1. Test wallet connection with different providers\n2. Verify network detection and switching\n3. Test EIP-3085 network addition\n4. Validate persistent connections across page refreshes\n5. Test error handling for common wallet errors\n6. Verify balance retrieval accuracy\n7. Test with mobile wallets and browser extensions\n8. Validate transaction submission and monitoring\n9. Test disconnection and cleanup",
+        "priority": "high",
+        "dependencies": [
+          3
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 12,
+        "title": "Implement Chain Configuration Management",
+        "description": "Create a system for managing chain configurations, RPC endpoints, and contract addresses with proper validation and fallback mechanisms.",
+        "details": "1. Create chain configuration module in packages/config\n2. Define schema for chain configuration:\n   - Chain ID and name\n   - RPC endpoints (primary and fallbacks)\n   - Block explorer URLs\n   - Contract addresses\n   - Native token symbol and decimals\n   - Gas price strategy\n3. Implement configuration validation with Zod\n4. Create environment-specific configurations (development, staging, production)\n5. Add dynamic RPC endpoint selection with health checking\n6. Implement contract address registry\n7. Create admin API for updating chain configurations\n8. Add support for enabling/disabling chains\n9. Implement configuration caching for performance\n\nUse the following technologies:\n- Zod for schema validation\n- Environment-based configuration loading\n- Health checking for RPC endpoints with circuit breaker pattern",
+        "testStrategy": "1. Validate configuration schema against sample data\n2. Test environment-specific configuration loading\n3. Verify RPC endpoint selection and failover\n4. Test contract address resolution\n5. Validate admin API for configuration updates\n6. Test chain enabling/disabling\n7. Verify configuration caching\n8. Test performance under load\n9. Validate error handling for misconfiguration",
+        "priority": "medium",
+        "dependencies": [
+          4,
+          7,
+          8
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 13,
+        "title": "Implement Native Token Claiming",
+        "description": "Develop the native token claiming functionality with server-side validation, transaction handling, and rate limiting.",
+        "details": "1. Create native token claiming endpoint in claimRouter\n2. Implement the following validation steps:\n   - User authentication check\n   - GitHub account requirements validation\n   - Rate limit verification\n   - Chain support validation\n   - Balance availability check\n3. Use EVMAdapter to send native tokens\n4. Record claim in database with transaction hash\n5. Implement transaction monitoring for status updates\n6. Add error handling and retry logic\n7. Create frontend claim form with:\n   - Chain selection\n   - Amount display (fixed per chain)\n   - Transaction status\n   - Error messages\n8. Implement claim history display\n9. Add block explorer links for transactions\n\nImplement with the following specifications:\n- Default claim amount: 0.02 ETH equivalent per day\n- Cooldown period: 24 hours\n- Transaction timeout: 5 minutes with status polling",
+        "testStrategy": "1. Test claim validation logic\n2. Verify rate limiting works correctly\n3. Test transaction submission and monitoring\n4. Validate database recording of claims\n5. Test error handling for various failure scenarios\n6. Verify claim history display\n7. Test with different chains\n8. Validate block explorer links\n9. Test concurrent claims handling\n10. Verify GitHub requirement validation",
+        "priority": "high",
+        "dependencies": [
+          5,
+          7,
+          8,
+          9,
+          10,
+          11
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 14,
+        "title": "Implement ERC20 Token Claiming",
+        "description": "Develop the ERC20 token claiming functionality with mint and transfer modes, validation, and transaction handling.",
+        "details": "1. Create ERC20 token claiming endpoint in claimRouter\n2. Implement the following validation steps:\n   - User authentication check\n   - GitHub account requirements validation\n   - Rate limit verification\n   - Token support validation\n   - Balance availability check (for transfer mode)\n3. Support two distribution modes:\n   - Mint: Call mint function on token contract\n   - Transfer: Send tokens from faucet wallet\n4. Record claim in database with transaction hash\n5. Implement transaction monitoring for status updates\n6. Add error handling and retry logic\n7. Create frontend claim form with:\n   - Chain selection\n   - Token selection\n   - Amount display (fixed per token)\n   - Transaction status\n   - Error messages\n8. Implement claim history display\n9. Add block explorer links for transactions\n\nImplement with the following specifications:\n- Default claim amount: 1,000 tokens per day\n- Cooldown period: 24 hours\n- Support for DevToken and other whitelisted ERC20 tokens",
+        "testStrategy": "1. Test claim validation logic\n2. Verify rate limiting works correctly\n3. Test both mint and transfer modes\n4. Validate database recording of claims\n5. Test error handling for various failure scenarios\n6. Verify claim history display\n7. Test with different tokens across chains\n8. Validate block explorer links\n9. Test concurrent claims handling\n10. Verify GitHub requirement validation",
+        "priority": "high",
+        "dependencies": [
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 15,
+        "title": "Implement NFT Minting",
+        "description": "Develop the NFT minting functionality with collection management, per-user limits, and transaction handling.",
+        "details": "1. Create NFT minting endpoint in claimRouter\n2. Implement the following validation steps:\n   - User authentication check\n   - GitHub account requirements validation\n   - Rate limit verification (5 NFTs total per user)\n   - Collection validation\n3. Use EVMAdapter to mint NFT to user's address\n4. Record claim in database with transaction hash\n5. Implement transaction monitoring for status updates\n6. Add error handling and retry logic\n7. Create frontend claim form with:\n   - Chain selection\n   - Collection selection\n   - Preview of NFT metadata\n   - Transaction status\n   - Error messages\n8. Implement claim history display with NFT metadata\n9. Add block explorer links for transactions\n10. Support viewing owned NFTs in user dashboard\n\nImplement with the following specifications:\n- Total limit: 5 NFTs per user across all collections\n- Support for DevNFT and other whitelisted ERC721 collections\n- Metadata storage and retrieval for NFT display",
+        "testStrategy": "1. Test claim validation logic\n2. Verify rate limiting works correctly\n3. Test NFT minting process\n4. Validate database recording of claims\n5. Test error handling for various failure scenarios\n6. Verify claim history display with metadata\n7. Test with different NFT collections across chains\n8. Validate block explorer links\n9. Test concurrent claims handling\n10. Verify GitHub requirement validation",
+        "priority": "medium",
+        "dependencies": [
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 16,
+        "title": "Implement Transaction Tracking and History",
+        "description": "Create a system for tracking transaction status, history, and providing user-facing updates for all claim types.",
+        "details": "1. Create transaction tracking service in packages/core\n2. Implement the following features:\n   - Transaction submission with proper gas estimation\n   - Status polling with configurable intervals\n   - Receipt validation and parsing\n   - Timeout handling and resubmission\n   - Event logging and notification\n3. Create database models for transaction history\n4. Implement user-facing transaction history API\n5. Create transaction status components:\n   - Status indicator (pending, confirmed, failed)\n   - Block explorer links\n   - Retry functionality for failed transactions\n   - Transaction details display\n6. Add real-time updates using server-sent events or polling\n7. Implement filtering and pagination for transaction history\n8. Add export functionality for transaction data\n\nUse the following technologies:\n- ethers v6 TransactionResponse and TransactionReceipt\n- Proper indexing for transaction queries\n- Optimistic UI updates with proper error recovery",
+        "testStrategy": "1. Test transaction submission and monitoring\n2. Verify status updates are accurate\n3. Test timeout handling and resubmission\n4. Validate database recording of transaction history\n5. Test real-time updates\n6. Verify block explorer links\n7. Test filtering and pagination\n8. Validate export functionality\n9. Test with different transaction types\n10. Verify error handling and recovery",
+        "priority": "medium",
+        "dependencies": [
+          4,
+          7,
+          8,
+          13,
+          14,
+          15
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 17,
+        "title": "Implement User Wallet Linking and Management",
+        "description": "Develop functionality for users to link multiple wallets to their account and manage their primary wallet.",
+        "details": "1. Create user wallet management endpoints in userRouter\n2. Implement the following features:\n   - Link new wallet with signature verification\n   - Set primary wallet\n   - Remove linked wallet\n   - View all linked wallets\n3. Create database models for user wallets\n4. Implement signature verification using EIP-191\n5. Create frontend components:\n   - Wallet linking form\n   - Wallet list display\n   - Primary wallet selector\n   - Wallet removal confirmation\n6. Add validation to prevent duplicate wallet linking\n7. Implement security measures to prevent unauthorized wallet removal\n8. Create wallet activity history\n\nUse the following technologies:\n- EIP-191 for signature verification\n- Proper indexing for wallet queries\n- Security best practices for wallet management",
+        "testStrategy": "1. Test wallet linking with signature verification\n2. Verify primary wallet selection\n3. Test wallet removal\n4. Validate database recording of wallet changes\n5. Test security measures for unauthorized actions\n6. Verify wallet activity history\n7. Test with multiple wallets per user\n8. Validate duplicate prevention\n9. Test across different wallet providers\n10. Verify error handling for invalid signatures",
+        "priority": "medium",
+        "dependencies": [
+          4,
+          5,
+          7,
+          11
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 18,
+        "title": "Implement Redeem Code Generation System",
+        "description": "Create a system for generating time-limited redeem codes with boosted claim amounts for events and hackathons.",
+        "details": "1. Create redeem code management endpoints in codeRouter\n2. Implement the following features:\n   - Code generation with configurable parameters\n   - Bulk code generation for events\n   - Code validation and verification\n   - Usage tracking and analytics\n3. Create database models for redeem codes\n4. Implement secure code hashing and storage\n5. Create admin interface components:\n   - Code generation form\n   - Bulk generation options\n   - Code list display\n   - Usage statistics\n6. Add support for the following code types:\n   - Single-use codes\n   - Multi-use codes with usage limits\n   - Time-limited codes with expiry\n   - GitHub ID binding for exclusive distribution\n7. Implement code export functionality for distribution\n8. Add analytics for code usage patterns\n\nImplement with the following specifications:\n- Boosted amounts: 0.05 ETH native, 5,000 dev tokens, 1-3 NFTs per redemption\n- Secure code format with validation\n- Support for event-specific code prefixes",
+        "testStrategy": "1. Test code generation with different parameters\n2. Verify bulk generation functionality\n3. Test code validation and verification\n4. Validate usage tracking\n5. Test different code types (single-use, multi-use, time-limited)\n6. Verify GitHub ID binding\n7. Test code export\n8. Validate analytics data\n9. Test concurrent code usage\n10. Verify security of code storage",
+        "priority": "medium",
+        "dependencies": [
+          4,
+          7,
+          10
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create Database Models and API Endpoints for Redeem Codes",
+            "description": "Implement the database schema and API endpoints for redeem code management in the monorepo",
+            "dependencies": [],
+            "details": "In packages/db/schema/redeemCodes.ts: Create database models for redeem codes with fields for code, type (single-use, multi-use, time-limited), expiry date, usage limits, current usage count, GitHub ID binding, event prefix, and boosted amounts (ETH, tokens, NFTs). In packages/db/index.ts: Export the new schema. In packages/core/src/routers/codeRouter.ts: Implement API endpoints for code generation, validation, and redemption. Update packages/core/src/index.ts to export the new router. Modify packages/config/src/api.ts to include new environment variables for code security. Update turbo.json to reflect build dependencies for the affected packages.",
+            "status": "pending",
+            "testStrategy": "Write unit tests for database models in packages/db/tests/redeemCodes.test.ts. Create API endpoint tests in packages/core/tests/routers/codeRouter.test.ts. Test code generation with different parameters. Verify code validation logic works correctly. Test secure code hashing and storage."
+          },
+          {
+            "id": 2,
+            "title": "Implement Secure Code Generation and Validation Logic",
+            "description": "Create the core logic for generating secure, unique redeem codes with configurable parameters and validation",
+            "dependencies": [
+              "18.1"
+            ],
+            "details": "In packages/core/src/services/redeemCodeService.ts: Implement functions for secure code generation with configurable parameters (length, prefix, expiry). Create validation logic for different code types (single-use, multi-use, time-limited). Implement secure code hashing using crypto module. In packages/core/src/utils/codeFormatters.ts: Create utility functions for code formatting and validation. In packages/core/src/adapters/githubAdapter.ts: Add methods to verify GitHub ID for binding exclusive codes. Update packages/core/src/index.ts to export the new service. Modify packages/config/src/features.ts to include feature flags for different code types.",
+            "status": "pending",
+            "testStrategy": "Create unit tests in packages/core/tests/services/redeemCodeService.test.ts. Test code generation with various parameters. Verify validation logic for different code types. Test GitHub ID binding functionality. Ensure secure hashing works correctly. Test bulk code generation for events."
+          },
+          {
+            "id": 3,
+            "title": "Implement Admin Interface Components for Redeem Code Management",
+            "description": "Create the admin UI components for generating, managing, and analyzing redeem codes",
+            "dependencies": [
+              "18.1",
+              "18.2"
+            ],
+            "details": "In apps/admin/src/components/redeemCodes/CodeGenerationForm.tsx: Create form for generating individual codes with all parameters. In apps/admin/src/components/redeemCodes/BulkGenerationForm.tsx: Implement bulk generation interface with CSV upload/download. In apps/admin/src/components/redeemCodes/CodeList.tsx: Create paginated list display with filtering and sorting. In apps/admin/src/components/redeemCodes/UsageStatistics.tsx: Implement analytics visualizations for code usage. In apps/admin/src/pages/redeem-codes/index.tsx and apps/admin/src/pages/redeem-codes/[id].tsx: Create pages for code management. Update apps/admin/src/utils/api.ts to include tRPC hooks for the new endpoints.",
+            "status": "pending",
+            "testStrategy": "Create component tests in apps/admin/src/components/redeemCodes/__tests__/ directory. Test form validation and submission. Verify bulk operations work correctly. Test code list filtering and pagination. Validate usage statistics display. Test with mock data representing different code scenarios."
+          },
+          {
+            "id": 4,
+            "title": "Implement Code Redemption and Claim Processing",
+            "description": "Create the logic for processing code redemptions and distributing the boosted claim amounts",
+            "dependencies": [
+              "18.1",
+              "18.2"
+            ],
+            "details": "In packages/core/src/services/claimService.ts: Extend existing claim service to handle redeem code-based claims. Implement logic for boosted amounts (0.05 ETH, 5,000 tokens, 1-3 NFTs). In packages/core/src/routers/claimRouter.ts: Add endpoint for code redemption. In packages/core/src/adapters/evmAdapter.ts: Ensure support for the boosted transaction amounts. In apps/web/src/components/redeem/RedeemCodeForm.tsx: Create user-facing redemption form. In apps/web/src/pages/redeem.tsx: Implement redemption page. Update packages/db/schema/claims.ts to track claims made with redeem codes.",
+            "status": "pending",
+            "testStrategy": "Write tests in packages/core/tests/services/claimService.test.ts for redeem code claims. Test different code types (single-use, multi-use, time-limited). Verify boosted amounts are correctly processed. Test GitHub ID binding validation. Create end-to-end tests for the redemption flow in apps/web/cypress/e2e/redeem.cy.ts."
+          },
+          {
+            "id": 5,
+            "title": "Implement Analytics and Export Functionality",
+            "description": "Create analytics for tracking code usage patterns and implement export functionality for distribution",
+            "dependencies": [
+              "18.1",
+              "18.2",
+              "18.3",
+              "18.4"
+            ],
+            "details": "In packages/core/src/services/analyticsService.ts: Implement tracking for code usage patterns. In packages/core/src/utils/exporters.ts: Create functions for exporting codes in various formats (CSV, JSON, PDF). In apps/admin/src/components/redeemCodes/ExportOptions.tsx: Implement UI for exporting codes with different options. In apps/admin/src/components/redeemCodes/AnalyticsDashboard.tsx: Create visualizations for redemption patterns. In packages/db/queries/redeemCodeQueries.ts: Implement efficient queries for analytics data. Update packages/ui/src/charts/index.ts to include new chart components for code analytics.",
+            "status": "pending",
+            "testStrategy": "Test analytics data collection and processing in packages/core/tests/services/analyticsService.test.ts. Verify export functionality with different formats in packages/core/tests/utils/exporters.test.ts. Test the UI components for analytics and exports in apps/admin/src/components/redeemCodes/__tests__/. Validate that exported files contain the correct data and format."
+          }
+        ]
+      },
+      {
+        "id": 19,
+        "title": "Implement Code Redemption with Boosted Amounts",
+        "description": "Develop the code redemption flow with validation and boosted amount distribution for all asset types.",
+        "details": "1. Create code redemption endpoint in codeRouter\n2. Implement the following validation steps:\n   - Code existence and validity\n   - Expiry check\n   - Usage limit verification\n   - GitHub ID binding validation\n   - User eligibility check\n3. Integrate with claiming system for boosted amounts\n4. Record redemption in database with associated claim\n5. Implement frontend redemption flow:\n   - Code entry form\n   - Validation feedback\n   - Asset selection for redemption\n   - Transaction status\n   - Success confirmation\n6. Add redemption history to user dashboard\n7. Implement event analytics for redemptions\n8. Create notification system for successful redemptions\n\nImplement with the following specifications:\n- Support for all asset types (native, ERC20, NFT)\n- Boosted amounts: 0.05 ETH native, 5,000 dev tokens, 1-3 NFTs per redemption\n- Clear error messages for invalid codes",
+        "testStrategy": "1. Test code validation logic\n2. Verify expiry checking\n3. Test usage limit enforcement\n4. Validate GitHub ID binding\n5. Test boosted amount distribution\n6. Verify database recording of redemptions\n7. Test frontend redemption flow\n8. Validate redemption history display\n9. Test with different asset types\n10. Verify analytics data collection",
+        "priority": "medium",
+        "dependencies": [
+          13,
+          14,
+          15,
+          18
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Implement Backend Code Redemption API",
+            "description": "Create the code redemption endpoint in codeRouter with validation logic and database integration",
+            "dependencies": [],
+            "details": "In packages/core/src/routers/codeRouter.ts, implement the code redemption endpoint with validation logic. Create validation functions in packages/core/src/utils/codeValidation.ts for code existence, expiry, usage limits, GitHub ID binding, and user eligibility. Update packages/db/schema/redemption.ts to define the redemption schema with relations to codes and claims. Modify packages/db/index.ts to export the new schema. Update packages/core/src/services/redemptionService.ts to handle database operations for code redemptions. Ensure proper error handling and response formatting.",
+            "status": "pending",
+            "testStrategy": "Write unit tests in packages/core/src/__tests__/routers/codeRouter.test.ts to verify all validation steps. Create integration tests in packages/core/src/__tests__/integration/codeRedemption.test.ts to test the full redemption flow with mock database entries. Test error cases including invalid codes, expired codes, and exceeded usage limits."
+          },
+          {
+            "id": 2,
+            "title": "Integrate with Asset Distribution System",
+            "description": "Connect code redemption with the claiming system to distribute boosted amounts for all asset types",
+            "dependencies": [
+              "19.1"
+            ],
+            "details": "In packages/core/src/services/assetDistributionService.ts, implement functions to handle boosted amount distribution for different asset types (native, ERC20, NFT). Update packages/core/src/adapters/EVMAdapter.ts to support boosted amount transactions. Modify packages/core/src/routers/claimRouter.ts to accept redemption-based claims. Create packages/core/src/utils/assetBooster.ts to calculate boosted amounts (0.05 ETH native, 5,000 dev tokens, 1-3 NFTs). Update packages/config/src/constants.ts to define boosted amount constants. Ensure transaction monitoring and error handling for all asset types.",
+            "status": "pending",
+            "testStrategy": "Create unit tests in packages/core/src/__tests__/services/assetDistributionService.test.ts to verify boosted amount calculations. Test integration with EVMAdapter in packages/core/src/__tests__/adapters/EVMAdapter.test.ts. Verify transaction handling for each asset type with mock blockchain interactions."
+          },
+          {
+            "id": 3,
+            "title": "Implement Frontend Redemption Flow",
+            "description": "Create the user interface components for code entry, validation, asset selection, and redemption confirmation",
+            "dependencies": [
+              "19.1",
+              "19.2"
+            ],
+            "details": "In apps/web/src/components/redemption/CodeRedemptionForm.tsx, create a form component for code entry with validation feedback. Implement apps/web/src/components/redemption/AssetSelection.tsx for users to select which asset type to redeem. Create apps/web/src/components/redemption/TransactionStatus.tsx to display transaction progress. Add apps/web/src/components/redemption/SuccessConfirmation.tsx for successful redemptions. Update apps/web/src/pages/redeem.tsx to integrate these components. Create apps/web/src/hooks/useCodeRedemption.ts for API interaction. Update packages/ui/src/components/index.ts to export any shared UI components. Modify apps/web/src/utils/notifications.ts to handle redemption notifications.",
+            "status": "pending",
+            "testStrategy": "Write component tests in apps/web/src/__tests__/components/redemption for each UI component. Create integration tests in apps/web/src/__tests__/pages/redeem.test.tsx to verify the complete user flow. Test form validation, error states, loading states, and success scenarios."
+          },
+          {
+            "id": 4,
+            "title": "Implement Redemption History and Dashboard Integration",
+            "description": "Add redemption history to the user dashboard with filtering and detailed transaction information",
+            "dependencies": [
+              "19.1",
+              "19.3"
+            ],
+            "details": "Create apps/web/src/components/dashboard/RedemptionHistory.tsx to display user's redemption history with filtering options. Implement apps/web/src/hooks/useRedemptionHistory.ts to fetch redemption data. Update packages/core/src/routers/userRouter.ts to add endpoints for retrieving user redemption history. Modify apps/web/src/pages/dashboard.tsx to integrate the redemption history component. Create apps/web/src/components/dashboard/RedemptionDetails.tsx for viewing detailed information about each redemption. Update packages/db/src/queries/redemptions.ts to implement database queries for redemption history. Ensure proper pagination and filtering capabilities.",
+            "status": "pending",
+            "testStrategy": "Test the RedemptionHistory component in apps/web/src/__tests__/components/dashboard/RedemptionHistory.test.tsx. Verify API integration with mock data in apps/web/src/__tests__/hooks/useRedemptionHistory.test.tsx. Test database queries in packages/db/src/__tests__/queries/redemptions.test.ts."
+          },
+          {
+            "id": 5,
+            "title": "Implement Analytics and Notification System",
+            "description": "Create event tracking for redemptions and implement a notification system for successful redemptions",
+            "dependencies": [
+              "19.1",
+              "19.2",
+              "19.3",
+              "19.4"
+            ],
+            "details": "In packages/core/src/services/analyticsService.ts, implement event tracking for code redemptions. Create packages/core/src/services/notificationService.ts to handle redemption notifications. Update packages/core/src/routers/codeRouter.ts to trigger analytics events and notifications. Implement packages/core/src/utils/eventTracking.ts for standardized event formatting. Create apps/web/src/components/notifications/RedemptionNotification.tsx for displaying notifications. Update apps/web/src/contexts/NotificationContext.tsx to handle redemption notifications. Modify packages/config/src/analytics.ts to define redemption event types. Ensure proper error handling and retry logic for analytics events.",
+            "status": "pending",
+            "testStrategy": "Test analytics event tracking in packages/core/src/__tests__/services/analyticsService.test.ts. Verify notification triggering in packages/core/src/__tests__/services/notificationService.test.ts. Test the notification components in apps/web/src/__tests__/components/notifications/RedemptionNotification.test.tsx."
+          }
+        ]
+      },
+      {
+        "id": 20,
+        "title": "Implement User Dashboard",
+        "description": "Create a comprehensive user dashboard with claim history, limits, wallet management, and account settings.",
+        "details": "1. Design and implement user dashboard layout\n2. Create the following dashboard sections:\n   - Overview with account summary\n   - Claim history with filtering and pagination\n   - Remaining limits and cooldown timers\n   - Wallet management interface\n   - Redemption history\n   - Account settings\n3. Implement data fetching with tRPC queries\n4. Create visualizations for claim patterns\n5. Add real-time updates for claim status\n6. Implement responsive design for mobile access\n7. Create export functionality for user data\n8. Add notification preferences\n9. Implement theme switching (light/dark mode)\n\nUse the following technologies:\n- React Query for data fetching and caching\n- Recharts or similar for visualizations\n- Responsive design with Tailwind CSS\n- Proper data pagination and filtering",
+        "testStrategy": "1. Test dashboard layout on different devices\n2. Verify data loading and display\n3. Test filtering and pagination\n4. Validate real-time updates\n5. Test export functionality\n6. Verify responsive design\n7. Test theme switching\n8. Validate notification preferences\n9. Test with different user scenarios\n10. Verify performance with large data sets",
+        "priority": "medium",
+        "dependencies": [
+          3,
+          7,
+          11,
+          16,
+          17
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Implement Dashboard Layout and Core Components",
+            "description": "Create the base dashboard layout and core UI components for all dashboard sections",
+            "dependencies": [],
+            "details": "Create the following files in the monorepo:\n1. apps/web/src/components/dashboard/DashboardLayout.tsx - Main layout with sidebar navigation\n2. apps/web/src/components/dashboard/DashboardHeader.tsx - Header with user info and actions\n3. apps/web/src/components/dashboard/DashboardSidebar.tsx - Navigation sidebar\n4. apps/web/src/pages/dashboard/index.tsx - Main dashboard page\n5. packages/ui/src/components/dashboard/Card.tsx - Reusable dashboard card component\n6. packages/ui/src/components/dashboard/Stat.tsx - Stat display component\n7. packages/config/src/dashboard.ts - Dashboard configuration\n\nImplement responsive design using Tailwind CSS. Ensure proper imports between packages using the monorepo's TypeScript path mappings. Update packages/ui/index.ts to export the new components. Modify turbo.json to ensure proper build order with UI package building before web app.",
+            "status": "pending",
+            "testStrategy": "1. Test responsive layout on different screen sizes\n2. Verify navigation between dashboard sections\n3. Test component reusability across different sections\n4. Validate proper styling with both light and dark themes\n5. Test accessibility compliance"
+          },
+          {
+            "id": 2,
+            "title": "Implement Dashboard Data Fetching and State Management",
+            "description": "Set up tRPC queries, React Query integration, and state management for all dashboard data",
+            "dependencies": [
+              "20.1"
+            ],
+            "details": "Create and modify the following files:\n1. packages/core/src/server/routers/dashboard.ts - Create tRPC router for dashboard data\n2. packages/core/src/server/routers/index.ts - Update to include dashboard router\n3. apps/web/src/utils/api.ts - Configure React Query hooks for dashboard data\n4. apps/web/src/hooks/useDashboardData.ts - Custom hook for dashboard data\n5. apps/web/src/context/DashboardContext.tsx - Context for sharing dashboard state\n\nImplement proper error handling, loading states, and data caching strategies using React Query. Set up optimistic updates for real-time data. Configure proper TypeScript types for all data structures. Update packages/db/schema.ts if needed for any dashboard-specific types.",
+            "status": "pending",
+            "testStrategy": "1. Test data fetching with mock API responses\n2. Verify error handling for API failures\n3. Test loading states and skeleton loaders\n4. Validate data caching and invalidation\n5. Test optimistic updates for real-time data"
+          },
+          {
+            "id": 3,
+            "title": "Implement Claim History and Limits Sections",
+            "description": "Create the claim history section with filtering, pagination, and the limits display with cooldown timers",
+            "dependencies": [
+              "20.1",
+              "20.2"
+            ],
+            "details": "Create the following files:\n1. apps/web/src/components/dashboard/claims/ClaimHistory.tsx - Main claim history component\n2. apps/web/src/components/dashboard/claims/ClaimFilters.tsx - Filtering options\n3. apps/web/src/components/dashboard/claims/ClaimTable.tsx - Paginated table\n4. apps/web/src/components/dashboard/claims/ClaimDetails.tsx - Detailed view modal\n5. apps/web/src/components/dashboard/limits/LimitsDisplay.tsx - Limits visualization\n6. apps/web/src/components/dashboard/limits/CooldownTimer.tsx - Timer component\n7. packages/ui/src/components/tables/PaginatedTable.tsx - Reusable table component\n\nImplement filtering by date, chain, and status. Add pagination with configurable page sizes. Create cooldown timers with real-time updates. Use Recharts for visualizing claim patterns and limits. Ensure proper data fetching using the hooks created in subtask 2.",
+            "status": "pending",
+            "testStrategy": "1. Test filtering functionality with different criteria\n2. Verify pagination works correctly\n3. Test cooldown timers update in real-time\n4. Validate claim details modal displays correct information\n5. Test export functionality for claim history"
+          },
+          {
+            "id": 4,
+            "title": "Implement Wallet Management and Account Settings",
+            "description": "Create the wallet management interface and account settings sections",
+            "dependencies": [
+              "20.1",
+              "20.2"
+            ],
+            "details": "Create the following files:\n1. apps/web/src/components/dashboard/wallet/WalletManagement.tsx - Main wallet component\n2. apps/web/src/components/dashboard/wallet/ConnectedWallets.tsx - List of connected wallets\n3. apps/web/src/components/dashboard/wallet/AddWalletModal.tsx - Modal for adding wallets\n4. apps/web/src/components/dashboard/settings/AccountSettings.tsx - Main settings component\n5. apps/web/src/components/dashboard/settings/NotificationSettings.tsx - Notification preferences\n6. apps/web/src/components/dashboard/settings/ThemeSettings.tsx - Theme switching\n7. apps/web/src/pages/dashboard/settings.tsx - Settings page\n8. packages/core/src/server/routers/settings.ts - tRPC router for settings\n\nImplement wallet connection and management using the existing wallet adapters. Create settings forms with validation. Add theme switching between light and dark modes. Implement notification preferences storage in the database. Update packages/db/schema.ts for any new settings fields.",
+            "status": "pending",
+            "testStrategy": "1. Test wallet connection and disconnection\n2. Verify settings changes persist in the database\n3. Test theme switching functionality\n4. Validate notification preferences are saved correctly\n5. Test form validation for all settings"
+          },
+          {
+            "id": 5,
+            "title": "Implement Data Visualizations and Export Functionality",
+            "description": "Create data visualizations for claim patterns and implement export functionality for user data",
+            "dependencies": [
+              "20.2",
+              "20.3"
+            ],
+            "details": "Create the following files:\n1. apps/web/src/components/dashboard/visualizations/ClaimPatterns.tsx - Claim pattern charts\n2. apps/web/src/components/dashboard/visualizations/UsageStats.tsx - Usage statistics\n3. apps/web/src/components/dashboard/export/ExportOptions.tsx - Export options UI\n4. apps/web/src/utils/export.ts - Export functionality\n5. packages/core/src/server/routers/export.ts - tRPC router for data export\n6. packages/ui/src/components/charts/LineChart.tsx - Reusable line chart\n7. packages/ui/src/components/charts/BarChart.tsx - Reusable bar chart\n\nImplement visualizations using Recharts for claim patterns, usage over time, and remaining limits. Create export functionality for claim history and account data in CSV and JSON formats. Add proper date formatting and data processing utilities. Ensure visualizations are responsive and work with the theme system.",
+            "status": "pending",
+            "testStrategy": "1. Test chart rendering with different data sets\n2. Verify export functionality produces valid files\n3. Test responsiveness of visualizations on different screen sizes\n4. Validate charts work with both light and dark themes\n5. Test accessibility of chart components"
+          }
+        ]
+      },
+      {
+        "id": 21,
+        "title": "Implement Advanced Abuse Prevention",
+        "description": "Develop advanced abuse prevention mechanisms including IP-based detection, behavioral analysis, and adaptive rate limiting.",
+        "details": "1. Create abuse prevention service in packages/core\n2. Implement the following features:\n   - IP-based rate limiting and tracking\n   - Behavioral analysis for suspicious patterns\n   - GitHub account validation with configurable requirements\n   - Adaptive rate limiting based on user history\n   - Temporary and permanent banning mechanisms\n3. Create admin interface for abuse management\n4. Implement logging and alerting for suspicious activity\n5. Add appeal process for falsely flagged users\n6. Create analytics dashboard for abuse patterns\n7. Implement geolocation-based restrictions if needed\n8. Add CAPTCHA for suspicious requests\n\nUse the following technologies:\n- IP detection with appropriate headers for proxy support\n- Redis for rate tracking and ban lists\n- Machine learning for pattern detection (optional)\n- reCAPTCHA v3 or hCaptcha for verification",
+        "testStrategy": "1. Test IP-based rate limiting\n2. Verify GitHub account validation\n3. Test adaptive rate limiting\n4. Validate banning mechanisms\n5. Test admin interface functionality\n6. Verify logging and alerting\n7. Test appeal process\n8. Validate analytics dashboard\n9. Test with simulated abuse patterns\n10. Verify CAPTCHA integration",
+        "priority": "medium",
+        "dependencies": [
+          5,
+          10
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create IP-based Detection and Rate Limiting Service",
+            "description": "Implement the core IP detection and rate limiting service in the packages/core directory with Redis integration",
+            "dependencies": [],
+            "details": "Create the following files in packages/core/src/abuse:\n1. Create abusePrevention.service.ts to implement IP detection with proxy support\n2. Create ipRateLimiting.ts for IP-based rate limiting using Redis\n3. Update packages/core/src/index.ts to export the new service\n4. Add Redis client configuration in packages/core/src/config/redis.config.ts\n5. Create types for rate limiting in packages/core/src/types/abuse.types.ts\n6. Update packages/config/src/index.ts to include rate limiting configuration\n7. Modify turbo.json to ensure proper build order with Redis dependencies",
+            "status": "pending",
+            "testStrategy": "1. Unit test IP detection with various header configurations\n2. Test rate limiting with simulated requests\n3. Verify Redis integration with mock Redis client\n4. Test proxy detection capabilities\n5. Validate configuration loading from environment variables"
+          },
+          {
+            "id": 2,
+            "title": "Implement Behavioral Analysis and Suspicious Pattern Detection",
+            "description": "Develop behavioral analysis system to detect suspicious patterns and implement adaptive rate limiting based on user history",
+            "dependencies": [
+              "21.1"
+            ],
+            "details": "Create the following files in packages/core/src/abuse:\n1. Create behavioralAnalysis.ts for tracking and analyzing user behavior patterns\n2. Create suspiciousPatterns.ts to define and detect known suspicious patterns\n3. Create adaptiveRateLimiting.ts to implement rate limiting that adjusts based on user history\n4. Update packages/core/src/types/abuse.types.ts with behavioral analysis types\n5. Create packages/core/src/abuse/utils/patternDetection.ts for helper functions\n6. Modify packages/db/schema.ts to add tables for storing user behavior data\n7. Create migration in packages/db/migrations/ for the new tables",
+            "status": "pending",
+            "testStrategy": "1. Test pattern detection with simulated suspicious behavior\n2. Verify adaptive rate limiting increases restrictions appropriately\n3. Test behavior tracking across multiple requests\n4. Validate database schema for behavior storage\n5. Test with various user behavior scenarios"
+          },
+          {
+            "id": 3,
+            "title": "Implement Ban Management and GitHub Account Validation",
+            "description": "Create temporary and permanent banning mechanisms and implement GitHub account validation with configurable requirements",
+            "dependencies": [
+              "21.1",
+              "21.2"
+            ],
+            "details": "Create the following files:\n1. Create packages/core/src/abuse/banManagement.ts for temporary and permanent banning\n2. Create packages/core/src/github/accountValidation.ts for GitHub account validation\n3. Create packages/core/src/types/github.types.ts for GitHub validation types\n4. Update packages/db/schema.ts to add tables for ban records\n5. Create migration in packages/db/migrations/ for the ban tables\n6. Create packages/config/src/github.config.ts for configurable GitHub requirements\n7. Update packages/core/src/index.ts to export the new services\n8. Implement CAPTCHA integration in packages/core/src/abuse/captcha.ts",
+            "status": "pending",
+            "testStrategy": "1. Test temporary and permanent banning functionality\n2. Verify GitHub account validation with different requirement configurations\n3. Test ban expiration and automatic unbanning\n4. Validate CAPTCHA integration for suspicious requests\n5. Test database operations for ban management"
+          },
+          {
+            "id": 4,
+            "title": "Create Admin Interface for Abuse Management",
+            "description": "Develop an admin interface for managing abuse prevention, including user bans, viewing suspicious activity, and configuring prevention settings",
+            "dependencies": [
+              "21.1",
+              "21.2",
+              "21.3"
+            ],
+            "details": "Create the following files:\n1. Create apps/admin/src/pages/abuse-management/index.tsx for the main abuse management page\n2. Create apps/admin/src/pages/abuse-management/banned-users.tsx for managing banned users\n3. Create apps/admin/src/pages/abuse-management/suspicious-activity.tsx for viewing suspicious activity\n4. Create apps/admin/src/pages/abuse-management/settings.tsx for configuring prevention settings\n5. Create packages/ui/src/components/admin/AbuseManagement/ directory with reusable components\n6. Create packages/core/src/api/admin/abuseManagement.ts for admin-specific API endpoints\n7. Update packages/core/src/types/admin.types.ts with admin interface types",
+            "status": "pending",
+            "testStrategy": "1. Test admin interface rendering and functionality\n2. Verify ban management operations work correctly\n3. Test configuration changes propagate to the system\n4. Validate suspicious activity display and filtering\n5. Test with different admin permission levels"
+          },
+          {
+            "id": 5,
+            "title": "Implement Logging, Alerting and Appeal Process",
+            "description": "Create comprehensive logging, alerting system for suspicious activity, and implement an appeal process for falsely flagged users",
+            "dependencies": [
+              "21.1",
+              "21.2",
+              "21.3",
+              "21.4"
+            ],
+            "details": "Create the following files:\n1. Create packages/core/src/abuse/logging.ts for structured abuse logging\n2. Create packages/core/src/abuse/alerting.ts for real-time alerts on suspicious activity\n3. Create packages/core/src/abuse/appealProcess.ts for handling user appeals\n4. Create apps/web/src/pages/appeal.tsx for the user-facing appeal form\n5. Create packages/ui/src/components/appeal/AppealForm.tsx as a reusable component\n6. Create packages/db/schema/appeal.ts for appeal database schema\n7. Create migration in packages/db/migrations/ for the appeal tables\n8. Create apps/admin/src/pages/abuse-management/appeals.tsx for admin appeal management\n9. Create packages/core/src/api/appeals.ts for appeal-related API endpoints",
+            "status": "pending",
+            "testStrategy": "1. Test logging captures all relevant abuse events\n2. Verify alerting system triggers appropriately\n3. Test appeal submission and processing workflow\n4. Validate admin interface for appeal management\n5. Test appeal resolution and user notification"
+          }
+        ]
+      },
+      {
+        "id": 22,
+        "title": "Implement Analytics and Monitoring",
+        "description": "Create a comprehensive analytics and monitoring system for tracking usage patterns, performance metrics, and system health.",
+        "details": "1. Implement structured logging throughout the application\n2. Create analytics service for tracking:\n   - Claim patterns by chain and asset\n   - User acquisition and retention\n   - GitHub account demographics\n   - Performance metrics\n   - Error rates and types\n3. Implement monitoring for:\n   - System health and uptime\n   - Database performance\n   - Redis performance\n   - RPC endpoint reliability\n   - Balance levels across chains\n4. Create admin dashboard for analytics visualization\n5. Implement alerting for critical issues\n6. Add export functionality for analytics data\n7. Create scheduled reports for stakeholders\n8. Implement privacy-preserving analytics\n\nUse the following technologies:\n- Structured logging with Pino or Winston\n- Prometheus for metrics collection\n- Grafana for visualization (optional)\n- Sentry or similar for error tracking\n- Custom analytics dashboard with Recharts",
+        "testStrategy": "1. Verify logging captures all important events\n2. Test analytics data collection\n3. Validate monitoring alerts\n4. Test dashboard visualizations\n5. Verify export functionality\n6. Test scheduled reports\n7. Validate privacy measures\n8. Test with simulated load\n9. Verify alerting thresholds\n10. Test recovery from monitored failures",
+        "priority": "medium",
+        "dependencies": [
+          9,
+          13,
+          14,
+          15,
+          19
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Implement Structured Logging System",
+            "description": "Set up a structured logging system throughout the application using Pino or Winston to capture important events and metrics.",
+            "dependencies": [],
+            "details": "1. Create a new package at packages/logger/ with the following files:\n- packages/logger/src/index.ts (export main logger instance)\n- packages/logger/src/config.ts (configure log levels per environment)\n- packages/logger/src/formatters.ts (custom log formatters)\n- packages/logger/package.json (dependencies on Pino or Winston)\n- packages/logger/tsconfig.json (TypeScript configuration)\n\n2. Update packages/config/src/index.ts to include logging configuration options\n\n3. Integrate logger into existing packages:\n- packages/core/src/utils/logger.ts (import and configure logger)\n- packages/db/src/utils/logger.ts (database-specific logging)\n- apps/web/lib/logger.ts (web app logging configuration)\n- apps/api/lib/logger.ts (API logging configuration)\n\n4. Update turbo.json to include logger in the build dependencies\n\n5. Implement context-aware logging with request IDs in apps/api/middleware/logging.ts",
+            "status": "pending",
+            "testStrategy": "1. Verify logger initialization in different environments\n2. Test log level filtering works correctly\n3. Validate log output format matches requirements\n4. Test context propagation across service boundaries\n5. Verify performance impact is minimal\n6. Test log rotation and retention policies"
+          },
+          {
+            "id": 2,
+            "title": "Implement Metrics Collection with Prometheus",
+            "description": "Set up Prometheus metrics collection for tracking system performance, API endpoints, database operations, and custom business metrics.",
+            "dependencies": [
+              "22.1"
+            ],
+            "details": "1. Create a new package at packages/metrics/ with the following files:\n- packages/metrics/src/index.ts (export metrics collectors)\n- packages/metrics/src/collectors/system.ts (system metrics)\n- packages/metrics/src/collectors/api.ts (API metrics)\n- packages/metrics/src/collectors/database.ts (DB metrics)\n- packages/metrics/src/collectors/business.ts (business metrics)\n- packages/metrics/package.json (dependencies on Prometheus client)\n\n2. Create metrics endpoint in apps/api/pages/api/metrics.ts\n\n3. Implement middleware for API metrics in apps/api/middleware/metrics.ts\n\n4. Add database metrics collection in packages/db/src/client.ts\n\n5. Implement custom business metrics for tracking:\n- Claim patterns in packages/core/src/services/claims/metrics.ts\n- User metrics in packages/core/src/services/users/metrics.ts\n- Chain/RPC metrics in packages/core/src/services/chains/metrics.ts\n\n6. Update packages/config/src/index.ts with metrics configuration",
+            "status": "pending",
+            "testStrategy": "1. Test metrics endpoint returns proper Prometheus format\n2. Verify all required metrics are being collected\n3. Test under load to ensure metrics accuracy\n4. Validate custom business metrics correctly track events\n5. Test integration with Prometheus server\n6. Verify metrics collection has minimal performance impact"
+          },
+          {
+            "id": 3,
+            "title": "Implement Monitoring and Alerting System",
+            "description": "Create a comprehensive monitoring system for tracking system health, service availability, and critical thresholds with alerting capabilities.",
+            "dependencies": [
+              "22.2"
+            ],
+            "details": "1. Create monitoring configuration in packages/config/src/monitoring.ts with alert thresholds\n\n2. Implement health check endpoints in apps/api/pages/api/health.ts with:\n- Overall system status\n- Database connectivity check\n- Redis connectivity check\n- RPC endpoint status for each chain\n- Balance monitoring for each chain/asset\n\n3. Create alerting service in packages/core/src/services/monitoring/index.ts with:\n- packages/core/src/services/monitoring/alerts.ts (alert definitions)\n- packages/core/src/services/monitoring/channels.ts (notification channels)\n- packages/core/src/services/monitoring/thresholds.ts (threshold calculations)\n\n4. Implement Sentry integration for error tracking in packages/core/src/utils/sentry.ts\n\n5. Create monitoring jobs in packages/core/src/jobs/monitoring/ for periodic checks\n\n6. Update docker-compose.yml to include monitoring services (Prometheus, optional Grafana)",
+            "status": "pending",
+            "testStrategy": "1. Test health check endpoints return accurate status\n2. Verify alerts trigger when thresholds are exceeded\n3. Test notification delivery through all channels\n4. Validate error tracking captures and reports issues\n5. Test recovery detection and alert resolution\n6. Verify monitoring jobs run on schedule\n7. Test system under various failure conditions"
+          },
+          {
+            "id": 4,
+            "title": "Develop Analytics Dashboard",
+            "description": "Create an admin dashboard for visualizing analytics data, system metrics, and user behavior patterns using Recharts.",
+            "dependencies": [
+              "22.1",
+              "22.2",
+              "22.3"
+            ],
+            "details": "1. Create analytics dashboard components in apps/web/components/admin/analytics/ with:\n- apps/web/components/admin/analytics/Dashboard.tsx (main layout)\n- apps/web/components/admin/analytics/UserMetrics.tsx (user analytics)\n- apps/web/components/admin/analytics/ClaimMetrics.tsx (claim patterns)\n- apps/web/components/admin/analytics/SystemMetrics.tsx (system performance)\n- apps/web/components/admin/analytics/ChainMetrics.tsx (blockchain metrics)\n\n2. Implement analytics data fetching in apps/web/lib/api/analytics.ts\n\n3. Create tRPC routes for analytics in packages/api/src/router/analytics.ts\n\n4. Implement analytics service in packages/core/src/services/analytics/index.ts with:\n- packages/core/src/services/analytics/queries.ts (data queries)\n- packages/core/src/services/analytics/transformers.ts (data transformation)\n- packages/core/src/services/analytics/exporters.ts (data export functions)\n\n5. Add analytics page in apps/web/pages/admin/analytics/index.tsx with access control",
+            "status": "pending",
+            "testStrategy": "1. Test dashboard renders correctly with sample data\n2. Verify all charts and visualizations display accurately\n3. Test data filtering and time range selection\n4. Validate export functionality for all data types\n5. Test dashboard performance with large datasets\n6. Verify access control restricts dashboard to admins only\n7. Test responsive design on different screen sizes"
+          },
+          {
+            "id": 5,
+            "title": "Implement Reporting and Data Export System",
+            "description": "Create a system for generating scheduled reports, exporting analytics data, and delivering insights to stakeholders while preserving privacy.",
+            "dependencies": [
+              "22.4"
+            ],
+            "details": "1. Create reporting service in packages/core/src/services/reporting/ with:\n- packages/core/src/services/reporting/index.ts (main service)\n- packages/core/src/services/reporting/generators.ts (report generators)\n- packages/core/src/services/reporting/formatters.ts (output formatters)\n- packages/core/src/services/reporting/delivery.ts (delivery methods)\n- packages/core/src/services/reporting/privacy.ts (privacy filters)\n\n2. Implement scheduled jobs in packages/core/src/jobs/reporting/ for automated reports\n\n3. Create report configuration in packages/config/src/reporting.ts\n\n4. Implement report management UI in apps/web/components/admin/reporting/\n- apps/web/components/admin/reporting/ReportConfig.tsx (report settings)\n- apps/web/components/admin/reporting/ScheduleManager.tsx (scheduling)\n- apps/web/components/admin/reporting/Templates.tsx (report templates)\n\n5. Add export API endpoints in packages/api/src/router/exports.ts\n\n6. Implement privacy-preserving analytics in packages/core/src/services/analytics/privacy.ts",
+            "status": "pending",
+            "testStrategy": "1. Test report generation with various configurations\n2. Verify scheduled reports run on time\n3. Test export functionality for different formats\n4. Validate privacy filters remove sensitive information\n5. Test report delivery through all channels\n6. Verify large reports handle pagination correctly\n7. Test concurrent report generation\n8. Validate report templates render correctly"
+          }
+        ]
+      },
+      {
+        "id": 23,
+        "title": "Implement Admin Interface",
+        "description": "Create an admin interface for managing chains, assets, users, redeem codes, and system configuration.",
+        "details": "1. Set up admin app in apps/admin using Next.js\n2. Implement authentication with role-based access control\n3. Create the following admin sections:\n   - Dashboard with system overview\n   - Chain management\n   - Asset management\n   - User management\n   - Redeem code management\n   - Balance monitoring\n   - System configuration\n   - Analytics and reporting\n4. Implement tRPC client for admin API\n5. Create admin-specific API endpoints\n6. Implement audit logging for admin actions\n7. Add bulk operations for common tasks\n8. Create export functionality for all data\n9. Implement responsive design for mobile access\n\nUse the following technologies:\n- Next.js 14 with App Router\n- Tailwind CSS and shadcn/ui for UI\n- Role-based access control\n- Audit logging for all changes",
+        "testStrategy": "1. Test authentication and access control\n2. Verify all admin sections function correctly\n3. Test API endpoints\n4. Validate audit logging\n5. Test bulk operations\n6. Verify export functionality\n7. Test responsive design\n8. Validate data updates propagate correctly\n9. Test with different admin roles\n10. Verify security of admin operations",
+        "priority": "low",
+        "dependencies": [
+          3,
+          7,
+          12,
+          18,
+          22
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Set up Admin App Structure and Authentication",
+            "description": "Initialize the admin app in the monorepo and implement role-based authentication system",
+            "dependencies": [],
+            "details": "Create the admin app structure in apps/admin using Next.js 14 with App Router. Set up the following files:\n- apps/admin/package.json: Configure dependencies including next, react, @trpc/client, @trpc/server, and authentication libraries\n- apps/admin/tsconfig.json: Extend from root tsconfig with proper path mappings\n- apps/admin/app/layout.tsx: Create root layout with authentication provider\n- apps/admin/app/page.tsx: Create landing page with redirect to dashboard\n- apps/admin/app/auth/[...nextauth]/route.ts: Implement NextAuth routes with role-based access control\n- apps/admin/middleware.ts: Add middleware for protecting routes based on admin roles\n- packages/db/src/schema/adminUser.ts: Create admin user schema with role definitions\n- packages/db/src/schema/adminPermission.ts: Define permission schema for granular access control\nUpdate turbo.json to include the admin app in the build pipeline.",
+            "status": "pending",
+            "testStrategy": "1. Test authentication flow with different admin roles\n2. Verify protected routes redirect unauthenticated users\n3. Test role-based access restrictions\n4. Validate session persistence\n5. Test integration with the database for user verification"
+          },
+          {
+            "id": 2,
+            "title": "Implement Admin Dashboard and Core UI Components",
+            "description": "Create the admin dashboard layout and core UI components using Tailwind CSS and shadcn/ui",
+            "dependencies": [
+              "23.1"
+            ],
+            "details": "Implement the admin dashboard UI structure in the following files:\n- apps/admin/app/dashboard/layout.tsx: Create dashboard layout with sidebar navigation\n- apps/admin/app/dashboard/page.tsx: Implement system overview dashboard\n- apps/admin/components/ui/: Create reusable UI components using shadcn/ui\n- apps/admin/components/layout/Sidebar.tsx: Implement sidebar with navigation links\n- apps/admin/components/layout/Header.tsx: Create header with user info and actions\n- apps/admin/components/dashboard/SystemOverview.tsx: Implement system metrics cards\n- apps/admin/components/dashboard/ActivityFeed.tsx: Create recent activity feed\n- packages/ui/src/admin/: Add admin-specific shared UI components\n- apps/admin/styles/globals.css: Set up Tailwind CSS with admin theme\nEnsure responsive design for all components using Tailwind's responsive utilities.",
+            "status": "pending",
+            "testStrategy": "1. Test dashboard layout rendering on different screen sizes\n2. Verify navigation between different sections\n3. Test UI component interactions\n4. Validate responsive design breakpoints\n5. Test theme consistency across components"
+          },
+          {
+            "id": 3,
+            "title": "Implement Admin API and tRPC Integration",
+            "description": "Create admin-specific API endpoints and implement tRPC client for data fetching",
+            "dependencies": [
+              "23.1",
+              "23.2"
+            ],
+            "details": "Set up the admin API infrastructure in the following files:\n- packages/api/src/router/admin.ts: Create admin router with protected endpoints\n- packages/api/src/router/admin/chains.ts: Implement chain management endpoints\n- packages/api/src/router/admin/assets.ts: Create asset management endpoints\n- packages/api/src/router/admin/users.ts: Implement user management endpoints\n- packages/api/src/router/admin/redeemCodes.ts: Create redeem code management endpoints\n- packages/api/src/router/admin/config.ts: Implement system configuration endpoints\n- packages/api/src/router/admin/analytics.ts: Create analytics data endpoints\n- apps/admin/utils/api.ts: Set up tRPC client with proper transformers\n- apps/admin/providers/TRPCProvider.tsx: Create tRPC provider for the admin app\n- packages/db/src/queries/admin.ts: Implement database queries for admin operations",
+            "status": "pending",
+            "testStrategy": "1. Test all API endpoints with valid and invalid data\n2. Verify proper error handling and validation\n3. Test tRPC client integration\n4. Validate data fetching performance\n5. Test API authorization with different admin roles"
+          },
+          {
+            "id": 4,
+            "title": "Implement Admin Management Sections",
+            "description": "Create the individual management sections for chains, assets, users, redeem codes, and system configuration",
+            "dependencies": [
+              "23.2",
+              "23.3"
+            ],
+            "details": "Implement the following admin management sections:\n- apps/admin/app/dashboard/chains/page.tsx: Chain management interface\n- apps/admin/app/dashboard/chains/[id]/page.tsx: Individual chain editing\n- apps/admin/app/dashboard/assets/page.tsx: Asset management interface\n- apps/admin/app/dashboard/assets/[id]/page.tsx: Individual asset editing\n- apps/admin/app/dashboard/users/page.tsx: User management with filtering\n- apps/admin/app/dashboard/users/[id]/page.tsx: User details and editing\n- apps/admin/app/dashboard/redeem-codes/page.tsx: Redeem code management\n- apps/admin/app/dashboard/redeem-codes/create/page.tsx: Bulk code creation\n- apps/admin/app/dashboard/balance/page.tsx: Balance monitoring interface\n- apps/admin/app/dashboard/config/page.tsx: System configuration interface\n- apps/admin/components/forms/: Create form components for each entity type\n- apps/admin/components/tables/: Implement table components with sorting and filtering",
+            "status": "pending",
+            "testStrategy": "1. Test CRUD operations for each entity type\n2. Verify form validation and error handling\n3. Test filtering and pagination in list views\n4. Validate bulk operations functionality\n5. Test data export features for each section"
+          },
+          {
+            "id": 5,
+            "title": "Implement Audit Logging and Analytics",
+            "description": "Create audit logging for admin actions and implement analytics and reporting features",
+            "dependencies": [
+              "23.3",
+              "23.4"
+            ],
+            "details": "Implement audit logging and analytics features in the following files:\n- packages/db/src/schema/adminAuditLog.ts: Create audit log schema\n- packages/api/src/middleware/auditLogger.ts: Implement middleware for logging admin actions\n- packages/api/src/utils/auditLog.ts: Create utility functions for audit logging\n- apps/admin/app/dashboard/audit-logs/page.tsx: Implement audit log viewer\n- apps/admin/app/dashboard/analytics/page.tsx: Create analytics dashboard\n- apps/admin/app/dashboard/reports/page.tsx: Implement report generation\n- apps/admin/components/analytics/ChartComponents.tsx: Create visualization components\n- apps/admin/components/analytics/ReportGenerator.tsx: Implement report configuration\n- apps/admin/components/audit/AuditLogViewer.tsx: Create audit log viewing interface\n- packages/core/src/admin/reports.ts: Implement report generation logic\n- packages/core/src/admin/analytics.ts: Create analytics data processing functions",
+            "status": "pending",
+            "testStrategy": "1. Verify audit logs are created for all admin actions\n2. Test audit log filtering and searching\n3. Validate analytics data accuracy\n4. Test report generation and export\n5. Verify visualization components render correctly with different data sets"
+          }
+        ]
+      },
+      {
+        "id": 24,
+        "title": "Implement CI/CD Pipeline",
+        "description": "Set up continuous integration and deployment pipeline with automated testing, deployment, and monitoring.",
+        "details": "1. Configure GitHub Actions workflows in .github/workflows/\n2. Implement the following pipelines:\n   - CI: Lint, build, and test on pull requests\n   - CD: Deploy to staging on merge to develop\n   - CD: Deploy to production on merge to main\n   - Contract: Deploy and verify contracts\n   - Database: Run migrations safely\n3. Set up environment-specific configurations\n4. Implement secret management for sensitive data\n5. Create deployment verification tests\n6. Add rollback procedures for failed deployments\n7. Implement monitoring integration\n8. Create deployment notifications\n9. Add performance testing in CI pipeline\n\nUse the following technologies:\n- GitHub Actions for CI/CD\n- Vercel for web deployment\n- Environment-specific secrets management\n- Automated database migrations\n- Contract deployment verification",
+        "testStrategy": "1. Test CI pipeline with sample pull requests\n2. Verify CD pipeline deploys correctly\n3. Test contract deployment pipeline\n4. Validate database migration safety\n5. Test rollback procedures\n6. Verify monitoring integration\n7. Test deployment notifications\n8. Validate secret management\n9. Test with different environment configurations\n10. Verify performance testing results",
+        "priority": "medium",
+        "dependencies": [
+          1,
+          3,
+          4,
+          6
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Configure CI Pipeline for Pull Requests",
+            "description": "Set up GitHub Actions workflow for continuous integration that runs linting, building, and testing on pull requests.",
+            "dependencies": [],
+            "details": "Create `.github/workflows/ci.yml` that triggers on pull requests to any branch. Configure the workflow to:\n1. Set up Node.js environment with caching\n2. Install dependencies using pnpm\n3. Run linting across all packages using `turbo lint`\n4. Build all packages using `turbo build`\n5. Run tests using `turbo test`\n6. Add performance testing step using Lighthouse\n7. Configure workflow to use the monorepo structure by specifying working directories for each job step\n8. Update `turbo.json` to define the build pipeline dependencies between packages\n9. Set up proper caching for node_modules and build artifacts",
+            "status": "pending",
+            "testStrategy": "1. Create a test pull request with intentional linting errors to verify CI catches them\n2. Create a pull request with failing tests to verify CI blocks merging\n3. Verify build artifacts are correctly cached between workflow runs\n4. Test performance testing step with baseline metrics\n5. Verify CI runs on all affected packages when changes are made to shared packages"
+          },
+          {
+            "id": 2,
+            "title": "Implement CD Pipeline for Staging and Production",
+            "description": "Create GitHub Actions workflows for continuous deployment to staging and production environments based on branch merges.",
+            "dependencies": [
+              "24.1"
+            ],
+            "details": "1. Create `.github/workflows/deploy-staging.yml` that triggers on merges to develop branch\n2. Create `.github/workflows/deploy-production.yml` that triggers on merges to main branch\n3. Configure both workflows to:\n   - Deploy web app to Vercel using Vercel CLI in `apps/web/`\n   - Set up environment-specific configurations in `packages/config/environments/`\n   - Use GitHub Environments for staging and production\n   - Implement deployment verification tests in `packages/core/tests/deployment/`\n4. Add Vercel project configuration in `apps/web/vercel.json`\n5. Create deployment notification steps using GitHub Actions\n6. Set up environment variables in GitHub Secrets and reference them in workflows",
+            "status": "pending",
+            "testStrategy": "1. Test staging deployment by merging a PR to develop branch\n2. Verify production deployment by promoting from staging to main\n3. Test rollback procedure by intentionally introducing a failing deployment\n4. Verify environment-specific configurations are correctly applied\n5. Test deployment notifications are sent correctly"
+          },
+          {
+            "id": 3,
+            "title": "Implement Contract Deployment Pipeline",
+            "description": "Create a specialized GitHub Actions workflow for deploying and verifying smart contracts to different environments.",
+            "dependencies": [
+              "24.1"
+            ],
+            "details": "1. Create `.github/workflows/deploy-contracts.yml` that triggers on specific tags or manual dispatch\n2. Configure the workflow to:\n   - Set up environment for contract deployment in `packages/contracts/`\n   - Deploy contracts to test networks for staging and mainnet for production\n   - Verify contracts on block explorers\n   - Update contract addresses in `packages/contracts/deployments/`\n   - Generate and update contract ABIs in `packages/contracts/abis/`\n3. Implement contract verification steps using Etherscan API\n4. Create deployment scripts in `packages/contracts/scripts/deploy/`\n5. Set up environment-specific contract configurations in `packages/config/environments/contracts/`\n6. Add secret management for private keys and API keys",
+            "status": "pending",
+            "testStrategy": "1. Test contract deployment to a test network\n2. Verify contract verification works correctly\n3. Test contract ABI generation and updates\n4. Verify deployment address updates are correctly propagated\n5. Test with different contract configurations for different environments"
+          },
+          {
+            "id": 4,
+            "title": "Implement Database Migration Pipeline",
+            "description": "Set up a safe database migration pipeline that runs migrations as part of the deployment process with rollback capabilities.",
+            "dependencies": [
+              "24.2"
+            ],
+            "details": "1. Create `.github/workflows/db-migrations.yml` that can be called from other workflows\n2. Configure the workflow to:\n   - Run database migrations from `packages/db/migrations/`\n   - Implement safety checks before migrations\n   - Create database backups before migrations\n   - Set up rollback procedures in `packages/db/scripts/rollback/`\n3. Integrate the database migration workflow into the CD pipelines\n4. Create migration scripts in `packages/db/scripts/migrate/`\n5. Set up environment-specific database configurations in `packages/config/environments/database/`\n6. Implement migration verification tests in `packages/db/tests/migrations/`",
+            "status": "pending",
+            "testStrategy": "1. Test migration process on a staging database\n2. Verify rollback procedure works correctly\n3. Test integration with the CD pipeline\n4. Validate safety checks prevent dangerous migrations\n5. Test with different database configurations for different environments"
+          },
+          {
+            "id": 5,
+            "title": "Implement Monitoring and Secret Management",
+            "description": "Set up monitoring integration for deployments and implement secure secret management across all CI/CD pipelines.",
+            "dependencies": [
+              "24.2",
+              "24.3",
+              "24.4"
+            ],
+            "details": "1. Create `.github/workflows/monitoring.yml` for setting up and updating monitoring\n2. Implement monitoring integration with:\n   - Error tracking in `packages/core/monitoring/errors.ts`\n   - Performance monitoring in `packages/core/monitoring/performance.ts`\n   - Health checks in `packages/core/monitoring/health.ts`\n   - Deployment tracking in `packages/core/monitoring/deployments.ts`\n3. Set up secret management using GitHub Secrets and Actions\n4. Create a secure process for managing environment variables in `packages/config/scripts/secrets/`\n5. Implement deployment notifications in `packages/core/notifications/`\n6. Add monitoring dashboards configuration in `packages/config/monitoring/`\n7. Create documentation for the CI/CD pipeline in the repository root",
+            "status": "pending",
+            "testStrategy": "1. Verify monitoring captures deployment events\n2. Test error tracking with simulated errors\n3. Validate secret management across different environments\n4. Test deployment notifications reach the correct channels\n5. Verify monitoring dashboards display the correct information"
+          }
+        ]
+      },
+      {
+        "id": 25,
+        "title": "Implement Production Deployment and Security Hardening",
+        "description": "Prepare the application for production deployment with security hardening, performance optimization, and monitoring setup.",
+        "details": "1. Configure production environment:\n   - Vercel for web hosting\n   - Neon or Supabase for PostgreSQL\n   - Upstash for Redis\n   - AWS KMS or similar for private key management\n2. Implement security hardening:\n   - CSP headers\n   - HTTPS enforcement\n   - Rate limiting\n   - Input validation\n   - Output encoding\n   - CSRF protection\n   - XSS prevention\n3. Perform performance optimization:\n   - Code splitting\n   - Image optimization\n   - Caching strategy\n   - Database query optimization\n   - Redis usage optimization\n4. Set up monitoring and alerting:\n   - Error tracking\n   - Performance monitoring\n   - Uptime checking\n   - Balance alerting\n   - Security monitoring\n5. Create disaster recovery plan\n6. Implement backup strategy\n7. Create runbook for common operations\n8. Perform security audit and penetration testing\n\nUse the following technologies:\n- Helmet.js for security headers\n- AWS KMS for key management\n- Sentry for error tracking\n- UptimeRobot or similar for uptime monitoring\n- Regular security scanning",
+        "testStrategy": "1. Perform security audit\n2. Test performance under load\n3. Verify monitoring and alerting\n4. Test disaster recovery procedures\n5. Validate backup and restore\n6. Test with security scanning tools\n7. Verify all security headers\n8. Test rate limiting in production environment\n9. Validate error tracking\n10. Perform penetration testing",
+        "priority": "high",
+        "dependencies": [
+          3,
+          4,
+          7,
+          9,
+          10,
+          13,
+          14,
+          15,
+          24
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Configure Production Environment and Infrastructure",
+            "description": "Set up and configure all production infrastructure components including Vercel, database services, Redis, and key management.",
+            "dependencies": [],
+            "details": "1. Configure Vercel deployment in apps/web/.vercel/project.json and apps/web/vercel.json with production settings\n2. Set up Neon PostgreSQL database and configure connection in packages/db/src/config/production.ts\n3. Configure Upstash Redis in packages/core/src/redis/config.ts with production credentials\n4. Implement AWS KMS for private key management in packages/core/src/crypto/kms.ts\n5. Create environment variable templates in packages/config/env/.env.production.example\n6. Update turbo.json with production deployment pipeline configuration\n7. Configure cross-package dependencies for production in each package.json",
+            "status": "pending",
+            "testStrategy": "1. Verify Vercel deployment configuration with test deployment\n2. Test database connections with connection pooling under load\n3. Validate Redis connection and performance\n4. Test KMS key rotation and management\n5. Verify all environment variables are properly loaded in production context"
+          },
+          {
+            "id": 2,
+            "title": "Implement Security Hardening Measures",
+            "description": "Implement comprehensive security measures including headers, rate limiting, and protection against common web vulnerabilities.",
+            "dependencies": [
+              "25.1"
+            ],
+            "details": "1. Integrate Helmet.js in apps/web/src/middleware.ts for security headers and CSP configuration\n2. Implement HTTPS enforcement in apps/web/next.config.js\n3. Create rate limiting middleware in packages/core/src/middleware/rateLimit.ts\n4. Implement input validation using Zod schemas in packages/core/src/validation/schemas/\n5. Add CSRF protection in apps/web/src/app/api/csrf.ts\n6. Implement XSS prevention through proper output encoding in packages/ui/src/components/common/SafeHtml.tsx\n7. Create security configuration file at packages/config/src/security.ts for centralized security settings",
+            "status": "pending",
+            "testStrategy": "1. Test all security headers with security scanning tools\n2. Verify rate limiting under load testing\n3. Test input validation with malicious payloads\n4. Validate CSRF protection across forms\n5. Test XSS prevention with various attack vectors\n6. Run automated security scanning against test deployment"
+          },
+          {
+            "id": 3,
+            "title": "Optimize Performance for Production",
+            "description": "Implement performance optimizations including code splitting, caching strategies, and database query optimization.",
+            "dependencies": [
+              "25.1",
+              "25.2"
+            ],
+            "details": "1. Configure code splitting in apps/web/next.config.js and implement dynamic imports in page components\n2. Set up image optimization in apps/web/src/components/common/OptimizedImage.tsx\n3. Implement caching strategy in packages/core/src/cache/strategy.ts with Redis integration\n4. Optimize database queries in packages/db/src/repositories/ with proper indexing and query planning\n5. Create Redis usage optimization in packages/core/src/redis/optimized.ts\n6. Implement service worker for caching in apps/web/public/sw.js\n7. Add performance-specific configurations in packages/config/src/performance.ts",
+            "status": "pending",
+            "testStrategy": "1. Measure and compare bundle sizes before and after optimization\n2. Test image loading performance across devices\n3. Benchmark database query performance under load\n4. Validate cache hit rates in production-like environment\n5. Test application performance metrics using Lighthouse\n6. Verify Redis memory usage optimization"
+          },
+          {
+            "id": 4,
+            "title": "Set Up Monitoring and Alerting Systems",
+            "description": "Implement comprehensive monitoring and alerting for application performance, errors, and security incidents.",
+            "dependencies": [
+              "25.1",
+              "25.2",
+              "25.3"
+            ],
+            "details": "1. Integrate Sentry for error tracking in packages/core/src/monitoring/sentry.ts\n2. Set up performance monitoring in packages/core/src/monitoring/performance.ts\n3. Configure UptimeRobot for uptime checking and integrate webhooks in packages/core/src/monitoring/uptime.ts\n4. Implement balance alerting system in packages/core/src/monitoring/balances.ts\n5. Create security monitoring in packages/core/src/monitoring/security.ts\n6. Set up centralized logging in packages/core/src/monitoring/logging.ts\n7. Create monitoring dashboard configuration in apps/admin/src/app/monitoring/page.tsx",
+            "status": "pending",
+            "testStrategy": "1. Test error capturing and reporting with Sentry\n2. Verify performance metrics collection and visualization\n3. Test uptime monitoring with simulated outages\n4. Validate balance alerting thresholds with test scenarios\n5. Test security monitoring with simulated security events\n6. Verify alert delivery through all configured channels"
+          },
+          {
+            "id": 5,
+            "title": "Implement Disaster Recovery and Operational Procedures",
+            "description": "Create comprehensive disaster recovery plans, backup strategies, and operational runbooks for the production environment.",
+            "dependencies": [
+              "25.1",
+              "25.2",
+              "25.3",
+              "25.4"
+            ],
+            "details": "1. Create disaster recovery plan document in docs/operations/disaster-recovery.md\n2. Implement automated database backup strategy in packages/db/src/backup/index.ts\n3. Set up backup verification and testing procedures in packages/db/src/backup/verify.ts\n4. Create operational runbooks for common scenarios in docs/operations/runbooks/\n5. Implement security audit procedures and schedule in docs/operations/security-audit.md\n6. Set up penetration testing framework and schedule in docs/operations/pentest.md\n7. Create incident response procedures in docs/operations/incident-response.md\n8. Implement backup rotation and retention policy in packages/config/src/backup.ts",
+            "status": "pending",
+            "testStrategy": "1. Test disaster recovery procedures with simulated failures\n2. Verify backup and restore functionality in isolated environment\n3. Validate runbook procedures with team walkthrough\n4. Test incident response procedures with simulated incidents\n5. Verify security scanning integration\n6. Test backup retention and rotation policies"
+          }
+        ]
+      }
+    ],
+    "metadata": {
+      "created": "2025-08-29T08:49:37.007Z",
+      "updated": "2025-08-29T09:26:35.256Z",
+      "description": "Tasks for master context"
+    }
+  }
+}

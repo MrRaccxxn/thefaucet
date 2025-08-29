@@ -1,0 +1,30 @@
+{
+  "name": "@thefaucet/contracts",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Smart contracts for the multichain faucet",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "scripts": {
+    "build": "echo 'Contracts build - Foundry will be configured in task 6'",
+    "test": "echo 'Contracts test - Foundry will be configured in task 6'",
+    "lint": "echo 'Contracts lint - ESLint will be configured with source files'",
+    "check-types": "echo 'Contracts type check - Will be configured with TypeScript files'"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^5.0.0"
+  },
+  "devDependencies": {
+    "@thefaucet/eslint-config": "workspace:*",
+    "@thefaucet/typescript-config": "workspace:*",
+    "@types/node": "^20.0.0",
+    "eslint": "^8.0.0",
+    "typescript": "^5.0.0"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "name": "@thefaucet/config",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Shared configuration packages for the multichain faucet",
+  "exports": {
+    "./eslint": "./eslint-config/package.json",
+    "./typescript": "./typescript-config/package.json"
+  },
+  "scripts": {
+    "lint": "echo 'No linting needed for config package'",
+    "check-types": "echo 'No type checking needed for config package'"
+  }
+}
