@@ -1,23 +1,29 @@
-import { pgTable, text, timestamp, integer, uuid, decimal, jsonb } from 'drizzle-orm/pg-core';
+import { pgTable, text, timestamp, integer, uuid, decimal, jsonb, index, boolean } from 'drizzle-orm/pg-core';
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { users } from './users';
+import { assets } from './assets';
 
 // Claims table - stores all faucet claims
 export const claims = pgTable('claims', {
   id: uuid('id').primaryKey().defaultRandom(),
   userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  assetId: uuid('asset_id').references(() => assets.id, { onDelete: 'cascade' }).notNull(),
   walletAddress: text('wallet_address').notNull(),
-  chainId: integer('chain_id').notNull(),
-  assetType: text('asset_type').notNull(), // 'native', 'erc20', 'nft'
-  assetAddress: text('asset_address'), // Contract address for ERC20/NFT, null for native
-  amount: decimal('amount'), // Amount for native/ERC20 tokens
+  amount: decimal('amount', { precision: 20, scale: 18 }), // Amount for native/ERC20 tokens
   tokenId: text('token_id'), // Token ID for NFTs
   txHash: text('tx_hash'),
   status: text('status').notNull().default('pending'), // 'pending', 'confirmed', 'failed'
+  metadata: jsonb('metadata'), // Additional metadata for the claim
   createdAt: timestamp('created_at').defaultNow().notNull(),
   confirmedAt: timestamp('confirmed_at'),
-});
+}, (table) => ({
+  userIdIdx: index('claims_user_id_idx').on(table.userId),
+  assetIdIdx: index('claims_asset_id_idx').on(table.assetId),
+  statusIdx: index('claims_status_idx').on(table.status),
+  createdAtIdx: index('claims_created_at_idx').on(table.createdAt),
+  txHashIdx: index('claims_tx_hash_idx').on(table.txHash),
+}));
 
 // Redeem codes table - for event/hackathon codes
 export const redeemCodes = pgTable('redeem_codes', {
@@ -28,8 +34,14 @@ export const redeemCodes = pgTable('redeem_codes', {
   currentUses: integer('current_uses').default(0).notNull(),
   expiresAt: timestamp('expires_at'),
   boostedAmounts: jsonb('boosted_amounts'), // JSON object with boosted amounts per asset type
+  isActive: boolean('is_active').default(true).notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
-});
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+}, (table) => ({
+  codeIdx: index('redeem_codes_code_idx').on(table.code),
+  isActiveIdx: index('redeem_codes_is_active_idx').on(table.isActive),
+  expiresAtIdx: index('redeem_codes_expires_at_idx').on(table.expiresAt),
+}));
 
 // Code redemptions table - tracks which users used which codes
 export const codeRedemptions = pgTable('code_redemptions', {
@@ -38,7 +50,11 @@ export const codeRedemptions = pgTable('code_redemptions', {
   userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
   claimId: uuid('claim_id').references(() => claims.id, { onDelete: 'cascade' }).notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
-});
+}, (table) => ({
+  codeIdIdx: index('code_redemptions_code_id_idx').on(table.codeId),
+  userIdIdx: index('code_redemptions_user_id_idx').on(table.userId),
+  claimIdIdx: index('code_redemptions_claim_id_idx').on(table.claimId),
+}));
 
 // Zod schemas for validation
 export const insertClaimSchema = createInsertSchema(claims);

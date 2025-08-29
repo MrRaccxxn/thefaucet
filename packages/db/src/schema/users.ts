@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, boolean, integer, uuid } from 'drizzle-orm/pg-core';
+import { pgTable, text, timestamp, boolean, integer, uuid, index } from 'drizzle-orm/pg-core';
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
 
@@ -11,7 +11,10 @@ export const users = pgTable('users', {
   avatar: text('avatar'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
-});
+}, (table) => ({
+  githubIdIdx: index('users_github_id_idx').on(table.githubId),
+  emailIdx: index('users_email_idx').on(table.email),
+}));
 
 // User wallets table - for linking multiple wallets to a user
 export const userWallets = pgTable('user_wallets', {
@@ -20,7 +23,11 @@ export const userWallets = pgTable('user_wallets', {
   address: text('address').notNull(),
   isPrimary: boolean('is_primary').default(false).notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
-});
+}, (table) => ({
+  userIdIdx: index('user_wallets_user_id_idx').on(table.userId),
+  addressIdx: index('user_wallets_address_idx').on(table.address),
+  isPrimaryIdx: index('user_wallets_is_primary_idx').on(table.isPrimary),
+}));
 
 // Rate limiting table - stores claim history for rate limiting
 export const rateLimits = pgTable('rate_limits', {
@@ -31,7 +38,12 @@ export const rateLimits = pgTable('rate_limits', {
   lastClaimAt: timestamp('last_claim_at').notNull(),
   claimCount: integer('claim_count').default(0).notNull(),
   resetAt: timestamp('reset_at').notNull(),
-});
+}, (table) => ({
+  userIdIdx: index('rate_limits_user_id_idx').on(table.userId),
+  assetTypeIdx: index('rate_limits_asset_type_idx').on(table.assetType),
+  chainIdIdx: index('rate_limits_chain_id_idx').on(table.chainId),
+  lastClaimAtIdx: index('rate_limits_last_claim_at_idx').on(table.lastClaimAt),
+}));
 
 // Zod schemas for validation
 export const insertUserSchema = createInsertSchema(users);

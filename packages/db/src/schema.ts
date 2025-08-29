@@ -1,11 +1,24 @@
-// Database schema definitions
-// This will be implemented in Task 4: Implement Database Schema with Drizzle ORM
+// Export all schema tables and types
+export * from './schema/users';
+export * from './schema/chains';
+export * from './schema/assets';
+export * from './schema/claims';
 
-// Placeholder schema exports - will be replaced with actual Drizzle schema
-export const users = 'users table placeholder';
-export const chains = 'chains table placeholder';
-export const tokens = 'tokens table placeholder';
-export const nfts = 'nfts table placeholder';
-export const codes = 'codes table placeholder';
-export const claims = 'claims table placeholder';
-export const limits = 'limits table placeholder';
+// Import all tables for migrations
+import { users, userWallets, rateLimits } from './schema/users';
+import { chains } from './schema/chains';
+import { assets, claimLimits } from './schema/assets';
+import { claims, redeemCodes, codeRedemptions } from './schema/claims';
+
+// Export all tables for migrations
+export const tables = {
+  users,
+  userWallets,
+  rateLimits,
+  chains,
+  assets,
+  claimLimits,
+  claims,
+  redeemCodes,
+  codeRedemptions,
+};

@@ -1,5 +1,4 @@
-// Export all schema models
+// Export all query helpers
 export * from './users';
-export * from './chains';
 export * from './assets';
 export * from './claims';

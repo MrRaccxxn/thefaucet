@@ -225,7 +225,7 @@
           1,
           2
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -233,7 +233,7 @@
             "description": "Initialize Drizzle ORM with PostgreSQL and Neon database adapter in the packages/db directory, including configuration for connection pooling.",
             "dependencies": [],
             "details": "Create or modify the following files in packages/db:\n1. Update package.json to add dependencies: drizzle-orm@0.28.0+, pg@8.11.0+, @neondatabase/serverless, and drizzle-kit@0.19.0+ as devDependency\n2. Create src/index.ts to export all database functionality\n3. Create src/config.ts for database configuration including environment variables\n4. Create src/client.ts to set up the database client with connection pooling\n5. Update packages/config/src/schema.ts to include database environment variables\n6. Update turbo.json to include build dependencies for the db package",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "1. Verify package installation with pnpm list\n2. Test database connection to development database\n3. Validate connection pooling configuration\n4. Ensure proper error handling for connection failures\n5. Test environment variable loading"
           },
           {
@@ -244,7 +244,7 @@
               "4.1"
             ],
             "details": "Create the following files in packages/db/src/schema/:\n1. Create index.ts to export all schema models\n2. Create users.ts for Users and UserWallets models\n3. Create chains.ts for Chains model\n4. Create assets.ts for Assets and ClaimLimits models\n5. Create claims.ts for Claims, RedeemCodes, and CodeRedemptions models\n\nEach schema file should define:\n- Table structure with proper column types\n- Primary keys and foreign key relationships\n- Indexes for query optimization\n- Default values and constraints\n- TypeScript types for each model\n\nEnsure proper relations are defined between tables using Drizzle's relations API.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "1. Validate schema definitions against requirements\n2. Verify proper types for all columns\n3. Check relationship definitions between tables\n4. Ensure indexes are defined for frequently queried fields\n5. Validate constraints and default values"
           },
           {
@@ -255,7 +255,7 @@
               "4.2"
             ],
             "details": "Create or modify the following files in packages/db:\n1. Create drizzle.config.ts with migration configuration pointing to the correct schema files and output directory\n2. Create migrations/ directory to store generated migrations\n3. Add migration scripts to package.json:\n   - \"generate\": \"drizzle-kit generate:pg\"\n   - \"migrate\": \"tsx src/migrate.ts\"\n   - \"studio\": \"drizzle-kit studio\"\n4. Create src/migrate.ts script to programmatically run migrations\n5. Update README.md with migration instructions\n6. Update .gitignore to include appropriate drizzle files",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "1. Test migration generation with drizzle-kit\n2. Verify migration files are created correctly\n3. Test running migrations against a test database\n4. Validate rollback functionality\n5. Test migration script with different environment configurations"
           },
           {
@@ -267,7 +267,7 @@
               "4.3"
             ],
             "details": "Create the following files in packages/db/src/queries/:\n1. Create index.ts to export all query helpers\n2. Create users.ts with functions for user operations (create, find, update)\n3. Create wallets.ts with functions for wallet management\n4. Create claims.ts with functions for claim operations and history\n5. Create assets.ts with functions for asset and chain queries\n6. Create codes.ts with functions for redeem code operations\n\nEach query file should include:\n- Type-safe query functions using Drizzle's query builder\n- Transaction support for multi-table operations\n- Error handling and validation\n- Pagination helpers for list operations\n- Common filtering patterns",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "1. Test each query function with sample data\n2. Verify transaction handling for multi-table operations\n3. Test error cases and validation\n4. Benchmark query performance\n5. Test pagination and filtering functionality"
           },
           {
@@ -278,7 +278,7 @@
               "4.4"
             ],
             "details": "Create or modify the following files:\n1. Update packages/db/src/index.ts to export all necessary types and functions\n2. Create packages/db/src/trpc.ts with context helpers for tRPC integration\n3. Modify apps/web/src/server/api/trpc.ts to include database client in the context\n4. Update apps/web/src/server/api/routers/ files to use database queries:\n   - user.ts for user-related endpoints\n   - claim.ts for claim-related endpoints\n   - asset.ts for asset-related endpoints\n5. Update packages/db/package.json to include proper exports\n6. Update tsconfig.json files to ensure proper path resolution",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "1. Test tRPC endpoints that use database queries\n2. Verify type safety between tRPC and database layer\n3. Test context creation and database client initialization\n4. Validate error handling and propagation\n5. Test with mock database for unit testing"
           }
         ]
@@ -1436,7 +1436,7 @@
     ],
     "metadata": {
       "created": "2025-08-29T08:49:37.007Z",
-      "updated": "2025-08-29T10:16:09.475Z",
+      "updated": "2025-08-29T12:02:59.413Z",
       "description": "Tasks for master context"
     }
   }

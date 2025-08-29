@@ -18,13 +18,16 @@
     "lint": "eslint . --max-warnings 0",
     "check-types": "tsc --noEmit",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate",
-    "db:studio": "drizzle-kit studio"
+    "db:migrate": "tsx src/migrate.ts",
+    "db:studio": "drizzle-kit studio",
+    "db:push": "drizzle-kit push"
   },
   "dependencies": {
     "drizzle-orm": "^0.33.0",
     "drizzle-zod": "^0.5.1",
     "postgres": "^3.4.0",
+    "@neondatabase/serverless": "^1.0.1",
+    "pg": "^8.16.3",
     "zod": "^3.22.4",
     "dotenv": "^16.3.1"
   },
@@ -32,9 +35,11 @@
     "@thefaucet/eslint-config": "workspace:*",
     "@thefaucet/typescript-config": "workspace:*",
     "@types/node": "^20.0.0",
+    "@types/pg": "^8.15.5",
     "drizzle-kit": "^0.24.0",
     "eslint": "^8.0.0",
     "jest": "^29.0.0",
+    "tsx": "^4.20.5",
     "typescript": "^5.0.0"
   }
 }
