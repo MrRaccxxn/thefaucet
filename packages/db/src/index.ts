@@ -1,8 +1,12 @@
 // Database package for the multichain faucet
-// This will be implemented in Task 4: Implement Database Schema with Drizzle ORM
+// Export database connection
+export { db, client } from './connection';
 
+// Export environment configuration
+export { env, type Env } from './env';
+
+// Export all schema tables and types
 export * from './schema';
-export * from './queries';
 
-// Placeholder exports - will be replaced with actual database functionality
+// Version
 export const DB_VERSION = '0.0.1';

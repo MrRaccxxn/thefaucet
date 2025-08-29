@@ -1,26 +1,67 @@
-# Turborepo starter
+# The Faucet - Multichain Testnet Faucet
 
-This Turborepo starter is maintained by the Turborepo core team.
+A modern, multichain faucet application for EVM-compatible testnets with GitHub OAuth authentication and redeem code functionality. Built with Next.js, tRPC, and Drizzle ORM in a Turborepo monorepo structure.
 
-## Using this example
+## Features
 
-Run the following command:
+- 🌐 **Multichain Support**: Ethereum Sepolia, Polygon Amoy, BSC Testnet
+- 🔐 **GitHub OAuth**: Secure authentication with account verification
+- 💧 **Multiple Asset Types**: Native tokens, ERC20 tokens, and NFTs
+- 🎫 **Redeem Codes**: Time-limited codes with boosted amounts for events
+- ⚡ **Rate Limiting**: Redis-based rate limiting with cooldown periods
+- 📊 **Analytics**: Comprehensive usage tracking and admin dashboard
+- 🛡️ **Abuse Prevention**: Advanced protection against farming and abuse
+- 🏗️ **Modern Stack**: Next.js 14, tRPC, Drizzle ORM, Tailwind CSS
 
-```sh
-npx create-turbo@latest
-```
+## Quick Start
 
-## What's inside?
+### Prerequisites
+- Node.js 18+
+- pnpm 8+
+- Docker & Docker Compose
 
-This Turborepo includes the following packages/apps:
+### Development Setup
+
+1. **Clone and install dependencies**:
+   ```bash
+   git clone <repository-url>
+   cd thefaucet
+   pnpm install
+   ```
+
+2. **Start development services**:
+   ```bash
+   pnpm docker:up
+   ```
+
+3. **Set up environment variables**:
+   ```bash
+   cp infra/docker/env.example .env
+   ```
+
+4. **Run database migrations**:
+   ```bash
+   pnpm db:migrate
+   ```
+
+5. **Start the development server**:
+   ```bash
+   pnpm dev
+   ```
+
+Visit [http://localhost:3000](http://localhost:3000) to see the application.
+
+## Project Structure
 
 ### Apps and Packages
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+- `apps/web`: Main Next.js 14 application with App Router
+- `packages/ui`: Shared React component library with shadcn/ui
+- `packages/db`: Database schema and queries using Drizzle ORM
+- `packages/core`: Business logic and chain adapters
+- `packages/contracts`: Smart contracts using Foundry
+- `packages/config`: Shared configurations (TypeScript, ESLint, Environment)
+- `infra/docker`: Docker development environment
 
 Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
 
@@ -32,61 +73,32 @@ This Turborepo has some additional tools already setup for you:
 - [ESLint](https://eslint.org/) for code linting
 - [Prettier](https://prettier.io) for code formatting
 
-### Build
+## Docker Development Environment
 
-To build all apps and packages, run the following command:
+The project includes a complete Docker setup for local development. See [infra/docker/README.md](infra/docker/README.md) for detailed documentation.
 
-```
-cd my-turborepo
+### Available Docker Commands
 
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build
+| Command | Description |
+|---------|-------------|
+| `pnpm docker:up` | Start all services (PostgreSQL, Redis, Anvil nodes) |
+| `pnpm docker:down` | Stop all services |
+| `pnpm docker:restart` | Restart all services |
+| `pnpm docker:logs` | View logs from all services |
+| `pnpm docker:status` | Check service status |
+| `pnpm docker:clean` | Clean up volumes and containers |
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build
-yarn dlx turbo build
-pnpm exec turbo build
-```
+### Available Commands
 
-You can build a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
-
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build --filter=docs
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build --filter=docs
-yarn exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-```
-
-### Develop
-
-To develop all apps and packages, run the following command:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev
-yarn exec turbo dev
-pnpm exec turbo dev
-```
-
-You can develop a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
-
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev --filter=web
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev --filter=web
-yarn exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-```
+| Command | Description |
+|---------|-------------|
+| `pnpm dev` | Start development server for all packages |
+| `pnpm build` | Build all packages and apps |
+| `pnpm lint` | Lint all packages |
+| `pnpm test` | Run tests for all packages |
+| `pnpm db:generate` | Generate Drizzle schema |
+| `pnpm db:migrate` | Run database migrations |
+| `pnpm db:studio` | Open Drizzle Studio |
 
 ### Remote Caching
 

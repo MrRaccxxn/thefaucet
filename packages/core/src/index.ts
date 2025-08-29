@@ -4,6 +4,7 @@
 export * from './adapters';
 export * from './balance';
 export * from './rate-limiting';
+export * from './chains';
 
 // Placeholder exports - will be replaced with actual core functionality
 export const CORE_VERSION = '0.0.1';

@@ -83,7 +83,7 @@
         "dependencies": [
           1
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -91,7 +91,7 @@
             "description": "Create the docker-compose.yml file with PostgreSQL, Redis, and Anvil node services with proper volume configurations",
             "dependencies": [],
             "details": "Create `infra/docker/docker-compose.yml` with the following services:\n- PostgreSQL 15 using postgres:15-alpine image with persistent volume at `infra/docker/volumes/postgres`\n- Redis 7 using redis:7-alpine image with persistent volume at `infra/docker/volumes/redis`\n- Three Anvil nodes using foundry/foundry:latest for Ethereum Sepolia, Polygon Amoy, and BSC Testnet\nDefine proper container names, ports, and network settings for all services\nEnsure services restart automatically unless stopped manually",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Verify docker-compose.yml syntax with `docker-compose config`\nTest starting all services with `docker-compose up -d`\nVerify all containers are running with `docker-compose ps`\nCheck volume creation and persistence"
           },
           {
@@ -102,7 +102,7 @@
               "2.1"
             ],
             "details": "Create `infra/docker/postgres/init/` directory for initialization scripts\nAdd `01-create-databases.sql` to create main and test databases\nAdd `02-create-users.sql` to set up application users with proper permissions\nAdd `03-extensions.sql` to enable required PostgreSQL extensions\nUpdate docker-compose.yml to mount these scripts to /docker-entrypoint-initdb.d/ in the PostgreSQL container\nEnsure scripts are compatible with packages/db schema requirements",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Verify scripts execute on container startup\nTest database connection and user authentication\nVerify all required databases and extensions are created\nTest connection from host machine using database client"
           },
           {
@@ -113,7 +113,7 @@
               "2.1"
             ],
             "details": "Create `infra/docker/redis/redis.conf` with appropriate memory settings, persistence configuration, and security settings\nCreate `infra/docker/anvil/` directory with separate configuration files for each testnet:\n- `sepolia.sh` for Ethereum Sepolia (chain ID: 11155111)\n- `amoy.sh` for Polygon Amoy (chain ID: 80002)\n- `bsc-testnet.sh` for BSC Testnet (chain ID: 97)\nConfigure each Anvil node with appropriate RPC URL for forking, block number, and chain ID\nUpdate docker-compose.yml to use these configuration files",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test Redis connection and verify configuration is applied\nVerify Redis persistence across container restarts\nTest each Anvil node's RPC endpoint\nVerify chain IDs and forking configurations are correct\nTest interaction with each chain using ethers.js"
           },
           {
@@ -126,7 +126,7 @@
               "2.3"
             ],
             "details": "Create `infra/docker/.env.example` with all required environment variables\nCreate `infra/docker/.env` (gitignored) for local development\nAdd database connection variables (POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB, DATABASE_URL)\nAdd Redis connection variables (REDIS_URL, REDIS_PASSWORD)\nAdd Anvil node connection variables for each chain (SEPOLIA_RPC_URL, AMOY_RPC_URL, BSC_TESTNET_RPC_URL)\nUpdate packages/config to read these environment variables\nEnsure environment variables are properly passed to containers in docker-compose.yml",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Verify all environment variables are properly loaded\nTest connection strings from application code\nVerify environment variables are accessible in all containers\nTest configuration with packages/config module"
           },
           {
@@ -140,7 +140,7 @@
               "2.4"
             ],
             "details": "Update root package.json to add the following scripts:\n- `docker:up`: Start all Docker services\n- `docker:down`: Stop all Docker services\n- `docker:restart`: Restart all Docker services\n- `docker:logs`: View Docker logs\n- `docker:clean`: Remove volumes and containers\nCreate `infra/docker/README.md` with comprehensive documentation including:\n- Setup instructions\n- Available services and ports\n- Environment variable configuration\n- Troubleshooting guide\n- Development workflow\nUpdate main project README.md to reference Docker setup\nAdd Docker environment setup to onboarding documentation",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test all npm scripts to ensure they work correctly\nVerify documentation accuracy by following setup instructions\nTest the complete development workflow from setup to teardown\nGet feedback from team members on documentation clarity"
           }
         ]
@@ -1436,7 +1436,7 @@
     ],
     "metadata": {
       "created": "2025-08-29T08:49:37.007Z",
-      "updated": "2025-08-29T09:26:35.256Z",
+      "updated": "2025-08-29T09:35:05.880Z",
       "description": "Tasks for master context"
     }
   }

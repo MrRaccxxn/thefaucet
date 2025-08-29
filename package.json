@@ -12,11 +12,16 @@
     "format": "prettier --write \"**/*.{ts,tsx,md,json}\"",
     "check-types": "turbo run check-types",
     "clean": "turbo run clean",
-    "db:generate": "turbo run db:generate",
-    "db:migrate": "turbo run db:migrate",
-    "db:studio": "turbo run db:studio",
+    "db:generate": "pnpm --filter @thefaucet/db db:generate",
+    "db:migrate": "pnpm --filter @thefaucet/db db:migrate",
+    "db:studio": "pnpm --filter @thefaucet/db db:studio",
     "docker:up": "docker-compose -f infra/docker/docker-compose.yml up -d",
-    "docker:down": "docker-compose -f infra/docker/docker-compose.yml down"
+    "docker:down": "docker-compose -f infra/docker/docker-compose.yml down",
+    "docker:restart": "pnpm docker:down && pnpm docker:up",
+    "docker:logs": "docker-compose -f infra/docker/docker-compose.yml logs -f",
+    "docker:clean": "docker-compose -f infra/docker/docker-compose.yml down -v --remove-orphans && docker system prune -f",
+    "docker:status": "docker-compose -f infra/docker/docker-compose.yml ps",
+    "setup": "bash scripts/setup.sh"
   },
   "devDependencies": {
     "@types/node": "^20.14.0",
