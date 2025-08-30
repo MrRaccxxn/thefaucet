@@ -3,10 +3,12 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { useThemeStore, useAuthStore } from "@/lib/stores"
+import { useAuth } from "@/lib/hooks/use-auth"
 
 export function Navbar() {
   const { theme, toggleTheme } = useThemeStore()
-  const { isAuthenticated, user, openAuthModal, logout } = useAuthStore()
+  const { openAuthModal } = useAuthStore()
+  const { user, isAuthenticated, isLoading, signOut } = useAuth()
   const isDark = theme === 'dark'
 
   return (
@@ -62,13 +64,22 @@ export function Navbar() {
                 </svg>
               ) : (
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 008.354-5.646z" />
                 </svg>
               )}
             </button>
             
-            {isAuthenticated ? (
+            {isLoading ? (
+              <div className="text-xs text-muted-foreground">Loading...</div>
+            ) : isAuthenticated ? (
               <div className="flex items-center space-x-2">
+                {user?.avatarUrl && (
+                  <img 
+                    src={user.avatarUrl} 
+                    alt={user.username}
+                    className="w-6 h-6 rounded-full"
+                  />
+                )}
                 <span className="text-xs text-muted-foreground">
                   {user?.username}
                 </span>
@@ -76,7 +87,7 @@ export function Navbar() {
                   variant="ghost" 
                   size="sm" 
                   className="text-xs px-3 py-1.5 h-auto"
-                  onClick={logout}
+                  onClick={signOut}
                 >
                   Sign Out
                 </Button>

@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { useAuthStore } from '@/lib/stores';
+import { signIn } from 'next-auth/react';
 
 export function GitHubAuthModal() {
   const { showAuthModal, closeAuthModal, setLoading, isLoading } = useAuthStore();
@@ -31,23 +32,18 @@ export function GitHubAuthModal() {
     setLoading(true);
     
     try {
-      // TODO: Implement actual GitHub OAuth flow
-      console.log('Starting GitHub authentication...');
+      // Use NextAuth's signIn function to start GitHub OAuth flow
+      const result = await signIn('github', {
+        callbackUrl: '/dashboard', // Redirect to dashboard after successful auth
+        redirect: true, // This will redirect to GitHub OAuth
+      });
       
-      // Simulate OAuth flow
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // For demo purposes, simulate successful auth
-      // In real implementation, this would be handled by OAuth callback
-      // login({ 
-      //   id: 'demo-user', 
-      //   username: 'demo-user', 
-      //   isVerified: true 
-      // });
+      // Note: This code won't execute immediately because of the redirect
+      // The actual authentication result will be handled by NextAuth callbacks
+      console.log('GitHub authentication initiated:', result);
       
     } catch (error) {
       console.error('GitHub authentication failed:', error);
-    } finally {
       setLoading(false);
     }
   };
@@ -119,7 +115,11 @@ export function GitHubAuthModal() {
               </li>
               <li className="flex items-center">
                 <div className="w-1.5 h-1.5 rounded-full bg-primary mr-2"></div>
-                At least 3 public repositories
+                At least 5 followers
+              </li>
+              <li className="flex items-center">
+                <div className="w-1.5 h-1.5 rounded-full bg-primary mr-2"></div>
+                At least 1 public repository
               </li>
             </ul>
           </div>

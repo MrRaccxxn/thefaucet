@@ -8,6 +8,13 @@
       "when": 1756468953557,
       "tag": "0000_groovy_power_man",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1756472123188,
+      "tag": "0001_oval_black_knight",
+      "breakpoints": true
     }
   ]
 }
