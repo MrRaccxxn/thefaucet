@@ -9,8 +9,10 @@ export const users = pgTable('users', {
   email: text('email').notNull(),
   emailVerified: timestamp('email_verified', { mode: 'date' }),
   image: text('image'),
+  role: text('role').default('user').notNull(), // 'user', 'admin', 'moderator'
 }, (table) => ({
   emailIdx: index('users_email_idx').on(table.email),
+  roleIdx: index('users_role_idx').on(table.role),
 }));
 
 // NextAuth Accounts table

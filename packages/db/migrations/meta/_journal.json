@@ -15,6 +15,27 @@
       "when": 1756472123188,
       "tag": "0001_oval_black_knight",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1756790916053,
+      "tag": "0002_ordinary_randall",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1756791388373,
+      "tag": "0003_rainy_mister_fear",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1756792971828,
+      "tag": "0004_stiff_risque",
+      "breakpoints": true
     }
   ]
 }

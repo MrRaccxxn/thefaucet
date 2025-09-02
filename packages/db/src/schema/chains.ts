@@ -7,6 +7,7 @@ export const chains = pgTable('chains', {
   id: uuid('id').primaryKey().defaultRandom(),
   name: text('name').notNull(),
   chainId: integer('chain_id').unique().notNull(),
+  nativeSymbol: text('native_symbol').notNull(),
   rpcUrl: text('rpc_url').notNull(),
   blockExplorerUrl: text('block_explorer_url'),
   isActive: boolean('is_active').default(true).notNull(),

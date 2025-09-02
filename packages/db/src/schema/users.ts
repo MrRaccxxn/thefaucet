@@ -46,6 +46,19 @@ export const rateLimits = pgTable('rate_limits', {
   lastClaimAtIdx: index('rate_limits_last_claim_at_idx').on(table.lastClaimAt),
 }));
 
+// API rate limiting table - stores API request history for rate limiting
+export const apiRateLimits = pgTable('api_rate_limits', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  identifier: text('identifier').notNull(), // user email or IP
+  requestCount: integer('request_count').default(0).notNull(),
+  windowStart: timestamp('window_start').notNull(),
+  windowEnd: timestamp('window_end').notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+}, (table) => ({
+  identifierIdx: index('api_rate_limits_identifier_idx').on(table.identifier),
+  windowEndIdx: index('api_rate_limits_window_end_idx').on(table.windowEnd),
+}));
+
 // Zod schemas for validation
 export const insertLegacyUserSchema = createInsertSchema(legacyUsers);
 export const selectLegacyUserSchema = createSelectSchema(legacyUsers);
@@ -53,6 +66,8 @@ export const insertUserWalletSchema = createInsertSchema(userWallets);
 export const selectUserWalletSchema = createSelectSchema(userWallets);
 export const insertRateLimitSchema = createInsertSchema(rateLimits);
 export const selectRateLimitSchema = createSelectSchema(rateLimits);
+export const insertApiRateLimitSchema = createInsertSchema(apiRateLimits);
+export const selectApiRateLimitSchema = createSelectSchema(apiRateLimits);
 
 // Types
 export type LegacyUser = z.infer<typeof selectLegacyUserSchema>;
@@ -61,3 +76,5 @@ export type UserWallet = z.infer<typeof selectUserWalletSchema>;
 export type NewUserWallet = z.infer<typeof insertUserWalletSchema>;
 export type RateLimit = z.infer<typeof selectRateLimitSchema>;
 export type NewRateLimit = z.infer<typeof insertRateLimitSchema>;
+export type ApiRateLimit = z.infer<typeof selectApiRateLimitSchema>;
+export type NewApiRateLimit = z.infer<typeof insertApiRateLimitSchema>;

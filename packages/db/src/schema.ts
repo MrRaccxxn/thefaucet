@@ -7,7 +7,7 @@ export * from './schema/claims';
 
 // Import all tables for migrations
 import { users, accounts, sessions, verificationTokens, userProfiles } from './schema/auth';
-import { userWallets, rateLimits } from './schema/users';
+import { userWallets, rateLimits, apiRateLimits } from './schema/users';
 import { chains } from './schema/chains';
 import { assets, claimLimits } from './schema/assets';
 import { claims, redeemCodes, codeRedemptions } from './schema/claims';
@@ -21,6 +21,7 @@ export const tables = {
   userProfiles,
   userWallets,
   rateLimits,
+  apiRateLimits,
   chains,
   assets,
   claimLimits,

@@ -179,11 +179,11 @@ export const SUPPORTED_NETWORKS: Record<string, NetworkConfig> = {
 
 // Default configuration values
 export const DEFAULT_FAUCET_CONFIG: FaucetConfig = {
-  nativeTokenCooldown: BigInt(3600), // 1 hour
-  tokenCooldown: BigInt(1800), // 30 minutes
+  nativeTokenCooldown: BigInt(86400), // 1 day (24 hours)
+  tokenCooldown: BigInt(86400), // 1 day (24 hours)
   nftCooldown: BigInt(7200), // 2 hours
-  nativeTokenAmount: BigInt("10000000000000000"), // 0.01 ETH
-  defaultTokenAmount: BigInt("100000000000000000000"), // 100 tokens
+  nativeTokenAmount: BigInt("50000000000000000"), // 0.05 ETH
+  defaultTokenAmount: BigInt("1000000000000000000000"), // 1000 tokens
   maxNFTsPerUser: BigInt(1),
 };
 

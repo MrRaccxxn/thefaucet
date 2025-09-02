@@ -437,7 +437,7 @@
           4,
           5
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -445,7 +445,7 @@
             "description": "Install tRPC dependencies and create the base router structure with error formatting in the Next.js application",
             "dependencies": [],
             "details": "In packages/core/: Create src/trpc/index.ts for the base router setup with proper error formatting. Create src/trpc/context.ts for context providers. In apps/web/: Create pages/api/trpc/[trpc].ts for the Next.js API route handler. Install dependencies with `pnpm add @trpc/server @trpc/client @trpc/next @trpc/react-query zod` in both packages/core and apps/web. Update packages/config/tsconfig/base.json to include path mappings for the new tRPC modules.",
-            "status": "in-progress",
+            "status": "done",
             "testStrategy": "Verify the tRPC server initializes correctly. Test error formatting with sample errors. Ensure the context providers can be initialized. Validate the API route responds to basic requests."
           },
           {
@@ -456,7 +456,7 @@
               "7.1"
             ],
             "details": "In packages/core/src/trpc/middleware/: Create auth.ts to implement authentication middleware using the existing auth system from Task 3. Implement isAuthed and hasRole middleware functions. Create admin.ts middleware specifically for admin routes. Update context.ts to include user information when authenticated. Modify the base router to support middleware attachment. Test integration with the existing authentication system from packages/core/src/auth/.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test middleware with authenticated and unauthenticated requests. Verify role-based access control works correctly. Test middleware composition for routes requiring multiple checks. Ensure proper error responses for unauthorized access."
           },
           {
@@ -468,7 +468,7 @@
               "7.2"
             ],
             "details": "In packages/core/src/trpc/routers/: Create individual router files: userRouter.ts, chainRouter.ts, assetRouter.ts, claimRouter.ts, codeRouter.ts, and adminRouter.ts. Implement basic endpoints for each router with Zod validation schemas. In packages/core/src/trpc/: Create router.ts to combine all routers into a single application router. Update the export in index.ts to expose the combined router. Ensure proper typing throughout the router structure. Connect routers to the database models from packages/db/.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test each router's basic endpoints. Verify Zod validation works for input validation. Test router composition and namespacing. Ensure database connections work correctly through the routers."
           },
           {
@@ -480,7 +480,7 @@
               "7.3"
             ],
             "details": "In packages/core/src/trpc/middleware/: Create rateLimit.ts to implement rate limiting using Redis from packages/db/src/redis/. Configure different rate limits for different endpoint types (public, authenticated, admin). Update the router structure to apply rate limiting middleware to appropriate routes. Implement IP-based rate limiting for unauthenticated routes and user-based rate limiting for authenticated routes. Create configuration in packages/config/src/rate-limits.ts for centralized rate limit settings.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test rate limiting with rapid sequential requests. Verify different limits apply to different route types. Test IP-based and user-based rate limiting. Ensure Redis connection works correctly for tracking limits. Test rate limit reset behavior."
           },
           {
@@ -492,7 +492,7 @@
               "7.3"
             ],
             "details": "In packages/core/src/trpc/client/: Create hooks.ts with custom hooks for common API operations. Create provider.tsx for the tRPC provider component. In apps/web/src/: Update _app.tsx to wrap the application with the tRPC provider. Create utils/api.ts for client-side tRPC initialization. Implement proper error handling and loading states in the hooks. Add React Query integration for caching and invalidation. Update packages/ui/src/providers/index.tsx to compose the tRPC provider with other application providers.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test hooks with mock data. Verify caching and invalidation work correctly. Test error handling in the client. Ensure provider properly initializes the tRPC client. Test integration with existing UI components. Verify SSR compatibility of the setup."
           }
         ]
@@ -1436,7 +1436,7 @@
     ],
     "metadata": {
       "created": "2025-08-29T08:49:37.007Z",
-      "updated": "2025-09-02T03:56:58.471Z",
+      "updated": "2025-09-02T04:39:40.197Z",
       "description": "Tasks for master context"
     }
   }

@@ -1,0 +1,119 @@
+[
+  {
+    "name": "Ethereum Sepolia",
+    "chain": "ETH",
+    "chainId": 11155111,
+    "networkId": 11155111,
+    "nativeCurrency": {
+      "name": "Sepolia Ether",
+      "symbol": "ETH",
+      "decimals": 18
+    },
+    "rpc": [
+      "https://ethereum-sepolia-rpc.publicnode.com",
+      "https://rpc.sepolia.org",
+      "https://sepolia.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161"
+    ],
+    "explorers": [
+      {
+        "name": "sepoliascan",
+        "url": "https://sepolia.etherscan.io",
+        "standard": "EIP3091"
+      }
+    ],
+    "isActive": true
+  },
+  {
+    "name": "Polygon Mumbai",
+    "chain": "MATIC",
+    "chainId": 80001,
+    "networkId": 80001,
+    "nativeCurrency": {
+      "name": "MATIC",
+      "symbol": "MATIC",
+      "decimals": 18
+    },
+    "rpc": [
+      "https://rpc-mumbai.maticvigil.com",
+      "https://polygon-mumbai.blockpi.network/v1/rpc/public",
+      "https://polygon-testnet.public.blastapi.io"
+    ],
+    "explorers": [
+      {
+        "name": "polygonscan",
+        "url": "https://mumbai.polygonscan.com",
+        "standard": "EIP3091"
+      }
+    ],
+    "isActive": true
+  },
+  {
+    "name": "Optimism Sepolia",
+    "chain": "ETH",
+    "chainId": 11155420,
+    "networkId": 11155420,
+    "nativeCurrency": {
+      "name": "Sepolia Ether",
+      "symbol": "ETH",
+      "decimals": 18
+    },
+    "rpc": [
+      "https://sepolia.optimism.io",
+      "https://optimism-sepolia.blockpi.network/v1/rpc/public"
+    ],
+    "explorers": [
+      {
+        "name": "etherscan",
+        "url": "https://sepolia-optimism.etherscan.io",
+        "standard": "EIP3091"
+      }
+    ],
+    "isActive": true
+  },
+  {
+    "name": "Arbitrum Sepolia",
+    "chain": "ETH",
+    "chainId": 421614,
+    "networkId": 421614,
+    "nativeCurrency": {
+      "name": "Arbitrum Sepolia Ether",
+      "symbol": "ETH",
+      "decimals": 18
+    },
+    "rpc": [
+      "https://sepolia-rollup.arbitrum.io/rpc",
+      "https://arbitrum-sepolia.blockpi.network/v1/rpc/public"
+    ],
+    "explorers": [
+      {
+        "name": "arbiscan",
+        "url": "https://sepolia.arbiscan.io",
+        "standard": "EIP3091"
+      }
+    ],
+    "isActive": true
+  },
+  {
+    "name": "Base Sepolia",
+    "chain": "ETH",
+    "chainId": 84532,
+    "networkId": 84532,
+    "nativeCurrency": {
+      "name": "Sepolia Ether",
+      "symbol": "ETH",
+      "decimals": 18
+    },
+    "rpc": [
+      "https://sepolia.base.org",
+      "https://base-sepolia.blockpi.network/v1/rpc/public"
+    ],
+    "explorers": [
+      {
+        "name": "basescan",
+        "url": "https://sepolia.basescan.org",
+        "standard": "EIP3091"
+      }
+    ],
+    "isActive": true
+  }
+]
