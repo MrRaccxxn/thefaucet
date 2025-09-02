@@ -11,7 +11,7 @@ export async function GET() {
       hasSecret: !!authOptions.secret,
       hasSessionStrategy: !!authOptions.session?.strategy,
       sessionStrategy: authOptions.session?.strategy,
-      providers: Array.isArray(authOptions.providers) ? authOptions.providers.map(p => p.id) : [],
+      providers: Array.isArray(authOptions.providers) ? authOptions.providers.map((p: any) => p.id) : [],
     };
 
     return NextResponse.json({

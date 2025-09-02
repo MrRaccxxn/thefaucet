@@ -4,7 +4,7 @@ import { z } from 'zod';
 
 // NextAuth Users table
 export const users = pgTable('users', {
-  id: text('id').primaryKey(),
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
   name: text('name'),
   email: text('email').notNull(),
   emailVerified: timestamp('email_verified', { mode: 'date' }),
@@ -15,7 +15,7 @@ export const users = pgTable('users', {
 
 // NextAuth Accounts table
 export const accounts = pgTable('accounts', {
-  id: text('id').primaryKey(),
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
   userId: text('user_id').notNull(),
   type: text('type').notNull(),
   provider: text('provider').notNull(),

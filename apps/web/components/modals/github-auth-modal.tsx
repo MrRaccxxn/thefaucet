@@ -34,16 +34,22 @@ export function GitHubAuthModal() {
     try {
       // Use NextAuth's signIn function to start GitHub OAuth flow
       const result = await signIn('github', {
-        callbackUrl: '/dashboard', // Redirect to dashboard after successful auth
-        redirect: true, // This will redirect to GitHub OAuth
+        callbackUrl: window.location.origin + '/dashboard', // Redirect to dashboard after successful auth
+        redirect: false, // Don't redirect immediately, handle response
       });
       
-      // Note: This code won't execute immediately because of the redirect
-      // The actual authentication result will be handled by NextAuth callbacks
-      console.log('GitHub authentication initiated:', result);
+      if (result?.error) {
+        console.error('GitHub authentication failed:', result.error);
+        alert(`Authentication failed: ${result.error}`);
+        setLoading(false);
+      } else if (result?.url) {
+        // Redirect to the OAuth provider
+        window.location.href = result.url;
+      }
       
     } catch (error) {
       console.error('GitHub authentication failed:', error);
+      alert('An unexpected error occurred. Please try again.');
       setLoading(false);
     }
   };

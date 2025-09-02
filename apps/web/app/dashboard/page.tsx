@@ -1,14 +1,21 @@
 import { Metadata } from "next"
 import Link from "next/link"
+import { redirect } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { getSession } from "@/lib/auth-server"
 
 export const metadata: Metadata = {
   title: "Dashboard",
   description: "View your claim history and account information",
 }
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  const session = await getSession();
+  
+  if (!session) {
+    redirect("/");
+  }
   return (
     <div className="space-y-6">
       {/* Stats Overview */}
@@ -96,9 +103,17 @@ export default function DashboardPage() {
             <div className="flex justify-between items-center">
               <div>
                 <p className="font-medium">GitHub Account</p>
-                <p className="text-sm text-muted-foreground">Not connected</p>
+                <p className="text-sm text-muted-foreground">
+                  {session.user?.email || "Connected"}
+                </p>
               </div>
-              <Button variant="outline">Connect GitHub</Button>
+              {session.user?.image && (
+                <img 
+                  src={session.user.image} 
+                  alt="User avatar" 
+                  className="w-8 h-8 rounded-full"
+                />
+              )}
             </div>
             <div className="flex justify-between items-center">
               <div>

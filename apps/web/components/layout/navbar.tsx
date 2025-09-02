@@ -1,11 +1,22 @@
 "use client"
 
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { useThemeStore, useAuthStore } from "@/lib/stores"
 import { useAuth } from "@/lib/hooks/use-auth"
+import { ConnectButton, NetworkSwitcher } from "@/components/wallet"
 
 export function Navbar() {
+  const router = useRouter()
   const { theme, toggleTheme } = useThemeStore()
   const { openAuthModal } = useAuthStore()
   const { user, isAuthenticated, isLoading, signOut } = useAuth()
@@ -23,10 +34,12 @@ export function Navbar() {
             <span className="font-medium text-base">The Faucet</span>
           </Link>
 
-        
-
           {/* Actions */}
           <div className="flex items-center space-x-2">
+            {/* Wallet Components */}
+            <NetworkSwitcher />
+            <ConnectButton />
+            
             {/* Social Links */}
             <a
               href="https://github.com/yourorg/thefaucet"
@@ -70,28 +83,55 @@ export function Navbar() {
             </button>
             
             {isLoading ? (
-              <div className="text-xs text-muted-foreground">Loading...</div>
-            ) : isAuthenticated ? (
-              <div className="flex items-center space-x-2">
-                {user?.avatarUrl && (
-                  <img 
-                    src={user.avatarUrl} 
-                    alt={user.username}
-                    className="w-6 h-6 rounded-full"
-                  />
-                )}
-                <span className="text-xs text-muted-foreground">
-                  {user?.username}
-                </span>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className="text-xs px-3 py-1.5 h-auto"
-                  onClick={signOut}
-                >
-                  Sign Out
-                </Button>
-              </div>
+              <div className="text-xs text-muted-foreground px-3 py-1.5">Loading...</div>
+            ) : isAuthenticated && user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="flex items-center space-x-2 px-2 py-1 rounded-lg hover:bg-muted/50 transition-colors">
+                    {user.avatarUrl && (
+                      <img 
+                        src={user.avatarUrl} 
+                        alt={user.username}
+                        className="w-6 h-6 rounded-full border border-border/50"
+                      />
+                    )}
+                    <span className="text-xs font-medium max-w-[100px] truncate">
+                      {user.username}
+                    </span>
+                    <svg className="w-3 h-3 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuLabel className="font-normal">
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-medium">{user.username}</p>
+                      <p className="text-xs text-muted-foreground">GitHub Account</p>
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => router.push('/dashboard')}>
+                    <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                    Dashboard
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => router.push('/history')}>
+                    <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Claim History
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={signOut} className="text-destructive focus:text-destructive">
+                    <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                    </svg>
+                    Sign Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             ) : (
               <Button 
                 variant="ghost" 

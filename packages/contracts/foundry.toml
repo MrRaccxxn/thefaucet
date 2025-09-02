@@ -1,7 +1,25 @@
 [profile.default]
 src = "src"
 out = "out"
-libs = ["node_modules"]
-remappings = ["@openzeppelin/=node_modules/@openzeppelin/"]
+libs = ["lib"]
+remappings = [
+    "@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/",
+    "@forge-std/=lib/forge-std/src/"
+]
 
-# See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options
+# Solidity version
+solc_version = "0.8.20"
+
+# Optimizer settings
+optimizer = true
+optimizer_runs = 200
+
+# Enable IR to fix stack too deep errors
+via_ir = true
+
+# Gas reporting
+gas_reports = ["*"]
+
+# Test settings
+fuzz_runs = 1000
+verbosity = 4

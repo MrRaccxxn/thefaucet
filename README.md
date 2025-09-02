@@ -1,17 +1,71 @@
-# The Faucet - Multichain Testnet Faucet
+# Multichain Faucet
 
-A modern, multichain faucet application for EVM-compatible testnets with GitHub OAuth authentication and redeem code functionality. Built with Next.js, tRPC, and Drizzle ORM in a Turborepo monorepo structure.
+An EVM-first, chain-agnostic developer tool that provides testnet tokens, ERC20 dev tokens, and NFTs to developers across multiple blockchain networks.
 
-## Features
+## Overview
 
-- 🌐 **Multichain Support**: Ethereum Sepolia, Polygon Amoy, BSC Testnet
-- 🔐 **GitHub OAuth**: Secure authentication with account verification
-- 💧 **Multiple Asset Types**: Native tokens, ERC20 tokens, and NFTs
-- 🎫 **Redeem Codes**: Time-limited codes with boosted amounts for events
-- ⚡ **Rate Limiting**: Redis-based rate limiting with cooldown periods
-- 📊 **Analytics**: Comprehensive usage tracking and admin dashboard
-- 🛡️ **Abuse Prevention**: Advanced protection against farming and abuse
-- 🏗️ **Modern Stack**: Next.js 14, tRPC, Drizzle ORM, Tailwind CSS
+The Multichain Faucet eliminates the friction developers face when testing applications across different chains by providing a unified interface for claiming assets. Features GitHub-based anti-abuse protection and event-specific redeem codes for hackathons and conferences.
+
+### Target Users
+
+- **Testnet Developers**: Quick access to gas tokens and test assets across multiple chains
+- **Hackathon Participants**: Boosted token amounts via event codes for development sprints  
+- **Event Organizers**: Controlled token distribution to participants
+- **dApp Testing Teams**: Consistent token distribution for QA and integration testing
+
+## Core Features
+
+### Multi-Asset Claiming System
+- Per-asset claiming interface (native tokens, ERC20 dev tokens, or ERC721 NFTs)
+- One claim type per request with clear rate limiting
+- Chain selection with automatic network detection and wallet switching
+- Real-time balance checking and availability validation
+
+### GitHub OAuth Anti-Abuse Protection
+- GitHub authentication required for all claims
+- Server-side rate limiting with Redis-backed tracking per user/asset/chain
+- Configurable GitHub account requirements (age, followers, repositories)
+- IP-based secondary abuse detection
+
+### Event Redeem Code System
+- Time-limited redeem codes for hackathons and events
+- Boosted claim amounts beyond normal daily limits
+- Support for single-use and multi-use codes with usage tracking
+- Optional GitHub ID binding for exclusive distribution
+
+### Chain-Agnostic Architecture
+- Adapter pattern designed for future non-EVM chain support (Solana, Stellar)
+- EVM-first implementation with standardized interfaces
+- Centralized balance monitoring and low-fund alerting
+- Unified configuration management for chain parameters and limits
+
+### Wallet Integration
+- EIP-3085 "Add Network" functionality for seamless chain onboarding
+- Automatic network switching prompts
+- Primary wallet address linking with multi-wallet support
+- Transaction hash tracking and history
+
+## Tech Stack
+
+- **Frontend**: Next.js 14 with App Router, Tailwind CSS, shadcn/ui
+- **Authentication**: NextAuth.js with GitHub OAuth
+- **Web3**: Wagmi + Viem for wallet connections, ethers v6 for backend
+- **State Management**: Zustand for client-side state, tRPC for server communication
+- **Database**: PostgreSQL with Drizzle ORM
+- **Caching/Rate Limiting**: Redis
+- **Smart Contracts**: Foundry framework with OpenZeppelin base contracts
+
+## Rate Limits (MVP)
+
+- **Native tokens**: 0.02 ETH per day
+- **Dev tokens**: 1,000 tokens per day
+- **NFTs**: 5 total per user
+
+## Event Code Boost Amounts
+
+- **Native tokens**: 0.05 ETH per redemption
+- **Dev tokens**: 5,000 tokens per redemption
+- **NFTs**: 1-3 NFTs per redemption
 
 ## Quick Start
 
