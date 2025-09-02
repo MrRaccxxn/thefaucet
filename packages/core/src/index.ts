@@ -11,6 +11,7 @@ export * from './balance';
 export * from './rate-limiting';
 export * from './chains';
 export * from './auth';
+export * from './contracts';
 
 // Version
 export const CORE_VERSION = '0.0.1';

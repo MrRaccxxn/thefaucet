@@ -18,10 +18,8 @@
     "test:coverage": "forge coverage",
     "lint": "forge fmt --check",
     "lint:fix": "forge fmt",
+    "deploy": "./scripts/deploy.sh",
     "deploy:local": "forge script script/Deploy.s.sol --rpc-url http://localhost:8545 --broadcast",
-    "deploy:sepolia": "forge script script/Deploy.s.sol --rpc-url $SEPOLIA_RPC_URL --broadcast --verify",
-    "deploy:amoy": "forge script script/Deploy.s.sol --rpc-url $AMOY_RPC_URL --broadcast --verify",
-    "deploy:bsc-testnet": "forge script script/Deploy.s.sol --rpc-url $BSC_TESTNET_RPC_URL --broadcast --verify",
     "verify": "forge verify-contract",
     "clean": "forge clean",
     "check-types": "echo 'Contracts type check - Will be configured with TypeScript files'"

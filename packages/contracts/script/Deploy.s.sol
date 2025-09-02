@@ -94,8 +94,11 @@ contract Deploy is Script {
     }
 
     function saveDeploymentAddresses() internal {
+        string memory network = vm.envString("NETWORK");
+        
+        // Save individual network deployment file
         string memory deploymentData = string(abi.encodePacked(
-            '{"network":"', vm.envString("NETWORK"), '",',
+            '{"network":"', network, '",',
             '"deployer":"', vm.toString(deployer), '",',
             '"admin":"', vm.toString(admin), '",',
             '"devToken":"', vm.toString(address(devToken)), '",',
@@ -105,10 +108,32 @@ contract Deploy is Script {
         ));
 
         string memory filename = string(abi.encodePacked(
-            "deployment-", vm.envString("NETWORK"), "-", vm.toString(block.timestamp), ".json"
+            "deployments/deployment-", network, "-", vm.toString(block.timestamp), ".json"
         ));
 
         vm.writeFile(filename, deploymentData);
         console.log("Deployment data saved to:", filename);
+
+        // Save TypeScript deployment file for frontend
+        string memory tsContent = string(abi.encodePacked(
+            'export const DEPLOYMENT_ADDRESSES = {\n',
+            '  "', network, '": {\n',
+            '    network: "', network, '",\n',
+            '    deployer: "', vm.toString(deployer), '",\n',
+            '    admin: "', vm.toString(admin), '",\n',
+            '    devToken: "', vm.toString(address(devToken)), '",\n',
+            '    devNFT: "', vm.toString(address(devNFT)), '",\n',
+            '    faucetManager: "', vm.toString(address(faucetManager)), '",\n',
+            '    deploymentTime: "', vm.toString(block.timestamp), '"\n',
+            '  }\n',
+            '} as const;\n'
+        ));
+
+        string memory tsFilename = string(abi.encodePacked(
+            "src/deployments/", network, ".ts"
+        ));
+
+        vm.writeFile(tsFilename, tsContent);
+        console.log("TypeScript deployment file saved to:", tsFilename);
     }
 }
