@@ -193,7 +193,6 @@ export const codeRouter = createTRPCRouter({
         if (asset[0].type === 'native') {
           claimResult = await faucetService.claimNativeToken(
             input.walletAddress,
-            boostedAmount,
             input.chainId,
             chain[0].rpcUrl
           );
@@ -201,8 +200,6 @@ export const codeRouter = createTRPCRouter({
           claimResult = await faucetService.claimERC20Token(
             input.walletAddress,
             boostedAmount,
-            asset[0].address!,
-            asset[0].decimals,
             input.chainId,
             chain[0].rpcUrl
           );

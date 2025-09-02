@@ -1,5 +1,6 @@
 import { http, createConfig, type Config } from 'wagmi'
 import { sepolia, polygonAmoy, bscTestnet } from 'wagmi/chains'
+import { liskSepolia } from '@thefaucet/contracts/chains'
 import { 
   injected, 
   walletConnect, 
@@ -9,6 +10,7 @@ import {
 // Configure chains for the app
 export const chains = [
   sepolia,
+  liskSepolia,
   polygonAmoy,
   bscTestnet,
 ] as const
@@ -35,6 +37,7 @@ function createWagmiConfig(): Config {
     ],
     transports: {
       [sepolia.id]: http(),
+      [liskSepolia.id]: http(),
       [polygonAmoy.id]: http(),
       [bscTestnet.id]: http(),
     },

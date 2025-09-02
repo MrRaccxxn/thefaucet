@@ -2,16 +2,25 @@ import { useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useNetworkStore, useFormStore, useAuthStore } from '../index';
 import { Chain } from '../types';
+import { api } from '../../trpc/client';
 
 /**
  * Compound hook that provides high-level faucet actions
  * Combines multiple stores for complex operations
  */
-export const useFaucetActions = () => {
+export const useFaucetActions = (): {
+  handleNetworkChange: (chain: Chain) => void;
+  handleClaimTokens: () => Promise<void>;
+  canClaim: boolean;
+  isClaimPending: boolean;
+  claimError: any;
+  isClaimSuccess: boolean;
+} => {
   const router = useRouter();
   const { setSelectedChain } = useNetworkStore();
   const { walletAddress, redeemCode, resetForm } = useFormStore();
   const { isAuthenticated, setLoading } = useAuthStore();
+  const claimNativeTRPC = api.claim.claimNative.useMutation();
 
   const handleNetworkChange = useCallback((chain: Chain) => {
     setSelectedChain(chain);
@@ -24,7 +33,6 @@ export const useFaucetActions = () => {
     }
 
     if (!isAuthenticated) {
-      // Open authentication modal instead of redirecting
       const { openAuthModal } = useAuthStore.getState();
       openAuthModal();
       return;
@@ -33,28 +41,22 @@ export const useFaucetActions = () => {
     setLoading(true);
     
     try {
-      // TODO: Implement actual claim logic
-      console.log('Claiming tokens...', {
-        walletAddress,
-        redeemCode: redeemCode || undefined,
+      // Use TRPC to claim through backend (which handles rate limiting and DB)
+      await claimNativeTRPC.mutateAsync({
+        walletAddress: walletAddress,
+        chainId: 4202, // Lisk Sepolia
       });
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Reset form on success
       resetForm();
-      
-      // TODO: Show success notification
       console.log('Tokens claimed successfully!');
       
     } catch (error) {
       console.error('Failed to claim tokens:', error);
-      // TODO: Show error notification
+      throw error; // Re-throw for component error handling
     } finally {
       setLoading(false);
     }
-  }, [walletAddress, redeemCode, isAuthenticated, setLoading, resetForm, router]);
+  }, [walletAddress, isAuthenticated, setLoading, resetForm, claimNativeTRPC]);
 
   const canClaim = Boolean(walletAddress && isAuthenticated);
 
@@ -62,5 +64,8 @@ export const useFaucetActions = () => {
     handleNetworkChange,
     handleClaimTokens,
     canClaim,
+    isClaimPending: claimNativeTRPC.isPending,
+    claimError: claimNativeTRPC.error,
+    isClaimSuccess: claimNativeTRPC.isSuccess,
   };
 };

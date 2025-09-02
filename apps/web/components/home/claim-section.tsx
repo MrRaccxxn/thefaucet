@@ -8,6 +8,10 @@ import {
   useAuthStore, 
   useFaucetActions
 } from "@/lib/stores";
+import { ErrorAlert } from "@/components/ui/error-alert";
+import { SuccessAlert } from "@/components/ui/success-alert";
+import { useState } from "react";
+import React from "react";
 
 export function ClaimSection() {
   const chains = useNetworkStore((state) => state.chains);
@@ -24,10 +28,51 @@ export function ClaimSection() {
   // Use the auth hook which syncs with NextAuth
   const { isAuthenticated, isLoading: authLoading, user } = useAuth();
   
-  const { handleNetworkChange, handleClaimTokens } = useFaucetActions();
+  const { 
+    handleNetworkChange, 
+    handleClaimTokens, 
+    isClaimPending, 
+    claimError, 
+    isClaimSuccess 
+  } = useFaucetActions();
+  
+  const [showError, setShowError] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  
+  // Show error when claim fails
+  React.useEffect(() => {
+    if (claimError) {
+      setShowError(true);
+    }
+  }, [claimError]);
+  
+  // Show success when claim succeeds
+  React.useEffect(() => {
+    if (isClaimSuccess) {
+      setShowSuccess(true);
+      // Auto-hide success after 5 seconds
+      const timer = setTimeout(() => setShowSuccess(false), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [isClaimSuccess]);
 
   return (
     <div className="max-w-md mx-auto space-y-6 animate-fade-in-up-delayed-2">
+      {/* Error Alert */}
+      {showError && claimError && (
+        <ErrorAlert 
+          error={claimError as Error}
+          onDismiss={() => setShowError(false)}
+        />
+      )}
+      
+      {/* Success Alert */}
+      {showSuccess && (
+        <SuccessAlert 
+          message="Tokens claimed successfully!"
+          onDismiss={() => setShowSuccess(false)}
+        />
+      )}
       {/* Minimalistic Network Selector */}
       <div className="p-4 rounded-xl bg-card/20 backdrop-blur-md border border-border/20 hover:border-border/40 transition-all duration-300">
         <div className="flex items-center justify-between mb-3">
@@ -99,9 +144,10 @@ export function ClaimSection() {
           size="lg" 
           onClick={handleClaimTokens}
           className="w-full py-4 text-base font-medium bg-gradient-to-r from-primary to-blue-600 hover:from-primary/90 hover:to-blue-600/90 transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
-          disabled={!walletAddress || authLoading}
+          disabled={!walletAddress || authLoading || isClaimPending}
         >
           {authLoading ? 'Loading...' :
+           isClaimPending ? 'Claiming...' :
            !walletAddress ? 'Enter Wallet Address' : 
            !isAuthenticated ? '🔒 Authenticate with GitHub to Claim' : 
            `Claim ${selectedChain.amount}`}

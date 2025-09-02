@@ -26,6 +26,7 @@
     "ethers": "^6.13.0",
     "next-auth": "^4.24.5",
     "superjson": "^2.2.2",
+    "viem": "^2.36.0",
     "zod": "^3.25.76"
   },
   "devDependencies": {

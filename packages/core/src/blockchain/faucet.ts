@@ -1,10 +1,18 @@
 import { ethers } from 'ethers';
+import { ABIS, getDeploymentAddresses } from '@thefaucet/contracts';
 
 export interface ClaimResult {
   transactionHash: string;
   amount: string;
   estimatedConfirmTime: number;
 }
+
+const CHAIN_NAMES: Record<number, string> = {
+  11155111: 'sepolia',
+  4202: 'lisk-sepolia',
+  80002: 'amoy',
+  97: 'bsc-testnet',
+};
 
 export class FaucetService {
   private wallets: Map<number, ethers.Wallet> = new Map();
@@ -24,31 +32,63 @@ export class FaucetService {
     return this.wallets.get(chainId)!;
   }
 
+  private getContractAddresses(chainId: number) {
+    const networkName = CHAIN_NAMES[chainId];
+    if (!networkName) {
+      throw new Error(`Unsupported chain ID: ${chainId}`);
+    }
+    
+    const deployment = getDeploymentAddresses(networkName);
+    if (!deployment) {
+      throw new Error(`No deployment found for network: ${networkName}`);
+    }
+    
+    return {
+      faucetManager: deployment.faucetManager,
+      devToken: deployment.devToken,
+      devNFT: deployment.devNFT,
+    };
+  }
+
   async claimNativeToken(
     recipientAddress: string,
-    amount: string,
     chainId: number,
     rpcUrl: string
   ): Promise<ClaimResult> {
     try {
       const wallet = this.getWallet(chainId, rpcUrl);
+      const addresses = this.getContractAddresses(chainId);
       
-      // Convert amount to wei
-      const amountWei = ethers.parseEther(amount);
+      // Use FaucetManager contract
+      const faucetManager = new ethers.Contract(
+        addresses.faucetManager,
+        ABIS.FaucetManager,
+        wallet
+      );
       
-      // Send native token
-      const tx = await wallet.sendTransaction({
-        to: recipientAddress,
-        value: amountWei,
-      });
-
+      // Call claimNativeToken on the contract
+      const claimFunction = faucetManager.getFunction('claimNativeToken');
+      const tx = await claimFunction(recipientAddress);
+      
+      // Get the amount from contract
+      const amountFunction = faucetManager.getFunction('nativeTokenAmount');
+      const amount = await amountFunction();
+      
       return {
         transactionHash: tx.hash,
-        amount,
-        estimatedConfirmTime: 30, // seconds
+        amount: ethers.formatEther(amount),
+        estimatedConfirmTime: 30,
       };
     } catch (error) {
       console.error(`Failed to claim native token:`, error);
+      if (error instanceof Error) {
+        if (error.message.includes('RateLimitExceeded')) {
+          throw new Error('Rate limit exceeded. Please wait before claiming again.');
+        }
+        if (error.message.includes('InsufficientBalance')) {
+          throw new Error('Faucet has insufficient balance.');
+        }
+      }
       throw new Error('Failed to process native token claim');
     }
   }
@@ -56,25 +96,29 @@ export class FaucetService {
   async claimERC20Token(
     recipientAddress: string,
     amount: string,
-    contractAddress: string,
-    decimals: number,
     chainId: number,
     rpcUrl: string
   ): Promise<ClaimResult> {
     try {
       const wallet = this.getWallet(chainId, rpcUrl);
+      const addresses = this.getContractAddresses(chainId);
       
-      // ERC20 transfer ABI
-      const erc20Abi = [
-        "function transfer(address to, uint256 amount) returns (bool)"
-      ];
+      // Use FaucetManager contract to claim tokens
+      const faucetManager = new ethers.Contract(
+        addresses.faucetManager,
+        ABIS.FaucetManager,
+        wallet
+      );
       
-      const contract = new ethers.Contract(contractAddress, erc20Abi, wallet);
-      const amountUnits = ethers.parseUnits(amount, decimals);
+      const amountUnits = ethers.parseUnits(amount, 18); // DevToken uses 18 decimals
       
-      // Transfer tokens
-      const transferFunction = contract.getFunction('transfer');
-      const tx = await transferFunction(recipientAddress, amountUnits);
+      // Use FaucetManager to mint tokens to recipient
+      const claimFunction = faucetManager.getFunction('claimTokens');
+      const tx = await claimFunction(
+        recipientAddress,
+        addresses.devToken,
+        amountUnits
+      );
 
       return {
         transactionHash: tx.hash,
@@ -83,41 +127,59 @@ export class FaucetService {
       };
     } catch (error) {
       console.error(`Failed to claim ERC20 token:`, error);
+      if (error instanceof Error) {
+        if (error.message.includes('RateLimitExceeded')) {
+          throw new Error('Rate limit exceeded. Please wait before claiming again.');
+        }
+        if (error.message.includes('InsufficientBalance')) {
+          throw new Error('Faucet has insufficient token balance.');
+        }
+        if (error.message.includes('TokenMintFailed')) {
+          throw new Error('Token minting failed. Please try again.');
+        }
+      }
       throw new Error('Failed to process ERC20 token claim');
     }
   }
 
   async mintNFT(
     recipientAddress: string,
-    contractAddress: string,
-    tokenURI: string,
     chainId: number,
     rpcUrl: string
   ): Promise<ClaimResult> {
     try {
       const wallet = this.getWallet(chainId, rpcUrl);
+      const addresses = this.getContractAddresses(chainId);
       
-      // Simple NFT mint ABI (assuming ERC721 with mint function)
-      const nftAbi = [
-        "function mint(address to, string memory tokenURI) returns (uint256)"
-      ];
+      // Use FaucetManager contract to mint NFT
+      const faucetManager = new ethers.Contract(
+        addresses.faucetManager,
+        ABIS.FaucetManager,
+        wallet
+      );
       
-      const contract = new ethers.Contract(contractAddress, nftAbi, wallet);
-      
-      // Mint NFT
-      const mintFunction = contract.getFunction('mint');
-      const tx = await mintFunction(recipientAddress, tokenURI);
-
-      // Get the token ID from transaction receipt (simplified)
-      const tokenId = "1"; // This should be parsed from the transaction receipt
+      // Use FaucetManager to mint NFT to recipient
+      const claimFunction = faucetManager.getFunction('claimNFT');
+      const tx = await claimFunction(
+        recipientAddress,
+        addresses.devNFT
+      );
 
       return {
         transactionHash: tx.hash,
-        amount: tokenId,
+        amount: "1", // NFT count
         estimatedConfirmTime: 30,
       };
     } catch (error) {
       console.error(`Failed to mint NFT:`, error);
+      if (error instanceof Error) {
+        if (error.message.includes('RateLimitExceeded')) {
+          throw new Error('Rate limit exceeded. Please wait before claiming again.');
+        }
+        if (error.message.includes('NFTMintFailed')) {
+          throw new Error('NFT minting failed. Please try again.');
+        }
+      }
       throw new Error('Failed to process NFT claim');
     }
   }

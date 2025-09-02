@@ -54,7 +54,6 @@ export const claimRouter = createTRPCRouter({
         // Process the claim
         const claimResult = await faucetService.claimNativeToken(
           input.walletAddress,
-          amount,
           input.chainId,
           chain[0].rpcUrl
         );
@@ -186,8 +185,6 @@ export const claimRouter = createTRPCRouter({
         const claimResult = await faucetService.claimERC20Token(
           input.walletAddress,
           amount,
-          asset[0].address!,
-          asset[0].decimals,
           input.chainId,
           chain[0].rpcUrl
         );
@@ -295,8 +292,6 @@ export const claimRouter = createTRPCRouter({
         // Process the NFT mint
         const claimResult = await faucetService.mintNFT(
           input.walletAddress,
-          nftAsset[0].address!,
-          tokenURI,
           input.chainId,
           chain[0].rpcUrl
         );

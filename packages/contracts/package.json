@@ -33,7 +33,8 @@
     "check-types": "echo 'Contracts type check - Will be configured with TypeScript files'"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "^5.0.0"
+    "@openzeppelin/contracts": "^5.0.0",
+    "viem": "^2.36.0"
   },
   "devDependencies": {
     "@thefaucet/eslint-config": "workspace:*",
