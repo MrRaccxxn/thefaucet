@@ -131,10 +131,10 @@ export const claimRouter = createTRPCRouter({
             });
           }
           
-          if (error.message.includes('RateLimitExceeded')) {
+          if (error.message.includes('RateLimitExceeded') || error.message.includes('You must wait')) {
             throw new TRPCError({
               code: 'TOO_MANY_REQUESTS',
-              message: 'Rate limit exceeded. Please wait before claiming again.'
+              message: error.message
             });
           }
           

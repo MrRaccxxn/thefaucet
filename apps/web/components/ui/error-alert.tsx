@@ -13,7 +13,12 @@ export function ErrorAlert({ error, onDismiss, className }: ErrorAlertProps) {
   const getErrorMessage = (error: Error): string => {
     const message = error.message;
     
-    // Contract-specific errors
+    // Time-based rate limiting errors
+    if (message.includes('You must wait') && message.includes('hours before claiming again')) {
+      return message; // Show the exact message with hours
+    }
+    
+    // Generic rate limit errors
     if (message.includes('RateLimitExceeded') || message.includes('Rate limit exceeded')) {
       return 'You need to wait before claiming again. Please check the cooldown time.';
     }

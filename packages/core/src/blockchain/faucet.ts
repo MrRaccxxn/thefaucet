@@ -86,6 +86,10 @@ export class FaucetService {
       );
 
       // Check wallet balance for gas
+      if (!wallet.provider) {
+        throw new Error("Wallet provider is not available");
+      }
+
       const walletBalance = await wallet.provider.getBalance(wallet.address);
       console.log(
         "Wallet ETH balance for gas:",
@@ -100,6 +104,22 @@ export class FaucetService {
         "FaucetManager contract ETH balance:",
         ethers.formatEther(contractBalance)
       );
+
+      // Check if user can claim from blockchain contract (24-hour cooldown)
+      console.log("Checking blockchain cooldown for user...");
+      const canClaimFunction = faucetManager.getFunction("canClaimNative");
+      const canClaim = await canClaimFunction(recipientAddress);
+
+      if (!canClaim) {
+        console.log("User cannot claim due to blockchain cooldown");
+        const getCooldownFunction =
+          faucetManager.getFunction("getNativeCooldown");
+        const remainingTime = await getCooldownFunction(recipientAddress);
+        const remainingHours = Math.ceil(Number(remainingTime) / 3600);
+        throw new Error(
+          `You must wait ${remainingHours} hours before claiming again from this address.`
+        );
+      }
 
       // Call claimNativeToken on the contract
       console.log("Calling claimNativeToken on contract...");
@@ -126,9 +146,12 @@ export class FaucetService {
         console.error("Error stack:", error.stack);
 
         // Check for common errors
-        if (error.message.includes("RateLimitExceeded")) {
+        if (
+          error.message.includes("RateLimitExceeded") ||
+          error.message.includes("0xf4d678b8")
+        ) {
           throw new Error(
-            "Rate limit exceeded. Please wait before claiming again."
+            "You must wait 24 hours before claiming again from this address."
           );
         }
         if (error.message.includes("InsufficientBalance")) {

@@ -30,7 +30,7 @@ export const useFaucetActions = (): {
 
   const handleClaimTokens = useCallback(async () => {
     if (!walletAddress) {
-      throw new Error('Wallet address is required');
+      return; // Don't throw, just return early
     }
 
     if (!isAuthenticated) {
@@ -44,7 +44,8 @@ export const useFaucetActions = (): {
     console.log('[DEBUG Frontend] Selected chain:', selectedChain.id, '-> Numeric ID:', numericChainId);
     
     if (!numericChainId) {
-      throw new Error(`Unsupported chain: ${selectedChain.id}`);
+      console.error(`Unsupported chain: ${selectedChain.id}`);
+      return; // Don't throw, TRPC will handle errors
     }
 
     setLoading(true);
@@ -63,7 +64,8 @@ export const useFaucetActions = (): {
       
     } catch (error) {
       console.error('Failed to claim tokens:', error);
-      throw error; // Re-throw for component error handling
+      // Don't re-throw - let TRPC handle the error state
+      // The error will be available in claimNativeTRPC.error
     } finally {
       setLoading(false);
     }

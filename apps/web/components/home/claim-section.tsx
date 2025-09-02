@@ -10,10 +10,12 @@ import {
 } from "@/lib/stores";
 import { ErrorAlert } from "@/components/ui/error-alert";
 import { SuccessAlert } from "@/components/ui/success-alert";
+import { ErrorBoundary } from "@/components/ui/error-boundary";
+import { useToast } from "@/components/ui/toast";
 import { useState } from "react";
 import React from "react";
 
-export function ClaimSection() {
+function ClaimSectionContent() {
   const chains = useNetworkStore((state) => state.chains);
   const selectedChain = useNetworkStore((state) => state.selectedChain);
   const { 
@@ -38,23 +40,51 @@ export function ClaimSection() {
   
   const [showError, setShowError] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const { addToast } = useToast();
   
   // Show error when claim fails
   React.useEffect(() => {
     if (claimError) {
       setShowError(true);
+      
+      // Also show a toast notification
+      const errorMessage = claimError.message;
+      let friendlyMessage = errorMessage;
+      
+      // Extract user-friendly message from TRPC errors
+      if (errorMessage.includes('FaucetService error:')) {
+        const match = errorMessage.match(/FaucetService error: (.+?)(?:\n|$)/);
+        if (match) {
+          friendlyMessage = match[1];
+        }
+      }
+      
+      addToast({
+        type: "error",
+        title: "Claim Failed",
+        message: friendlyMessage,
+        duration: 8000, // Show longer for errors
+      });
     }
-  }, [claimError]);
+  }, [claimError, addToast]);
   
   // Show success when claim succeeds
   React.useEffect(() => {
     if (isClaimSuccess) {
       setShowSuccess(true);
-      // Auto-hide success after 5 seconds
+      
+      // Show success toast
+      addToast({
+        type: "success",
+        title: "Success!",
+        message: `${selectedChain.amount} claimed successfully!`,
+      });
+      
+      // Auto-hide alert after 5 seconds
       const timer = setTimeout(() => setShowSuccess(false), 5000);
       return () => clearTimeout(timer);
     }
-  }, [isClaimSuccess]);
+  }, [isClaimSuccess, addToast, selectedChain.amount]);
 
   return (
     <div className="max-w-md mx-auto space-y-6 animate-fade-in-up-delayed-2">
@@ -166,5 +196,13 @@ export function ClaimSection() {
         )}
       </div>
     </div>
+  );
+}
+
+export function ClaimSection() {
+  return (
+    <ErrorBoundary>
+      <ClaimSectionContent />
+    </ErrorBoundary>
   );
 }

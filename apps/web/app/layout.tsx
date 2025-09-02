@@ -8,6 +8,7 @@ import { AuthSessionProvider } from "@/components/providers/session-provider";
 import { WagmiAppProvider } from "@/components/providers/wagmi-provider";
 import { ClientOnly } from "@/components/providers/client-only";
 import { TRPCProvider } from "@/lib/trpc/provider";
+import { ToastProvider } from "@/components/ui/toast";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -94,23 +95,25 @@ export default function RootLayout({
       >
         <AuthSessionProvider>
           <TRPCProvider>
-            <ClientOnly fallback={
-              <div className="relative flex min-h-screen flex-col">
-                <div className="h-16" /> {/* Navbar placeholder */}
-                <main className="flex-1 pt-0">{children}</main>
-              </div>
-            }>
-              <WagmiAppProvider>
+            <ToastProvider>
+              <ClientOnly fallback={
                 <div className="relative flex min-h-screen flex-col">
-                  <ClientOnly fallback={<div className="h-16" />}>
-                    <Navbar />
-                  </ClientOnly>
+                  <div className="h-16" /> {/* Navbar placeholder */}
                   <main className="flex-1 pt-0">{children}</main>
-                  <Footer />
-                  <GitHubAuthModal />
                 </div>
-              </WagmiAppProvider>
-            </ClientOnly>
+              }>
+                <WagmiAppProvider>
+                  <div className="relative flex min-h-screen flex-col">
+                    <ClientOnly fallback={<div className="h-16" />}>
+                      <Navbar />
+                    </ClientOnly>
+                    <main className="flex-1 pt-0">{children}</main>
+                    <Footer />
+                    <GitHubAuthModal />
+                  </div>
+                </WagmiAppProvider>
+              </ClientOnly>
+            </ToastProvider>
           </TRPCProvider>
         </AuthSessionProvider>
       </body>

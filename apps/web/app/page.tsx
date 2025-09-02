@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { ClaimSection } from "@/components/home/claim-section";
 import { useNetworkStore, useInitialization } from "@/lib/stores";
@@ -6,7 +6,7 @@ import { useNetworkStore, useInitialization } from "@/lib/stores";
 export default function Home() {
   // Initialize app state
   useInitialization();
-  
+
   // Get state from stores with specific selector
   const selectedChain = useNetworkStore((state) => state.selectedChain);
 
@@ -20,12 +20,16 @@ export default function Home() {
           <div className="absolute bottom-1/4 left-1/4 w-96 h-96 bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-full blur-3xl animate-float-delayed"></div>
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-conic from-blue-500/5 via-purple-500/5 to-blue-500/5 rounded-full blur-3xl animate-spin-slow"></div>
         </div>
-        
+
         {/* Subtle dot pattern overlay */}
-        <div className="absolute inset-0 opacity-20" style={{
-          backgroundImage: 'radial-gradient(circle, rgba(59, 130, 246, 0.1) 1px, transparent 1px)',
-          backgroundSize: '50px 50px'
-        }}></div>
+        <div
+          className="absolute inset-0 opacity-20"
+          style={{
+            backgroundImage:
+              "radial-gradient(circle, rgba(59, 130, 246, 0.1) 1px, transparent 1px)",
+            backgroundSize: "50px 50px",
+          }}
+        ></div>
       </div>
 
       {/* Main Content */}
@@ -34,10 +38,12 @@ export default function Home() {
           <div className="max-w-4xl mx-auto text-center">
             {/* Network Status Badge */}
             <div className="inline-flex items-center px-4 py-2 rounded-full bg-muted/30 backdrop-blur-sm text-sm text-muted-foreground mb-8 border border-border/20 animate-fade-in">
-              <div className={`w-2 h-2 rounded-full ${selectedChain.color.replace('bg-', 'bg-')} mr-2 animate-pulse`}></div>
+              <div
+                className={`w-2 h-2 rounded-full ${selectedChain.color.replace("bg-", "bg-")} mr-2 animate-pulse`}
+              ></div>
               Connected to {selectedChain.name}
             </div>
-            
+
             {/* Main heading */}
             <h1 className="text-5xl md:text-7xl lg:text-8xl font-light tracking-tight mb-8 animate-fade-in-up">
               The
@@ -45,13 +51,12 @@ export default function Home() {
                 Faucet
               </span>
             </h1>
-            
+
             {/* Subtitle */}
             <p className="text-lg md:text-xl text-muted-foreground mb-12 max-w-2xl mx-auto leading-relaxed animate-fade-in-up-delayed">
               Get test tokens instantly across multiple blockchain networks.
-              <span className="block mt-2 text-base opacity-75">GitHub verification required.</span>
             </p>
-            
+
             {/* Main Interface */}
             <ClaimSection />
           </div>
