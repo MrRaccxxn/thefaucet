@@ -9,7 +9,7 @@ export interface Chain {
 
 export interface User {
   id: string;
-  username: string;
+  nickname: string;
   avatarUrl?: string;
   isVerified: boolean;
 }

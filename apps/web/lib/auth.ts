@@ -3,7 +3,7 @@ import GitHubProvider from "next-auth/providers/github";
 import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import { db } from "@thefaucet/db";
 import { users, accounts, sessions, verificationTokens, userProfiles } from "@thefaucet/db";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { GitHubAccountValidator, calculateAccountAge } from "@thefaucet/core";
 import type { GitHubUserProfile } from "@thefaucet/core";
 import { randomUUID } from "crypto";
@@ -36,6 +36,43 @@ export const authOptions: NextAuthOptions = {
       // When using database sessions, user is available
       if (session.user && user) {
         (session.user as any).id = user.id;
+        
+        // Get GitHub username from accounts table (more reliable than user_profiles)
+        try {
+          // First, try to get GitHub account for this user
+          const githubAccount = await db
+            .select()
+            .from(accounts)
+            .where(
+              and(
+                eq(accounts.userId, user.id),
+                eq(accounts.provider, "github")
+              )
+            )
+            .limit(1);
+          
+          if (githubAccount[0]) {
+            // Fetch GitHub profile data using the GitHub account ID
+            // For now, let's try to get it from user_profiles
+            const userProfile = await db
+              .select({ githubUsername: userProfiles.githubUsername })
+              .from(userProfiles)
+              .where(eq(userProfiles.userId, user.id))
+              .limit(1);
+            
+            if (userProfile[0]?.githubUsername) {
+              (session.user as any).githubUsername = userProfile[0].githubUsername;
+            } else {
+              // If no username in user_profiles, we'll use the name as fallback
+              // This handles cases where user_profiles wasn't created properly
+              (session.user as any).githubUsername = session.user.name || "user";
+            }
+          }
+        } catch (error) {
+          console.error('Error in session callback:', error);
+          // Fallback to name
+          (session.user as any).githubUsername = session.user.name || "user";
+        }
       }
       return session;
     },
@@ -63,6 +100,7 @@ export const authOptions: NextAuthOptions = {
         const userId = (user as any).id || user.email;
         if (userId) {
           try {
+            // Try to insert new profile
             await db.insert(userProfiles).values({
               userId: userId,
               githubId: githubProfile.id.toString(),
@@ -73,9 +111,25 @@ export const authOptions: NextAuthOptions = {
               isVerified: true,
               lastValidationAt: new Date(),
             });
+            console.log(`✅ Created user profile for ${userId} with username ${githubProfile.login}`);
           } catch (error) {
-            // If user profile already exists, just update it
-            console.log("User profile already exists, skipping insert");
+            // If user profile already exists, update it
+            console.log("User profile exists, updating...");
+            try {
+              await db
+                .update(userProfiles)
+                .set({
+                  githubUsername: githubProfile.login,
+                  accountAge: calculateAccountAge(githubProfile.created_at),
+                  followersCount: githubProfile.followers,
+                  repositoryCount: githubProfile.public_repos,
+                  lastValidationAt: new Date(),
+                })
+                .where(eq(userProfiles.userId, userId));
+              console.log(`✅ Updated user profile for ${userId} with username ${githubProfile.login}`);
+            } catch (updateError) {
+              console.error("Failed to update user profile:", updateError);
+            }
           }
         }
 

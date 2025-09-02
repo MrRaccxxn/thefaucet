@@ -15,10 +15,10 @@ export function useAuth() {
 
     if (session?.user) {
       // Convert NextAuth user to our User type
-      // Note: session.user.id is added by our server-side callback
+      // Note: session.user.id and githubUsername are added by our server-side callback
       const user: User = {
         id: (session.user as any).id || session.user.email || "unknown",
-        username: session.user.name || session.user.email || "unknown",
+        nickname: (session.user as any).githubUsername || session.user.name || session.user.email || "unknown",
         avatarUrl: session.user.image || "",
         isVerified: true, // We'll implement validation later
       };

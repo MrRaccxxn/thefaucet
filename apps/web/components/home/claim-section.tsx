@@ -191,7 +191,7 @@ function ClaimSectionContent() {
         
         {isAuthenticated && user && (
           <p className="text-xs text-muted-foreground/60 mt-2 text-center">
-            Authenticated as {user.username}
+            Authenticated as @{user.nickname}
           </p>
         )}
       </div>

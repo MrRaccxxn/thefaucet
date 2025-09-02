@@ -47,7 +47,7 @@ export default function Home() {
             {/* Main heading */}
             <h1 className="text-5xl md:text-7xl lg:text-8xl font-light tracking-tight mb-8 animate-fade-in-up">
               The
-              <span className="block font-medium bg-gradient-to-r from-primary via-blue-600 to-purple-600 bg-clip-text text-transparent animate-gradient">
+              <span className="block font-medium bg-gradient-to-r from-primary via-blue-600 to-purple-600 bg-clip-text text-transparent animate-gradient font-literata">
                 Faucet
               </span>
             </h1>

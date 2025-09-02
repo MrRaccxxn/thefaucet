@@ -3,24 +3,11 @@ import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { users } from './auth';
 
-// Legacy Users table - for GitHub OAuth authentication (deprecated, use auth.ts instead)
-export const legacyUsers = pgTable('legacy_users', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  githubId: text('github_id').unique().notNull(),
-  email: text('email').notNull(),
-  name: text('name').notNull(),
-  avatar: text('avatar'),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at').defaultNow().notNull(),
-}, (table) => ({
-  githubIdIdx: index('legacy_users_github_id_idx').on(table.githubId),
-  emailIdx: index('legacy_users_email_idx').on(table.email),
-}));
 
 // User wallets table - for linking multiple wallets to a user
 export const userWallets = pgTable('user_wallets', {
   id: uuid('id').primaryKey().defaultRandom(),
-  userId: text('user_id').notNull(),
+  userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
   address: text('address').notNull(),
   isPrimary: boolean('is_primary').default(false).notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
@@ -33,7 +20,7 @@ export const userWallets = pgTable('user_wallets', {
 // Rate limiting table - stores claim history for rate limiting
 export const rateLimits = pgTable('rate_limits', {
   id: uuid('id').primaryKey().defaultRandom(),
-  userId: text('user_id').notNull(),
+  userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
   assetType: text('asset_type').notNull(), // 'native', 'erc20', 'nft'
   chainId: integer('chain_id').notNull(),
   lastClaimAt: timestamp('last_claim_at').notNull(),
@@ -60,8 +47,6 @@ export const apiRateLimits = pgTable('api_rate_limits', {
 }));
 
 // Zod schemas for validation
-export const insertLegacyUserSchema = createInsertSchema(legacyUsers);
-export const selectLegacyUserSchema = createSelectSchema(legacyUsers);
 export const insertUserWalletSchema = createInsertSchema(userWallets);
 export const selectUserWalletSchema = createSelectSchema(userWallets);
 export const insertRateLimitSchema = createInsertSchema(rateLimits);
@@ -70,8 +55,6 @@ export const insertApiRateLimitSchema = createInsertSchema(apiRateLimits);
 export const selectApiRateLimitSchema = createSelectSchema(apiRateLimits);
 
 // Types
-export type LegacyUser = z.infer<typeof selectLegacyUserSchema>;
-export type NewLegacyUser = z.infer<typeof insertLegacyUserSchema>;
 export type UserWallet = z.infer<typeof selectUserWalletSchema>;
 export type NewUserWallet = z.infer<typeof insertUserWalletSchema>;
 export type RateLimit = z.infer<typeof selectRateLimitSchema>;

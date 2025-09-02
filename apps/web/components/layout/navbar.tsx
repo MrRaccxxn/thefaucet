@@ -91,12 +91,12 @@ export function Navbar() {
                     {user.avatarUrl && (
                       <img 
                         src={user.avatarUrl} 
-                        alt={user.username}
+                        alt={user.nickname}
                         className="w-6 h-6 rounded-full border border-border/50"
                       />
                     )}
                     <span className="text-xs font-medium max-w-[100px] truncate">
-                      {user.username}
+                      @{user.nickname}
                     </span>
                     <svg className="w-3 h-3 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -106,7 +106,7 @@ export function Navbar() {
                 <DropdownMenuContent align="end" className="w-48">
                   <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium">{user.username}</p>
+                      <p className="text-sm font-medium">@{user.nickname}</p>
                       <p className="text-xs text-muted-foreground">GitHub Account</p>
                     </div>
                   </DropdownMenuLabel>

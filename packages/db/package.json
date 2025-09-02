@@ -21,6 +21,7 @@
     "db:migrate": "tsx src/migrate.ts",
     "db:studio": "drizzle-kit studio",
     "db:push": "drizzle-kit push",
+    "db:clean": "tsx src/clean.ts",
     "seed:chains": "tsx src/seed-chains.ts"
   },
   "dependencies": {
