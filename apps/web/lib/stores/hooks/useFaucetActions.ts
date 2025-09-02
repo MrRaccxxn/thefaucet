@@ -41,6 +41,8 @@ export const useFaucetActions = (): {
 
     // Get the numeric chain ID from the selected chain
     const numericChainId = getNumericChainId(selectedChain.id);
+    console.log('[DEBUG Frontend] Selected chain:', selectedChain.id, '-> Numeric ID:', numericChainId);
+    
     if (!numericChainId) {
       throw new Error(`Unsupported chain: ${selectedChain.id}`);
     }
@@ -48,6 +50,8 @@ export const useFaucetActions = (): {
     setLoading(true);
     
     try {
+      console.log('[DEBUG Frontend] Sending claim request with chainId:', numericChainId, 'wallet:', walletAddress);
+      
       // Use TRPC to claim through backend (which handles rate limiting and DB)
       await claimNativeTRPC.mutateAsync({
         walletAddress: walletAddress,

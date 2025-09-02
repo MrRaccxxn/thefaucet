@@ -1,11 +1,12 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { createTRPCRouter, protectedProcedure, claimProcedure } from "../index";
-import { claims, assets, rateLimits, chains, type User } from "@thefaucet/db";
-import { eq, and, gte, desc, count } from "drizzle-orm";
+import { claims, assets, chains } from "@thefaucet/db";
+import { eq, and, desc, count } from "drizzle-orm";
 import { faucetRateLimiter } from "../../rate-limiting";
 import { faucetService } from "../../blockchain/faucet";
 import type { AuthenticatedUser } from "../../types/auth";
+import { getChainConfig, isChainSupported } from "../../config/chains";
 
 export const claimRouter = createTRPCRouter({
   // Claim native tokens
@@ -35,17 +36,18 @@ export const claimRouter = createTRPCRouter({
           });
         }
 
-        // Get chain details
-        const chain = await ctx.db
-          .select()
-          .from(chains)
-          .where(eq(chains.chainId, input.chainId))
-          .limit(1);
+        // Get chain details from static config
+        console.log('[DEBUG] Claiming for chainId:', input.chainId);
+        
+        const chainConfig = getChainConfig(input.chainId);
+        console.log('[DEBUG] Found chain config:', chainConfig);
 
-        if (!chain[0] || !chain[0].isActive) {
+        if (!chainConfig || !chainConfig.isActive) {
+          console.error('[DEBUG] Chain not supported or inactive. ChainId:', input.chainId);
+          
           throw new TRPCError({
             code: 'BAD_REQUEST',
-            message: 'Chain not supported or inactive'
+            message: `Chain not supported or inactive (chainId: ${input.chainId})`
           });
         }
 
@@ -55,7 +57,7 @@ export const claimRouter = createTRPCRouter({
         const claimResult = await faucetService.claimNativeToken(
           input.walletAddress,
           input.chainId,
-          chain[0].rpcUrl
+          chainConfig.rpcUrl
         );
 
         // Get a dummy asset ID for native token (we'll create one or use existing)
@@ -77,8 +79,8 @@ export const claimRouter = createTRPCRouter({
               chainId: input.chainId,
               type: 'native',
               address: null,
-              symbol: chain[0].nativeSymbol,
-              name: `${chain[0].name} Native Token`,
+              symbol: chainConfig.nativeSymbol,
+              name: `${chainConfig.name} Native Token`,
               decimals: 18,
               isActive: true
             })
@@ -109,12 +111,47 @@ export const claimRouter = createTRPCRouter({
 
         return claimResult;
       } catch (error) {
-        console.error('Native token claim failed:', error);
+        if (error instanceof Error) {
+          console.error('Error Type:', error.constructor.name);
+          console.error('Error Message:', error.message);
+          console.error('Error Stack:', error.stack);
+          
+          // Check for specific error types
+          if (error.message.includes('PRIVATE_KEY')) {
+            throw new TRPCError({
+              code: 'INTERNAL_SERVER_ERROR',
+              message: 'Faucet is not properly configured. Missing PRIVATE_KEY.'
+            });
+          }
+          
+          if (error.message.includes('InsufficientBalance')) {
+            throw new TRPCError({
+              code: 'BAD_REQUEST',
+              message: 'FaucetManager contract has insufficient ETH balance. Please fund it.'
+            });
+          }
+          
+          if (error.message.includes('RateLimitExceeded')) {
+            throw new TRPCError({
+              code: 'TOO_MANY_REQUESTS',
+              message: 'Rate limit exceeded. Please wait before claiming again.'
+            });
+          }
+          
+          // Include actual error message for debugging
+          throw new TRPCError({
+            code: 'INTERNAL_SERVER_ERROR',
+            message: `Claim failed: ${error.message}`
+          });
+        } else {
+          console.error('Unknown error type:', error);
+        }
+        
         if (error instanceof TRPCError) throw error;
         
         throw new TRPCError({
           code: 'INTERNAL_SERVER_ERROR',
-          message: 'Failed to process native token claim'
+          message: 'Failed to process native token claim - unknown error'
         });
       }
     }),
@@ -165,14 +202,10 @@ export const claimRouter = createTRPCRouter({
           });
         }
 
-        // Get chain details
-        const chain = await ctx.db
-          .select()
-          .from(chains)
-          .where(eq(chains.chainId, input.chainId))
-          .limit(1);
+        // Get chain details from static config
+        const chainConfig = getChainConfig(input.chainId);
 
-        if (!chain[0] || !chain[0].isActive) {
+        if (!chainConfig || !chainConfig.isActive) {
           throw new TRPCError({
             code: 'BAD_REQUEST',
             message: 'Chain not supported or inactive'
@@ -186,7 +219,7 @@ export const claimRouter = createTRPCRouter({
           input.walletAddress,
           amount,
           input.chainId,
-          chain[0].rpcUrl
+          chainConfig.rpcUrl
         );
 
         // Record the claim in database
@@ -272,14 +305,10 @@ export const claimRouter = createTRPCRouter({
           });
         }
 
-        // Get chain details
-        const chain = await ctx.db
-          .select()
-          .from(chains)
-          .where(eq(chains.chainId, input.chainId))
-          .limit(1);
+        // Get chain details from static config
+        const chainConfig = getChainConfig(input.chainId);
 
-        if (!chain[0] || !chain[0].isActive) {
+        if (!chainConfig || !chainConfig.isActive) {
           throw new TRPCError({
             code: 'BAD_REQUEST',
             message: 'Chain not supported or inactive'
@@ -293,7 +322,7 @@ export const claimRouter = createTRPCRouter({
         const claimResult = await faucetService.mintNFT(
           input.walletAddress,
           input.chainId,
-          chain[0].rpcUrl
+          chainConfig.rpcUrl
         );
 
         // Record the claim in database

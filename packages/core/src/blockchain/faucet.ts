@@ -1,5 +1,5 @@
-import { ethers } from 'ethers';
-import { ABIS, getDeploymentAddresses } from '@thefaucet/contracts';
+import { ethers } from "ethers";
+import { ABIS, getDeploymentAddresses } from "@thefaucet/contracts";
 
 export interface ClaimResult {
   transactionHash: string;
@@ -8,10 +8,10 @@ export interface ClaimResult {
 }
 
 const CHAIN_NAMES: Record<number, string> = {
-  11155111: 'sepolia',
-  4202: 'lisk-sepolia',
-  80002: 'amoy',
-  97: 'bsc-testnet',
+  11155111: "sepolia",
+  4202: "lisk-sepolia",
+  80002: "amoy",
+  97: "bsc-testnet",
 };
 
 export class FaucetService {
@@ -19,14 +19,24 @@ export class FaucetService {
 
   private getWallet(chainId: number, rpcUrl: string): ethers.Wallet {
     if (!this.wallets.has(chainId)) {
-      const privateKey = process.env.FAUCET_PRIVATE_KEY;
+      const privateKey = process.env.PRIVATE_KEY;
       if (!privateKey) {
-        throw new Error('FAUCET_PRIVATE_KEY environment variable not set');
+        throw new Error(
+          "PRIVATE_KEY environment variable not set. Please configure the transaction signer wallet."
+        );
       }
 
-      const provider = new ethers.JsonRpcProvider(rpcUrl);
-      const wallet = new ethers.Wallet(privateKey, provider);
-      this.wallets.set(chainId, wallet);
+      try {
+        const provider = new ethers.JsonRpcProvider(rpcUrl);
+        const wallet = new ethers.Wallet(privateKey, provider);
+        this.wallets.set(chainId, wallet);
+        console.log(
+          `✅ Wallet configured for chain ${chainId} - Address: ${wallet.address}`
+        );
+      } catch (error) {
+        console.error("Failed to create wallet:", error);
+        throw new Error("Invalid private key or RPC connection failed");
+      }
     }
 
     return this.wallets.get(chainId)!;
@@ -37,12 +47,12 @@ export class FaucetService {
     if (!networkName) {
       throw new Error(`Unsupported chain ID: ${chainId}`);
     }
-    
+
     const deployment = getDeploymentAddresses(networkName);
     if (!deployment) {
       throw new Error(`No deployment found for network: ${networkName}`);
     }
-    
+
     return {
       faucetManager: deployment.faucetManager,
       devToken: deployment.devToken,
@@ -55,41 +65,87 @@ export class FaucetService {
     chainId: number,
     rpcUrl: string
   ): Promise<ClaimResult> {
+    console.log("=== FaucetService.claimNativeToken ===");
+    console.log("Recipient:", recipientAddress);
+    console.log("ChainId:", chainId);
+    console.log("RPC URL:", rpcUrl);
+
     try {
       const wallet = this.getWallet(chainId, rpcUrl);
+      console.log("Wallet address:", wallet.address);
+
       const addresses = this.getContractAddresses(chainId);
-      
+      console.log("Contract addresses:", addresses);
+
       // Use FaucetManager contract
+      console.log("Creating FaucetManager contract instance...");
       const faucetManager = new ethers.Contract(
         addresses.faucetManager,
         ABIS.FaucetManager,
         wallet
       );
-      
+
+      // Check wallet balance for gas
+      const walletBalance = await wallet.provider.getBalance(wallet.address);
+      console.log(
+        "Wallet ETH balance for gas:",
+        ethers.formatEther(walletBalance)
+      );
+
+      // Check contract balance
+      const contractBalance = await wallet.provider.getBalance(
+        addresses.faucetManager
+      );
+      console.log(
+        "FaucetManager contract ETH balance:",
+        ethers.formatEther(contractBalance)
+      );
+
       // Call claimNativeToken on the contract
-      const claimFunction = faucetManager.getFunction('claimNativeToken');
+      console.log("Calling claimNativeToken on contract...");
+      const claimFunction = faucetManager.getFunction("claimNativeToken");
       const tx = await claimFunction(recipientAddress);
-      
+      console.log("Transaction sent:", tx.hash);
+
       // Get the amount from contract
-      const amountFunction = faucetManager.getFunction('nativeTokenAmount');
+      const amountFunction = faucetManager.getFunction("nativeTokenAmount");
       const amount = await amountFunction();
-      
+
       return {
         transactionHash: tx.hash,
         amount: ethers.formatEther(amount),
         estimatedConfirmTime: 30,
       };
     } catch (error) {
-      console.error(`Failed to claim native token:`, error);
+      console.error("=== FAUCET SERVICE ERROR ===");
+      console.error("Full error object:", error);
+
       if (error instanceof Error) {
-        if (error.message.includes('RateLimitExceeded')) {
-          throw new Error('Rate limit exceeded. Please wait before claiming again.');
+        console.error("Error name:", error.name);
+        console.error("Error message:", error.message);
+        console.error("Error stack:", error.stack);
+
+        // Check for common errors
+        if (error.message.includes("RateLimitExceeded")) {
+          throw new Error(
+            "Rate limit exceeded. Please wait before claiming again."
+          );
         }
-        if (error.message.includes('InsufficientBalance')) {
-          throw new Error('Faucet has insufficient balance.');
+        if (error.message.includes("InsufficientBalance")) {
+          throw new Error("FaucetManager contract has insufficient balance.");
         }
+        if (error.message.includes("could not detect network")) {
+          throw new Error("Network connection failed. Check RPC URL.");
+        }
+        if (error.message.includes("insufficient funds")) {
+          throw new Error("Wallet has insufficient ETH for gas fees.");
+        }
+
+        // Throw the original error with more context
+        throw new Error(`FaucetService error: ${error.message}`);
       }
-      throw new Error('Failed to process native token claim');
+
+      throw new Error("Failed to process native token claim - unknown error");
     }
   }
 
@@ -102,18 +158,18 @@ export class FaucetService {
     try {
       const wallet = this.getWallet(chainId, rpcUrl);
       const addresses = this.getContractAddresses(chainId);
-      
+
       // Use FaucetManager contract to claim tokens
       const faucetManager = new ethers.Contract(
         addresses.faucetManager,
         ABIS.FaucetManager,
         wallet
       );
-      
+
       const amountUnits = ethers.parseUnits(amount, 18); // DevToken uses 18 decimals
-      
+
       // Use FaucetManager to mint tokens to recipient
-      const claimFunction = faucetManager.getFunction('claimTokens');
+      const claimFunction = faucetManager.getFunction("claimTokens");
       const tx = await claimFunction(
         recipientAddress,
         addresses.devToken,
@@ -128,17 +184,19 @@ export class FaucetService {
     } catch (error) {
       console.error(`Failed to claim ERC20 token:`, error);
       if (error instanceof Error) {
-        if (error.message.includes('RateLimitExceeded')) {
-          throw new Error('Rate limit exceeded. Please wait before claiming again.');
+        if (error.message.includes("RateLimitExceeded")) {
+          throw new Error(
+            "Rate limit exceeded. Please wait before claiming again."
+          );
         }
-        if (error.message.includes('InsufficientBalance')) {
-          throw new Error('Faucet has insufficient token balance.');
+        if (error.message.includes("InsufficientBalance")) {
+          throw new Error("Faucet has insufficient token balance.");
         }
-        if (error.message.includes('TokenMintFailed')) {
-          throw new Error('Token minting failed. Please try again.');
+        if (error.message.includes("TokenMintFailed")) {
+          throw new Error("Token minting failed. Please try again.");
         }
       }
-      throw new Error('Failed to process ERC20 token claim');
+      throw new Error("Failed to process ERC20 token claim");
     }
   }
 
@@ -150,20 +208,17 @@ export class FaucetService {
     try {
       const wallet = this.getWallet(chainId, rpcUrl);
       const addresses = this.getContractAddresses(chainId);
-      
+
       // Use FaucetManager contract to mint NFT
       const faucetManager = new ethers.Contract(
         addresses.faucetManager,
         ABIS.FaucetManager,
         wallet
       );
-      
+
       // Use FaucetManager to mint NFT to recipient
-      const claimFunction = faucetManager.getFunction('claimNFT');
-      const tx = await claimFunction(
-        recipientAddress,
-        addresses.devNFT
-      );
+      const claimFunction = faucetManager.getFunction("claimNFT");
+      const tx = await claimFunction(recipientAddress, addresses.devNFT);
 
       return {
         transactionHash: tx.hash,
@@ -173,14 +228,16 @@ export class FaucetService {
     } catch (error) {
       console.error(`Failed to mint NFT:`, error);
       if (error instanceof Error) {
-        if (error.message.includes('RateLimitExceeded')) {
-          throw new Error('Rate limit exceeded. Please wait before claiming again.');
+        if (error.message.includes("RateLimitExceeded")) {
+          throw new Error(
+            "Rate limit exceeded. Please wait before claiming again."
+          );
         }
-        if (error.message.includes('NFTMintFailed')) {
-          throw new Error('NFT minting failed. Please try again.');
+        if (error.message.includes("NFTMintFailed")) {
+          throw new Error("NFT minting failed. Please try again.");
         }
       }
-      throw new Error('Failed to process NFT claim');
+      throw new Error("Failed to process NFT claim");
     }
   }
 }
