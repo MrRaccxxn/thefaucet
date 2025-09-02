@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install:*)",
+      "Bash(npm config:*)",
+      "Bash(npm run lint)",
+      "Bash(npm run:*)"
+    ],
+    "deny": [
+      "Read(.env)",
+      "Read(**/.env*)",
+      "Read(**/env*)",
+      "Read(**/*.pem)",
+      "Read(**/*.key)",
+      "Read(**/*.crt)",
+      "Read(**/*.cert)",
+      "Read(**/secrets/**)",
+      "Read(**/credentials/**)"
+    ]
+  }
+}
