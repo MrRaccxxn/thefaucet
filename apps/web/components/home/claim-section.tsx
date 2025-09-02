@@ -8,6 +8,7 @@ import {
   useAuthStore,
   useFaucetActions,
 } from "@/lib/stores";
+import { useWalletConnection } from "@/lib/hooks";
 import { ErrorAlert } from "@/components/ui/error-alert";
 import { SuccessAlert } from "@/components/ui/success-alert";
 import { ErrorBoundary } from "@/components/ui/error-boundary";
@@ -37,6 +38,9 @@ function ClaimSectionContent() {
 
   // Use the auth hook which syncs with NextAuth
   const { isAuthenticated, isLoading: authLoading, user } = useAuth();
+  
+  // Get wallet connection info for auto-fill
+  const { address: connectedWalletAddress, isConnected: isWalletConnected } = useWalletConnection();
 
   const {
     handleNetworkChange,
@@ -65,6 +69,13 @@ function ClaimSectionContent() {
     isNativeClaimSuccess ||
     claimTokenMutation.isSuccess ||
     mintNFTMutation.isSuccess;
+
+  // Auto-fill wallet address when wallet connects
+  React.useEffect(() => {
+    if (isWalletConnected && connectedWalletAddress && !walletAddress) {
+      setWalletAddress(connectedWalletAddress);
+    }
+  }, [isWalletConnected, connectedWalletAddress, walletAddress, setWalletAddress]);
 
   // Show error when claim fails
   React.useEffect(() => {
@@ -255,14 +266,24 @@ function ClaimSectionContent() {
 
       {/* Prominent Wallet Input - 20% bigger */}
       <div className="p-7 rounded-xl bg-card/20 backdrop-blur-md border border-border/20 hover:border-border/40 transition-all duration-300">
-        <label className="block text-sm font-medium text-foreground mb-4">
-          Wallet Address
-        </label>
+        <div className="flex items-center justify-between mb-4">
+          <label className="text-sm font-medium text-foreground">
+            Wallet Address
+          </label>
+          {isWalletConnected && connectedWalletAddress && walletAddress !== connectedWalletAddress && (
+            <button
+              onClick={() => setWalletAddress(connectedWalletAddress)}
+              className="text-xs text-primary hover:text-primary/80 transition-colors"
+            >
+              Use connected wallet
+            </button>
+          )}
+        </div>
         <input
           type="text"
           value={walletAddress}
           onChange={(e) => setWalletAddress(e.target.value)}
-          placeholder="0x..."
+          placeholder={isWalletConnected && connectedWalletAddress ? connectedWalletAddress : "0x..."}
           className="w-full px-6 py-5 bg-background/60 border border-border/30 rounded-xl text-lg placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/50 focus:bg-background/80 transition-all duration-200"
         />
       </div>

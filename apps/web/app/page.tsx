@@ -2,6 +2,10 @@
 
 import { ClaimSection } from "@/components/home/claim-section";
 import { useNetworkStore, useInitialization } from "@/lib/stores";
+import { useWalletConnection, useNetworkSwitcher } from "@/lib/hooks";
+import { useCallback } from "react";
+import { getNumericChainId } from "@/lib/stores/constants";
+import { addNetworkToWallet } from "@/lib/utils/add-network";
 
 export default function Home() {
   // Initialize app state
@@ -9,6 +13,35 @@ export default function Home() {
 
   // Get state from stores with specific selector
   const selectedChain = useNetworkStore((state) => state.selectedChain);
+  
+  // Wallet connection hooks
+  const { isConnected, address, connectWallet, connectors } = useWalletConnection();
+  const { chain: currentWalletChain, switchToNetwork, isSwitching } = useNetworkSwitcher();
+  
+  // Get the numeric chain ID for the selected chain
+  const selectedChainId = getNumericChainId(selectedChain.id);
+  
+  // Check if wallet is on the correct network
+  const isCorrectNetwork = currentWalletChain?.id === selectedChainId;
+  const hasNetwork = currentWalletChain !== undefined;
+  
+  // Handle network actions
+  const handleNetworkAction = useCallback(async () => {
+    if (!isConnected) {
+      // Connect wallet - use first available connector (usually MetaMask)
+      const connector = connectors[0];
+      if (connector) {
+        connectWallet(connector.id);
+      }
+    } else if (!isCorrectNetwork && selectedChainId) {
+      // Try to add/switch network
+      try {
+        await addNetworkToWallet(selectedChainId);
+      } catch (error) {
+        console.error('Failed to add/switch network:', error);
+      }
+    }
+  }, [isConnected, isCorrectNetwork, selectedChainId, connectWallet, connectors]);
 
   return (
     <div className="min-h-screen relative overflow-hidden">
@@ -36,11 +69,45 @@ export default function Home() {
       <div className="relative z-10">
         <section className="container mx-auto px-6 py-32 md:py-40 lg:py-48">
           <div className="max-w-4xl mx-auto text-center">
-            {/* Network Status Badge */}
-            <div className="inline-flex items-center px-4 py-2 rounded-full bg-muted/30 backdrop-blur-sm text-sm text-muted-foreground mb-8 border border-border/20 animate-fade-in">
-              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse mr-2"></div>
-              Connected to {selectedChain.name}
-            </div>
+            {/* Network Status Badge with Wallet Actions */}
+            <button
+              onClick={handleNetworkAction}
+              disabled={isSwitching || (isConnected && isCorrectNetwork)}
+              className={`inline-flex items-center gap-2 px-4 py-2 rounded-full bg-muted/30 backdrop-blur-sm text-sm text-muted-foreground mb-8 border border-border/20 animate-fade-in transition-all ${
+                isConnected && isCorrectNetwork 
+                  ? 'cursor-default' 
+                  : 'hover:bg-muted/40 hover:text-primary hover:border-border/30 cursor-pointer'
+              }`}
+            >
+              {/* Contextual icon based on state */}
+              {!isConnected ? (
+                // Wallet icon for connect
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+              ) : !isCorrectNetwork ? (
+                // Switch icon for network change
+                <svg className="w-4 h-4 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                </svg>
+              ) : (
+                // Green pulse dot when connected correctly
+                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+              )}
+              
+              {/* Show appropriate message based on wallet/network state */}
+              <span className="text-sm">
+                {isSwitching ? (
+                  'Switching...'
+                ) : !isConnected ? (
+                  'Connect Wallet'
+                ) : !isCorrectNetwork ? (
+                  `Switch to ${selectedChain.name}`
+                ) : (
+                  `Connected to ${selectedChain.name}`
+                )}
+              </span>
+            </button>
 
             {/* Main heading */}
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-light tracking-tight mb-6 animate-fade-in-up ">

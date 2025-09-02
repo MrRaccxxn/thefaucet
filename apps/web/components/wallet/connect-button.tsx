@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { useWalletConnection } from "@/lib/hooks"
-import { Wallet, Loader2 } from "lucide-react"
+import { Wallet } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,52 +13,27 @@ import {
 export function ConnectButton() {
   const { 
     isConnected, 
-    isConnecting, 
-    connectWallet, 
     disconnectWallet, 
-    connectors,
     address 
   } = useWalletConnection()
 
-  if (isConnected) {
-    return (
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="outline" className="gap-2">
-            <Wallet className="h-4 w-4" />
-            {address ? `${address.slice(0, 6)}...${address.slice(-4)}` : 'Connected'}
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem onClick={disconnectWallet}>
-            Disconnect
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    )
+  // Only show when wallet is connected
+  if (!isConnected) {
+    return null
   }
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button disabled={isConnecting} className="gap-2">
-          {isConnecting ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <Wallet className="h-4 w-4" />
-          )}
-          {isConnecting ? 'Connecting...' : 'Connect Wallet'}
+        <Button variant="outline" size="sm" className="gap-2 text-xs">
+          <Wallet className="h-3 w-3" />
+          {address ? `${address.slice(0, 6)}...${address.slice(-4)}` : 'Connected'}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        {connectors.map((connector) => (
-          <DropdownMenuItem
-            key={connector.id}
-            onClick={() => connectWallet(connector.id)}
-          >
-            {connector.name}
-          </DropdownMenuItem>
-        ))}
+        <DropdownMenuItem onClick={disconnectWallet}>
+          Disconnect
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   )
