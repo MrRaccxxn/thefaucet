@@ -45,15 +45,15 @@ export default function Home() {
             </div>
 
             {/* Main heading */}
-            <h1 className="text-5xl md:text-7xl lg:text-8xl font-light tracking-tight mb-8 animate-fade-in-up">
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-light tracking-tight mb-6 animate-fade-in-up ">
               The
-              <span className="block font-medium bg-gradient-to-r from-primary via-blue-600 to-purple-600 bg-clip-text text-transparent animate-gradient font-literata">
-                Faucet
+              <span className="text-6xl md:text-9xl lg:text-10xl block font-medium bg-gradient-to-r from-primary via-blue-600 to-purple-600 bg-clip-text text-transparent animate-gradient font-literata -mt-4 md:-mt-6 lg:-mt-8">
+                faucet
               </span>
             </h1>
 
             {/* Subtitle */}
-            <p className="text-lg md:text-xl text-muted-foreground mb-12 max-w-2xl mx-auto leading-relaxed animate-fade-in-up-delayed">
+            <p className="text-lg md:text-lg text-muted-foreground mb-12 max-w-2xl mx-auto leading-relaxed animate-fade-in-up-delayed">
               Get test tokens instantly across multiple blockchain networks.
             </p>
 

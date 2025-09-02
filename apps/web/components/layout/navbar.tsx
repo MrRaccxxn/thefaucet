@@ -42,7 +42,7 @@ export function Navbar() {
             
             {/* Social Links */}
             <a
-              href="https://github.com/yourorg/thefaucet"
+              href="https://github.com/MrRaccxxn/thefaucet"
               target="_blank"
               rel="noopener noreferrer"
               className="p-1.5 rounded-lg hover:bg-muted/50 transition-colors"
@@ -54,7 +54,7 @@ export function Navbar() {
             </a>
             
             <a
-              href="https://twitter.com/thefaucet"
+              href="https://x.com/buildraccoon"
               target="_blank"
               rel="noopener noreferrer"
               className="p-1.5 rounded-lg hover:bg-muted/50 transition-colors"
