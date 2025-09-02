@@ -13,7 +13,7 @@ export default function AuthErrorPage() {
       case "Configuration":
         return "There is a problem with the server configuration.";
       case "AccessDenied":
-        return "Access was denied. You may not meet the requirements.";
+        return "Access was denied. Your GitHub account may not meet the requirements for using this faucet.";
       case "Verification":
         return "The verification token has expired or has already been used.";
       case "OAuthSignin":
@@ -32,9 +32,28 @@ export default function AuthErrorPage() {
         return "Check your email for the verification link.";
       case "CredentialsSignin":
         return "Sign in failed. Check the details you provided are correct.";
+      case "GitHubValidation":
+        return "Your GitHub account doesn't meet the requirements for using this faucet.";
       default:
         return "An unexpected error occurred during authentication.";
     }
+  };
+
+  const getErrorDetails = (error: string | null) => {
+    if (error === "AccessDenied" || error === "GitHubValidation") {
+      return (
+        <div className="text-left space-y-2">
+          <p className="font-medium">Requirements:</p>
+          <ul className="text-sm space-y-1">
+            <li>• Account must be at least 30 days old</li>
+            <li>• Must have at least 5 followers</li>
+            <li>• Must have at least 1 public repository</li>
+            <li>• Must have a verified email address</li>
+          </ul>
+        </div>
+      );
+    }
+    return null;
   };
 
   return (
@@ -60,6 +79,12 @@ export default function AuthErrorPage() {
         <p className="text-muted-foreground mb-6">
           {getErrorMessage(error)}
         </p>
+        
+        {getErrorDetails(error) && (
+          <div className="bg-muted rounded-lg p-4 mb-6">
+            {getErrorDetails(error)}
+          </div>
+        )}
         
         {error && (
           <div className="bg-muted rounded-lg p-3 mb-6">

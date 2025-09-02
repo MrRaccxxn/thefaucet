@@ -13,24 +13,39 @@ export const chains = [
   bscTestnet,
 ] as const
 
-// Configure your wagmi config
-export const config: Config = createConfig({
-  chains,
-  connectors: [
-    injected(),
-    walletConnect({
-      projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || 'your-project-id',
-    }),
-    coinbaseWallet({
-      appName: 'The Faucet',
-    }),
-  ],
-  transports: {
-    [sepolia.id]: http(),
-    [polygonAmoy.id]: http(),
-    [bscTestnet.id]: http(),
-  },
-})
+// Function to create config (called only on client side)
+function createWagmiConfig(): Config {
+  return createConfig({
+    chains,
+    connectors: [
+      injected(),
+      walletConnect({
+        projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || 'your-project-id',
+        showQrModal: false,
+        metadata: {
+          name: 'The Faucet',
+          description: 'Multichain testnet faucet',
+          url: 'https://thefaucet.dev',
+          icons: ['https://thefaucet.dev/favicon.ico'],
+        },
+      }),
+      coinbaseWallet({
+        appName: 'The Faucet',
+      }),
+    ],
+    transports: {
+      [sepolia.id]: http(),
+      [polygonAmoy.id]: http(),
+      [bscTestnet.id]: http(),
+    },
+    ssr: true,
+  })
+}
+
+// Export the config, but only create it if we're on the client side
+export const config: Config = typeof window !== 'undefined' 
+  ? createWagmiConfig() 
+  : {} as Config
 
 declare module 'wagmi' {
   interface Register {

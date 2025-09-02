@@ -6,6 +6,7 @@ import { Footer } from "@/components/layout/footer";
 import { GitHubAuthModal } from "@/components/modals/github-auth-modal";
 import { AuthSessionProvider } from "@/components/providers/session-provider";
 import { WagmiAppProvider } from "@/components/providers/wagmi-provider";
+import { ClientOnly } from "@/components/providers/client-only";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -90,15 +91,24 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}
       >
-        <WagmiAppProvider>
-          <AuthSessionProvider>
+        <AuthSessionProvider>
+          <ClientOnly fallback={
             <div className="relative flex min-h-screen flex-col">
-              <Navbar />
+              <div className="h-16" /> {/* Navbar placeholder */}
               <main className="flex-1 pt-0">{children}</main>
-              <GitHubAuthModal />
             </div>
-          </AuthSessionProvider>
-        </WagmiAppProvider>
+          }>
+            <WagmiAppProvider>
+              <div className="relative flex min-h-screen flex-col">
+                <ClientOnly fallback={<div className="h-16" />}>
+                  <Navbar />
+                </ClientOnly>
+                <main className="flex-1 pt-0">{children}</main>
+                <GitHubAuthModal />
+              </div>
+            </WagmiAppProvider>
+          </ClientOnly>
+        </AuthSessionProvider>
       </body>
     </html>
   );

@@ -294,7 +294,7 @@
           3,
           4
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -325,7 +325,7 @@
               "5.2"
             ],
             "details": "In packages/core/: 1. Create packages/core/src/auth/github-validation.ts to implement validation functions for GitHub account requirements: account age check, followers count verification, and repository count validation. 2. Add GitHub API integration to fetch additional user data not provided by basic OAuth. 3. Create a custom callback in apps/web/app/api/auth/[...nextauth]/route.ts to run these validations during authentication. 4. Update packages/db/src/auth.ts to store validation results. 5. Implement error handling for failed validations.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "1. Test validation logic with various GitHub accounts. 2. Verify account age validation works correctly. 3. Test followers count verification. 4. Validate repository count checks. 5. Test error handling for accounts that don't meet requirements."
           },
           {
@@ -338,7 +338,7 @@
               "5.3"
             ],
             "details": "In apps/web/: 1. Create apps/web/middleware.ts to implement NextAuth middleware for protected routes. 2. Configure middleware to check authentication status and redirect unauthenticated users. 3. Update apps/web/app/layout.tsx to include session provider. 4. Create apps/web/lib/auth.ts with helper functions for checking authentication status and getting session data. 5. Update packages/core/src/auth/index.ts to export types and utilities for authentication across the monorepo. 6. Configure JWT handling with proper secret rotation in the NextAuth setup.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "1. Test protected routes redirect unauthenticated users. 2. Verify authenticated users can access protected routes. 3. Test session provider works across the application. 4. Validate JWT handling and security. 5. Test middleware configuration with different route patterns."
           },
           {
@@ -350,7 +350,7 @@
               "5.4"
             ],
             "details": "In packages/ui/ and apps/web/: 1. Create packages/ui/src/auth/SignInButton.tsx component for GitHub authentication. 2. Create packages/ui/src/auth/SignOutButton.tsx component. 3. Create packages/ui/src/auth/UserProfile.tsx to display user information. 4. Implement packages/ui/src/auth/AuthStatus.tsx to show current authentication status. 5. Add these components to apps/web/app/components/Navbar.tsx. 6. Create apps/web/app/profile/page.tsx to display user profile information. 7. Update apps/web/app/page.tsx to conditionally render content based on authentication status.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "1. Test sign-in functionality with GitHub OAuth. 2. Verify sign-out works correctly. 3. Test user profile display with authenticated users. 4. Validate conditional rendering based on authentication status. 5. Test UI components across different screen sizes."
           }
         ]
@@ -445,7 +445,7 @@
             "description": "Install tRPC dependencies and create the base router structure with error formatting in the Next.js application",
             "dependencies": [],
             "details": "In packages/core/: Create src/trpc/index.ts for the base router setup with proper error formatting. Create src/trpc/context.ts for context providers. In apps/web/: Create pages/api/trpc/[trpc].ts for the Next.js API route handler. Install dependencies with `pnpm add @trpc/server @trpc/client @trpc/next @trpc/react-query zod` in both packages/core and apps/web. Update packages/config/tsconfig/base.json to include path mappings for the new tRPC modules.",
-            "status": "pending",
+            "status": "in-progress",
             "testStrategy": "Verify the tRPC server initializes correctly. Test error formatting with sample errors. Ensure the context providers can be initialized. Validate the API route responds to basic requests."
           },
           {
@@ -1436,7 +1436,7 @@
     ],
     "metadata": {
       "created": "2025-08-29T08:49:37.007Z",
-      "updated": "2025-08-30T18:24:27.353Z",
+      "updated": "2025-09-02T03:56:58.471Z",
       "description": "Tasks for master context"
     }
   }
