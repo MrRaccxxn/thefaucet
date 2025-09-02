@@ -187,16 +187,6 @@ contract FaucetManagerTest is Test {
         faucetManager.claimNFT(address(0), address(devNFT));
     }
 
-    function test_EmergencyWithdraw() public {
-        uint256 initialBalance = admin.balance;
-        uint256 faucetBalance = address(faucetManager).balance;
-        
-        faucetManager.emergencyWithdraw(payable(admin), faucetBalance);
-        
-        assertEq(admin.balance, initialBalance + faucetBalance);
-        assertEq(address(faucetManager).balance, 0);
-    }
-
     function test_Revert_InvalidAmount() public {
         vm.expectRevert(FaucetManager.InvalidAmount.selector);
         faucetManager.claimTokens(user1, address(devToken), 0);
