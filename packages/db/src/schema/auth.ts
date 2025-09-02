@@ -55,7 +55,7 @@ export const verificationTokens = pgTable('verification_tokens', {
 // Extended user profile for GitHub-specific data
 export const userProfiles = pgTable('user_profiles', {
   id: uuid('id').primaryKey().defaultRandom(),
-  userId: text('user_id').notNull(),
+  userId: text('user_id').notNull().unique(),
   githubId: text('github_id').unique(),
   githubUsername: text('github_username'),
   accountAge: integer('account_age'), // in days

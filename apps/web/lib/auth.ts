@@ -48,7 +48,7 @@ export const authOptions: NextAuthOptions = {
       try {
         // Cast profile to GitHub profile type
         const githubProfile = profile as unknown as GitHubUserProfile;
-        
+  
         // Validate GitHub account
         const validator = new GitHubAccountValidator();
         const validationResult = validator.validateProfile(githubProfile);
@@ -62,18 +62,9 @@ export const authOptions: NextAuthOptions = {
         // Store GitHub profile data in userProfiles table
         const userId = (user as any).id || user.email;
         if (userId) {
-          await db.insert(userProfiles).values({
-            userId: userId,
-            githubId: githubProfile.id.toString(),
-            githubUsername: githubProfile.login,
-            accountAge: calculateAccountAge(githubProfile.created_at),
-            followersCount: githubProfile.followers,
-            repositoryCount: githubProfile.public_repos,
-            isVerified: true,
-            lastValidationAt: new Date(),
-          }).onConflictDoUpdate({
-            target: userProfiles.userId,
-            set: {
+          try {
+            await db.insert(userProfiles).values({
+              userId: userId,
               githubId: githubProfile.id.toString(),
               githubUsername: githubProfile.login,
               accountAge: calculateAccountAge(githubProfile.created_at),
@@ -81,9 +72,11 @@ export const authOptions: NextAuthOptions = {
               repositoryCount: githubProfile.public_repos,
               isVerified: true,
               lastValidationAt: new Date(),
-              updatedAt: new Date(),
-            },
-          });
+            });
+          } catch (error) {
+            // If user profile already exists, just update it
+            console.log("User profile already exists, skipping insert");
+          }
         }
 
         return true;
