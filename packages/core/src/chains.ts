@@ -153,74 +153,32 @@ export const CHAINS: Record<string, ChainConfig> = {
     },
   },
 
-  // Ready for future mainnet support
-  ethereum: {
-    name: "Ethereum Mainnet",
+  liskSepolia: {
+    name: "Lisk Sepolia",
     chain: "ETH",
-    rpc: [
-      "https://eth.llamarpc.com",
-      "https://ethereum.publicnode.com",
-      "https://cloudflare-eth.com",
-    ],
+    rpc: ["https://rpc.sepolia-api.lisk.com"],
     faucets: [],
     nativeCurrency: {
-      name: "Ether",
+      name: "Sepolia Ether",
       symbol: "ETH",
       decimals: 18,
     },
     features: [{ name: "EIP155" }, { name: "EIP1559" }],
-    infoURL: "https://ethereum.org",
-    shortName: "eth",
-    chainId: 1,
-    networkId: 1,
-    icon: "ethereum",
+    infoURL: "https://docs.lisk.com",
+    shortName: "lisk-sepolia",
+    chainId: 4202,
+    networkId: 4202,
+    icon: "lisk",
     explorers: [
       {
-        name: "etherscan",
-        url: "https://etherscan.io",
-        icon: "etherscan",
+        name: "Lisk Sepolia Explorer",
+        url: "https://sepolia-blockscout.lisk.com",
+        icon: "blockscout",
         standard: "EIP3091",
-        apiUrl: "https://api.etherscan.io/api",
       },
     ],
     faucetConfig: {
-      alchemy: "eth-mainnet",
-      isTestnet: false,
-    },
-  },
-
-  polygon: {
-    name: "Polygon Mainnet",
-    chain: "MATIC",
-    rpc: [
-      "https://polygon-rpc.com",
-      "https://polygon.publicnode.com",
-      "https://polygon.llamarpc.com",
-    ],
-    faucets: [],
-    nativeCurrency: {
-      name: "MATIC",
-      symbol: "MATIC",
-      decimals: 18,
-    },
-    features: [{ name: "EIP155" }, { name: "EIP1559" }],
-    infoURL: "https://polygon.technology/",
-    shortName: "matic",
-    chainId: 137,
-    networkId: 137,
-    icon: "polygon",
-    explorers: [
-      {
-        name: "polygonscan",
-        url: "https://polygonscan.com",
-        icon: "polygonscan",
-        standard: "EIP3091",
-        apiUrl: "https://api.polygonscan.com/api",
-      },
-    ],
-    faucetConfig: {
-      alchemy: "polygon-mainnet",
-      isTestnet: false,
+      isTestnet: true,
     },
   },
 } as const;

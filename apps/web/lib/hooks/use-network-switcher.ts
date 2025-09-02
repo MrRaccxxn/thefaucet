@@ -3,8 +3,9 @@
 import { useAccount, useSwitchChain } from 'wagmi'
 import { useCallback } from 'react'
 import { sepolia, polygonAmoy, bscTestnet } from 'wagmi/chains'
+import { liskSepolia } from '@thefaucet/contracts/chains'
 
-type SupportedChainId = typeof sepolia.id | typeof polygonAmoy.id | typeof bscTestnet.id
+type SupportedChainId = typeof sepolia.id | typeof polygonAmoy.id | typeof bscTestnet.id | typeof liskSepolia.id
 
 export function useNetworkSwitcher() {
   const { chain } = useAccount()
@@ -28,7 +29,11 @@ export function useNetworkSwitcher() {
     switchToNetwork(bscTestnet.id)
   }, [switchToNetwork])
 
-  const supportedChainIds = [sepolia.id, polygonAmoy.id, bscTestnet.id] as const
+  const switchToLiskSepolia = useCallback(() => {
+    switchToNetwork(liskSepolia.id)
+  }, [switchToNetwork])
+
+  const supportedChainIds = [sepolia.id, polygonAmoy.id, bscTestnet.id, liskSepolia.id] as const
   const isSupportedNetwork = chain && supportedChainIds.includes(chain.id as SupportedChainId)
 
   return {
@@ -38,7 +43,8 @@ export function useNetworkSwitcher() {
     switchToSepolia,
     switchToPolygonAmoy,
     switchToBscTestnet,
+    switchToLiskSepolia,
     isSupportedNetwork,
-    supportedChains: [sepolia, polygonAmoy, bscTestnet],
+    supportedChains: [sepolia, polygonAmoy, bscTestnet, liskSepolia],
   }
 }

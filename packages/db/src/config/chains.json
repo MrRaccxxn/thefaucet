@@ -24,24 +24,48 @@
     "isActive": true
   },
   {
-    "name": "Polygon Mumbai",
+    "name": "Polygon Amoy",
     "chain": "MATIC",
-    "chainId": 80001,
-    "networkId": 80001,
+    "chainId": 80002,
+    "networkId": 80002,
     "nativeCurrency": {
       "name": "MATIC",
       "symbol": "MATIC",
       "decimals": 18
     },
     "rpc": [
-      "https://rpc-mumbai.maticvigil.com",
-      "https://polygon-mumbai.blockpi.network/v1/rpc/public",
-      "https://polygon-testnet.public.blastapi.io"
+      "https://rpc-amoy.polygon.technology",
+      "https://polygon-amoy.drpc.org",
+      "https://polygon-amoy-bor.publicnode.com"
     ],
     "explorers": [
       {
         "name": "polygonscan",
-        "url": "https://mumbai.polygonscan.com",
+        "url": "https://amoy.polygonscan.com",
+        "standard": "EIP3091"
+      }
+    ],
+    "isActive": true
+  },
+  {
+    "name": "BSC Testnet",
+    "chain": "BSC",
+    "chainId": 97,
+    "networkId": 97,
+    "nativeCurrency": {
+      "name": "Binance Chain Native Token",
+      "symbol": "tBNB",
+      "decimals": 18
+    },
+    "rpc": [
+      "https://bsc-testnet.public.blastapi.io",
+      "https://data-seed-prebsc-1-s1.binance.org:8545",
+      "https://bsc-testnet.publicnode.com"
+    ],
+    "explorers": [
+      {
+        "name": "bscscan",
+        "url": "https://testnet.bscscan.com",
         "standard": "EIP3091"
       }
     ],
@@ -111,6 +135,28 @@
       {
         "name": "basescan",
         "url": "https://sepolia.basescan.org",
+        "standard": "EIP3091"
+      }
+    ],
+    "isActive": true
+  },
+  {
+    "name": "Lisk Sepolia",
+    "chain": "ETH",
+    "chainId": 4202,
+    "networkId": 4202,
+    "nativeCurrency": {
+      "name": "Sepolia Ether",
+      "symbol": "ETH",
+      "decimals": 18
+    },
+    "rpc": [
+      "https://rpc.sepolia-api.lisk.com"
+    ],
+    "explorers": [
+      {
+        "name": "Lisk Sepolia Explorer",
+        "url": "https://sepolia-blockscout.lisk.com",
         "standard": "EIP3091"
       }
     ],

@@ -26,7 +26,7 @@
     "test:coverage": "forge coverage",
     "lint": "forge fmt --check",
     "lint:fix": "forge fmt",
-    "deploy": "./scripts/deploy.sh",
+    "deploy": "bash ./scripts/deploy.sh",
     "deploy:local": "forge script script/Deploy.s.sol --rpc-url http://localhost:8545 --broadcast",
     "verify": "forge verify-contract",
     "clean": "forge clean",

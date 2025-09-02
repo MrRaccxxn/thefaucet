@@ -6,6 +6,6 @@ export const DEPLOYMENT_ADDRESSES = {
     devToken: "0xc3F25A24db28E2ABA2FA32AFFe055aa331f3FF29",
     devNFT: "0x321132EebCa196ffFD2bC335956549fA649fdA49",
     faucetManager: "0x479038feAAdaf91B3B28C1Edc3caa0b77D3E6116",
-    deploymentTime: "1756799248"
+    deploymentTime: "1756802664"
   }
 } as const;

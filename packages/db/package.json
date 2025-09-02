@@ -20,7 +20,8 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "tsx src/migrate.ts",
     "db:studio": "drizzle-kit studio",
-    "db:push": "drizzle-kit push"
+    "db:push": "drizzle-kit push",
+    "seed:chains": "tsx src/seed-chains.ts"
   },
   "dependencies": {
     "drizzle-orm": "^0.33.0",

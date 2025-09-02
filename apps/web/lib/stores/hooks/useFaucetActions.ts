@@ -3,6 +3,7 @@ import { useRouter } from 'next/navigation';
 import { useNetworkStore, useFormStore, useAuthStore } from '../index';
 import { Chain } from '../types';
 import { api } from '../../trpc/client';
+import { getNumericChainId } from '../constants';
 
 /**
  * Compound hook that provides high-level faucet actions
@@ -17,7 +18,7 @@ export const useFaucetActions = (): {
   isClaimSuccess: boolean;
 } => {
   const router = useRouter();
-  const { setSelectedChain } = useNetworkStore();
+  const { setSelectedChain, selectedChain } = useNetworkStore();
   const { walletAddress, redeemCode, resetForm } = useFormStore();
   const { isAuthenticated, setLoading } = useAuthStore();
   const claimNativeTRPC = api.claim.claimNative.useMutation();
@@ -38,13 +39,19 @@ export const useFaucetActions = (): {
       return;
     }
 
+    // Get the numeric chain ID from the selected chain
+    const numericChainId = getNumericChainId(selectedChain.id);
+    if (!numericChainId) {
+      throw new Error(`Unsupported chain: ${selectedChain.id}`);
+    }
+
     setLoading(true);
     
     try {
       // Use TRPC to claim through backend (which handles rate limiting and DB)
       await claimNativeTRPC.mutateAsync({
         walletAddress: walletAddress,
-        chainId: 4202, // Lisk Sepolia
+        chainId: numericChainId, // Use selected chain's numeric ID
       });
       
       resetForm();
@@ -56,7 +63,7 @@ export const useFaucetActions = (): {
     } finally {
       setLoading(false);
     }
-  }, [walletAddress, isAuthenticated, setLoading, resetForm, claimNativeTRPC]);
+  }, [walletAddress, isAuthenticated, setLoading, resetForm, claimNativeTRPC, selectedChain]);
 
   const canClaim = Boolean(walletAddress && isAuthenticated);
 

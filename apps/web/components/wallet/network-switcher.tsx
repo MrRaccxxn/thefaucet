@@ -17,6 +17,7 @@ export function NetworkSwitcher() {
     switchToSepolia, 
     switchToPolygonAmoy, 
     switchToBscTestnet,
+    switchToLiskSepolia,
     isSupportedNetwork 
   } = useNetworkSwitcher()
 
@@ -34,12 +35,14 @@ export function NetworkSwitcher() {
             <Network className="h-4 w-4" />
           )}
           {isSwitching ? 'Switching...' : chain.name}
-          {!isSupportedNetwork && ' (Unsupported)'}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuItem onClick={switchToSepolia}>
           Ethereum Sepolia
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={switchToLiskSepolia}>
+          Lisk Sepolia
         </DropdownMenuItem>
         <DropdownMenuItem onClick={switchToPolygonAmoy}>
           Polygon Amoy

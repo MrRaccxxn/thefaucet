@@ -27,7 +27,7 @@ export const CHAINS: Chain[] = [
     id: 'lisk', 
     name: 'Lisk Sepolia', 
     color: 'bg-green-500', 
-    amount: '0.02 LSK', 
+    amount: '0.02 ETH', 
     slug: 'lisk-sepolia' 
   },
 ];
@@ -42,6 +42,19 @@ export const STORAGE_KEYS = {
   WALLET_ADDRESS: 'faucet-wallet-address',
   USER: 'faucet-user',
 } as const;
+
+// Chain ID mapping from frontend IDs to backend numeric chain IDs
+export const CHAIN_ID_MAPPING: Record<string, number> = {
+  'ethereum': 11155111, // Ethereum Sepolia
+  'polygon': 80002,     // Polygon Amoy
+  'bsc': 97,            // BSC Testnet
+  'lisk': 4202,         // Lisk Sepolia
+} as const;
+
+// Helper function to get numeric chain ID from frontend chain ID
+export function getNumericChainId(frontendChainId: string): number | null {
+  return CHAIN_ID_MAPPING[frontendChainId] || null;
+}
 
 // Theme constants
 export const DEFAULT_THEME = 'dark' as const;
