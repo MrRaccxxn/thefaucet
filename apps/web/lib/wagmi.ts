@@ -25,14 +25,14 @@ function createWagmiConfig(): Config {
         projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || 'your-project-id',
         showQrModal: false,
         metadata: {
-          name: 'The Faucet',
+          name: 'The faucet',
           description: 'Multichain testnet faucet',
           url: 'https://thefaucet.dev',
           icons: ['https://thefaucet.dev/favicon.ico'],
         },
       }),
       coinbaseWallet({
-        appName: 'The Faucet',
+        appName: 'The faucet',
       }),
     ],
     transports: {

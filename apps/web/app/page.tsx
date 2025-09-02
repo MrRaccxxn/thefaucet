@@ -38,9 +38,7 @@ export default function Home() {
           <div className="max-w-4xl mx-auto text-center">
             {/* Network Status Badge */}
             <div className="inline-flex items-center px-4 py-2 rounded-full bg-muted/30 backdrop-blur-sm text-sm text-muted-foreground mb-8 border border-border/20 animate-fade-in">
-              <div
-                className={`w-2 h-2 rounded-full ${selectedChain.color.replace("bg-", "bg-")} mr-2 animate-pulse`}
-              ></div>
+              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse mr-2"></div>
               Connected to {selectedChain.name}
             </div>
 

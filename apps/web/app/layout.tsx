@@ -30,8 +30,8 @@ const literata = Literata({
 
 export const metadata: Metadata = {
   title: {
-    default: "The Faucet - Multichain Testnet Faucet",
-    template: "%s | The Faucet",
+    default: "The faucet - Multichain Testnet Faucet",
+    template: "%s | The faucet",
   },
   description:
     "Get test tokens for Ethereum, Polygon, BSC, and more. A multichain testnet faucet for developers.",
@@ -44,20 +44,20 @@ export const metadata: Metadata = {
     "tokens",
     "developers",
   ],
-  authors: [{ name: "The Faucet Team" }],
-  creator: "The Faucet Team",
+  authors: [{ name: "The faucet Team" }],
+  creator: "The faucet Team",
   openGraph: {
     type: "website",
     locale: "en_US",
     url: "https://thefaucet.dev",
-    title: "The Faucet - Multichain Testnet Faucet",
+    title: "The faucet - Multichain Testnet Faucet",
     description:
       "Get test tokens for Ethereum, Polygon, BSC, and more. A multichain testnet faucet for developers.",
-    siteName: "The Faucet",
+    siteName: "The faucet",
   },
   twitter: {
     card: "summary_large_image",
-    title: "The Faucet - Multichain Testnet Faucet",
+    title: "The faucet - Multichain Testnet Faucet",
     description:
       "Get test tokens for Ethereum, Polygon, BSC, and more. A multichain testnet faucet for developers.",
     creator: "@thefaucet",
