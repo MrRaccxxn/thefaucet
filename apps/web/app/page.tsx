@@ -7,8 +7,8 @@ export default function Home() {
   // Initialize app state
   useInitialization();
   
-  // Get state from stores
-  const { selectedChain } = useNetworkStore();
+  // Get state from stores with specific selector
+  const selectedChain = useNetworkStore((state) => state.selectedChain);
 
   return (
     <div className="min-h-screen relative overflow-hidden">

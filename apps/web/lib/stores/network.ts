@@ -10,6 +10,22 @@ export const useNetworkStore = create<NetworkStore>()(
       selectedChain: DEFAULT_CHAIN!,
 
       setSelectedChain: (chain: Chain) => {
+        const currentChain = get().selectedChain;
+        if (currentChain.id === chain.id) return; // Prevent unnecessary updates
+        
+        set({ selectedChain: chain });
+        
+        // Update URL parameter when chain changes from user interaction
+        if (typeof window !== 'undefined') {
+          const url = new URL(window.location.href);
+          url.searchParams.set('chain', chain.slug);
+          window.history.replaceState({}, '', url.toString());
+        }
+      },
+
+      setSelectedChainWithoutUrl: (chain: Chain) => {
+        const currentChain = get().selectedChain;
+        if (currentChain.id === chain.id) return; // Prevent unnecessary updates
         set({ selectedChain: chain });
       },
 

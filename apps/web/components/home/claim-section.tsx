@@ -10,7 +10,8 @@ import {
 } from "@/lib/stores";
 
 export function ClaimSection() {
-  const { chains, selectedChain } = useNetworkStore();
+  const chains = useNetworkStore((state) => state.chains);
+  const selectedChain = useNetworkStore((state) => state.selectedChain);
   const { 
     walletAddress, 
     redeemCode, 

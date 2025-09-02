@@ -2,7 +2,7 @@ import { ABIS, type DeploymentAddresses, getDeploymentAddresses } from '@thefauc
 import { createPublicClient, createWalletClient, http, type Address, type PublicClient, type WalletClient } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 import { sepolia } from 'viem/chains';
-import { liskSepolia } from '@thefaucet/contracts/src/chains';
+import { liskSepolia } from '@thefaucet/contracts/chains';
 
 export interface FaucetContracts {
   faucetManager: Address;

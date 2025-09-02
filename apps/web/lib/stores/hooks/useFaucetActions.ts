@@ -15,9 +15,8 @@ export const useFaucetActions = () => {
 
   const handleNetworkChange = useCallback((chain: Chain) => {
     setSelectedChain(chain);
-    // Update URL without full page reload
-    router.push(`/${chain.slug}`, { scroll: false });
-  }, [setSelectedChain, router]);
+    // URL is automatically updated by the network store
+  }, [setSelectedChain]);
 
   const handleClaimTokens = useCallback(async () => {
     if (!walletAddress) {

@@ -9,6 +9,14 @@
     ".": {
       "types": "./src/index.ts",
       "default": "./src/index.ts"
+    },
+    "./chains": {
+      "types": "./src/chains.ts",
+      "default": "./src/chains.ts"
+    },
+    "./deployments/*": {
+      "types": "./src/deployments/*.ts",
+      "default": "./src/deployments/*.ts"
     }
   },
   "scripts": {

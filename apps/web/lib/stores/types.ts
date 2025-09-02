@@ -45,6 +45,7 @@ export interface NetworkStore {
   chains: Chain[];
   selectedChain: Chain;
   setSelectedChain: (chain: Chain) => void;
+  setSelectedChainWithoutUrl: (chain: Chain) => void;
   getChainBySlug: (slug: string) => Chain | undefined;
 }
 
