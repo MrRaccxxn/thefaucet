@@ -10,6 +10,9 @@ interface ErrorAlertProps {
 export function ErrorAlert({ error, onDismiss, className }: ErrorAlertProps) {
   if (!error) return null;
 
+  console.log('📢 ErrorAlert received error:', error);
+  console.log('📢 ErrorAlert error message:', error.message);
+
   const getErrorMessage = (error: Error): string => {
     const message = error.message;
     

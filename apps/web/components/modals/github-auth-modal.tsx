@@ -32,10 +32,19 @@ export function GitHubAuthModal() {
     setLoading(true);
     
     try {
-      // Use NextAuth's signIn function to start GitHub OAuth flow
+      // Store current URL state for restoration after auth
+      const currentUrl = new URL(window.location.href);
+      const selectedNetwork = new URLSearchParams(window.location.search).get('chain');
+      
+      // Store network selection in session storage to persist through auth flow
+      if (selectedNetwork) {
+        sessionStorage.setItem('auth-restore-network', selectedNetwork);
+      }
+      
+      // Use NextAuth's signIn function with clean callback URL
       const result = await signIn('github', {
-        callbackUrl: window.location.origin + '/dashboard', // Redirect to dashboard after successful auth
-        redirect: false, // Don't redirect immediately, handle response
+        callbackUrl: window.location.origin, // Redirect to clean home page
+        redirect: false,
       });
       
       if (result?.error) {

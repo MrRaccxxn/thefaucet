@@ -70,6 +70,8 @@ export class FaucetService {
     console.log("ChainId:", chainId);
     console.log("RPC URL:", rpcUrl);
 
+    let faucetManager: ethers.Contract | null = null;
+
     try {
       const wallet = this.getWallet(chainId, rpcUrl);
       console.log("Wallet address:", wallet.address);
@@ -79,7 +81,7 @@ export class FaucetService {
 
       // Use FaucetManager contract
       console.log("Creating FaucetManager contract instance...");
-      const faucetManager = new ethers.Contract(
+      faucetManager = new ethers.Contract(
         addresses.faucetManager,
         ABIS.FaucetManager,
         wallet
@@ -152,6 +154,45 @@ export class FaucetService {
         ) {
           // This should rarely happen since our database rate limiting should catch it first
           console.warn('Rate limit error reached blockchain - database rate limiting may have missed this');
+          
+          // Try to get the exact cooldown time from the contract
+          try {
+            if (!faucetManager) {
+              throw new Error('FaucetManager contract not initialized');
+            }
+            console.log('Querying contract for user cooldown time...');
+            const lastClaimTime = await faucetManager.getUserLastClaimTime(recipientAddress);
+            const cooldownPeriod = await faucetManager.CLAIM_COOLDOWN();
+            
+            const lastClaimTimestamp = Number(lastClaimTime) * 1000; // Convert to milliseconds
+            const cooldownMs = Number(cooldownPeriod) * 1000; // Convert to milliseconds
+            const canClaimAt = new Date(lastClaimTimestamp + cooldownMs);
+            const now = new Date();
+            
+            if (canClaimAt > now) {
+              const timeRemainingMs = canClaimAt.getTime() - now.getTime();
+              const totalMinutes = Math.ceil(timeRemainingMs / 1000 / 60);
+              const hours = Math.floor(totalMinutes / 60);
+              const minutes = totalMinutes % 60;
+              
+              let timeMessage;
+              if (hours > 0) {
+                timeMessage = minutes > 0 
+                  ? `${hours} hour${hours !== 1 ? 's' : ''} and ${minutes} minute${minutes !== 1 ? 's' : ''}`
+                  : `${hours} hour${hours !== 1 ? 's' : ''}`;
+              } else {
+                timeMessage = `${minutes} minute${minutes !== 1 ? 's' : ''}`;
+              }
+              
+              throw new Error(
+                `You have already claimed native tokens on this network. Please wait ${timeMessage} before claiming again.`
+              );
+            }
+          } catch (contractQueryError) {
+            console.error('Failed to query contract for cooldown time:', contractQueryError);
+          }
+          
+          // Fallback to generic message
           throw new Error(
             "You have already claimed from this address recently. Please wait before claiming again."
           );

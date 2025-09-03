@@ -836,38 +836,66 @@ export const claimRouter = createTRPCRouter({
       }
     }),
 
-  // Get user's current limits and cooldowns
-  getLimits: protectedProcedure.query(async ({ ctx }) => {
-    try {
-      const userId = (ctx.user as AuthenticatedUser).id;
-      const result: Record<string, { remaining: number; cooldownEnds: Date | null }> = {};
+  // Get user's current limits and cooldowns for a specific chain
+  getLimits: protectedProcedure
+    .input(
+      z.object({
+        chainId: z.number(),
+      })
+    )
+    .query(async ({ input, ctx }) => {
+      try {
+        const userId = (ctx.user as AuthenticatedUser).id;
+        const result: Record<string, { remaining: number; cooldownEnds: Date | null; timeRemaining: string | null }> = {};
 
-      // Get all asset types the user might claim
-      const assetTypes = ['native', 'erc20', 'nft'];
-      
-      for (const assetType of assetTypes) {
-        // Check rate limit for this asset type (using default chainId 11155111 for now)
-        const rateLimitResult = await faucetRateLimiter.checkLimit({
-          userId,
-          assetType: assetType as 'native' | 'erc20' | 'nft',
-          chainId: 11155111, // Default to Sepolia
-          cooldownHours: 24
-        });
+        // Get all asset types the user might claim
+        const assetTypes = ['native', 'erc20', 'nft'];
+        
+        for (const assetType of assetTypes) {
+          // Check rate limit for this asset type
+          const rateLimitResult = await faucetRateLimiter.checkLimit({
+            userId,
+            assetType: assetType as 'native' | 'erc20' | 'nft',
+            chainId: input.chainId,
+            cooldownHours: 24
+          });
 
-        result[assetType] = {
-          remaining: rateLimitResult.allowed ? 1 : 0,
-          cooldownEnds: rateLimitResult.cooldownEnds,
+          // Calculate human-readable time remaining
+          let timeRemaining: string | null = null;
+          if (!rateLimitResult.allowed && rateLimitResult.cooldownEnds) {
+            const now = new Date();
+            const timeRemainingMs = rateLimitResult.cooldownEnds.getTime() - now.getTime();
+            
+            if (timeRemainingMs > 0) {
+              const totalMinutes = Math.ceil(timeRemainingMs / 1000 / 60);
+              const hours = Math.floor(totalMinutes / 60);
+              const minutes = totalMinutes % 60;
+              
+              if (hours > 0) {
+                timeRemaining = minutes > 0 
+                  ? `${hours}h ${minutes}m`
+                  : `${hours}h`;
+              } else {
+                timeRemaining = `${minutes}m`;
+              }
+            }
+          }
+
+          result[assetType] = {
+            remaining: rateLimitResult.allowed ? 1 : 0,
+            cooldownEnds: rateLimitResult.cooldownEnds,
+            timeRemaining,
+          };
+        }
+
+        return result;
+      } catch (error) {
+        console.error('Failed to fetch user limits:', error);
+        return {
+          native: { remaining: 0, cooldownEnds: null, timeRemaining: null },
+          erc20: { remaining: 0, cooldownEnds: null, timeRemaining: null },
+          nft: { remaining: 0, cooldownEnds: null, timeRemaining: null },
         };
       }
-
-      return result;
-    } catch (error) {
-      console.error('Failed to fetch user limits:', error);
-      return {
-        native: { remaining: 0, cooldownEnds: null },
-        erc20: { remaining: 0, cooldownEnds: null },
-        nft: { remaining: 0, cooldownEnds: null },
-      };
-    }
-  }),
+    }),
 });

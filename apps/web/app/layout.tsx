@@ -8,6 +8,7 @@ import { GitHubAuthModal } from "@/components/modals/github-auth-modal";
 import { AuthSessionProvider } from "@/components/providers/session-provider";
 import { WagmiAppProvider } from "@/components/providers/wagmi-provider";
 import { ClientOnly } from "@/components/providers/client-only";
+import { AuthCleanup } from "@/components/providers/auth-cleanup";
 import { TRPCProvider } from "@/lib/trpc/provider";
 import { ToastProvider } from "@/components/ui/toast";
 
@@ -117,6 +118,7 @@ export default function RootLayout({
                     <main className="flex-1 pt-0">{children}</main>
                     <Footer />
                     <GitHubAuthModal />
+                    <AuthCleanup />
                   </div>
                 </WagmiAppProvider>
               </ClientOnly>

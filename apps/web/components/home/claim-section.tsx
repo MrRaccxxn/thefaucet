@@ -59,6 +59,25 @@ function ClaimSectionContent() {
   const claimTokenMutation = api.claim.claimDevToken.useMutation();
   const mintNFTMutation = api.claim.mintNFT.useMutation();
 
+  // Get user limits for current chain
+  const numericChainId = getNumericChainId(selectedChain.id);
+  const { data: limits } = api.claim.getLimits.useQuery(
+    { chainId: numericChainId || 11155111 },
+    { 
+      enabled: isAuthenticated && !!numericChainId,
+      refetchInterval: 60000, // Refetch every minute to update countdown
+    }
+  );
+
+  // Helper function to get remaining time for current asset type
+  const getCurrentAssetLimit = () => {
+    if (!limits) return null;
+    const limitKey = assetType === "token" ? "erc20" : assetType;
+    return limits[limitKey];
+  };
+
+  const currentLimit = getCurrentAssetLimit();
+
   const [showError, setShowError] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [lastTransactionHash, setLastTransactionHash] = useState<string | null>(null);
@@ -71,6 +90,17 @@ function ClaimSectionContent() {
     mintNFTMutation.isPending;
   const claimError =
     nativeClaimError || claimTokenMutation.error || mintNFTMutation.error;
+
+  // Debug error states
+  React.useEffect(() => {
+    console.log('🟠 ClaimSection: Error states changed:', {
+      nativeClaimError: nativeClaimError?.message,
+      tokenError: claimTokenMutation.error?.message,
+      nftError: mintNFTMutation.error?.message,
+      combinedError: claimError?.message,
+      showError,
+    });
+  }, [nativeClaimError, claimTokenMutation.error, mintNFTMutation.error, claimError, showError]);
   const isClaimSuccess =
     isNativeClaimSuccess ||
     claimTokenMutation.isSuccess ||
@@ -80,33 +110,40 @@ function ClaimSectionContent() {
   // Show error when claim fails
   React.useEffect(() => {
     if (claimError) {
+      console.log('🔴 ClaimSection: Error detected:', claimError);
+      console.log('🔴 ClaimSection: Error message:', claimError.message);
+      console.log('🔴 ClaimSection: Error type:', typeof claimError);
+      console.log('🔴 ClaimSection: Error constructor:', claimError.constructor.name);
+      
       setShowError(true);
 
-      // Only show toast for non-rate-limiting errors
       const errorMessage = claimError.message;
       const isRateLimitError = errorMessage.includes("You must wait") || 
                               errorMessage.includes("You have already claimed") || 
                               errorMessage.includes("Rate limit") ||
                               errorMessage.includes("TOO_MANY_REQUESTS");
 
-      if (!isRateLimitError) {
-        let friendlyMessage = errorMessage;
+      console.log('🔴 ClaimSection: Is rate limit error?', isRateLimitError);
 
-        // Extract user-friendly message from TRPC errors
-        if (errorMessage.includes("FaucetService error:")) {
-          const match = errorMessage.match(/FaucetService error: (.+?)(?:\n|$)/);
-          if (match) {
-            friendlyMessage = match[1];
-          }
+      // For rate limit errors, use the exact backend message (it already has perfect formatting)
+      let friendlyMessage = errorMessage;
+
+      // Only extract from "FaucetService error:" for non-rate-limit errors
+      if (!isRateLimitError && errorMessage.includes("FaucetService error:")) {
+        const match = errorMessage.match(/FaucetService error: (.+?)(?:\n|$)/);
+        if (match) {
+          friendlyMessage = match[1];
         }
-
-        addToast({
-          type: "error",
-          title: "Claim Failed",
-          message: friendlyMessage,
-          duration: 8000, // Show longer for errors
-        });
       }
+
+      console.log('🔴 ClaimSection: Final message to display:', friendlyMessage);
+
+      addToast({
+        type: "error",
+        title: isRateLimitError ? "Rate Limited" : "Claim Failed",
+        message: friendlyMessage,
+        duration: isRateLimitError ? 10000 : 8000, // Show longer for rate limits
+      });
     }
   }, [claimError, addToast]);
 
@@ -155,6 +192,15 @@ function ClaimSectionContent() {
       openAuthModal();
       return;
     }
+
+    // Clear any existing errors before starting new claim
+    console.log('🟡 ClaimSection: Starting new claim, clearing errors');
+    setShowError(false);
+    setShowSuccess(false);
+    
+    // Reset mutations to clear any previous error states
+    claimTokenMutation.reset();
+    mintNFTMutation.reset();
 
     const numericChainId = getNumericChainId(selectedChain.id);
     if (!numericChainId) {
@@ -258,6 +304,23 @@ function ClaimSectionContent() {
           </div>
         </div>
 
+        {/* Cooldown indicator */}
+        {isAuthenticated && currentLimit && currentLimit.timeRemaining && (
+          <div className="mb-4 p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg animate-fade-in">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse"></div>
+              <span className="text-sm text-amber-600 dark:text-amber-400">
+                {assetType === "native" 
+                  ? `Native tokens available in ${currentLimit.timeRemaining}`
+                  : assetType === "token"
+                    ? `DEV tokens available in ${currentLimit.timeRemaining}`
+                    : `NFT minting available in ${currentLimit.timeRemaining}`
+                }
+              </span>
+            </div>
+          </div>
+        )}
+
         {/* Network selection dropdown - scalable for many networks */}
         <div className="flex items-center gap-3">
           <span className="text-sm text-muted-foreground">Network</span>
@@ -355,7 +418,7 @@ function ClaimSectionContent() {
           size="lg"
           onClick={handleClaimTokens}
           className="w-full py-4 text-base font-medium bg-gradient-to-r from-primary to-blue-600 hover:from-primary/90 hover:to-blue-600/90 transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
-          disabled={!walletAddress || authLoading || isClaimPending}
+          disabled={!walletAddress || authLoading || isClaimPending || (isAuthenticated && currentLimit && currentLimit.remaining === 0)}
         >
           {authLoading
             ? "Loading..."
@@ -367,11 +430,13 @@ function ClaimSectionContent() {
                 ? "Enter Wallet Address"
                 : !isAuthenticated
                   ? "🔒 Authenticate with GitHub to Claim"
-                  : assetType === "native"
-                    ? `Claim ${selectedChain.amount}`
-                    : assetType === "token"
-                      ? "Claim 100 DEV Tokens"
-                      : "Mint Developer NFT"}
+                  : (isAuthenticated && currentLimit && currentLimit.remaining === 0 && currentLimit.timeRemaining)
+                    ? `Available in ${currentLimit.timeRemaining}`
+                    : assetType === "native"
+                      ? `Claim ${selectedChain.amount}`
+                      : assetType === "token"
+                        ? "Claim 100 DEV Tokens"
+                        : "Mint Developer NFT"}
         </Button>
 
         {walletAddress && !isAuthenticated && !authLoading && (

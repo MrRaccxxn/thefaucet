@@ -140,6 +140,12 @@ export const authOptions: NextAuthOptions = {
       }
     },
     async redirect({ url, baseUrl }) {
+      // Always redirect to clean home page after successful authentication
+      // This prevents ugly callback URLs in the address bar
+      if (url.includes("/api/auth/") || url.includes("callbackUrl")) {
+        return baseUrl; // Clean home page
+      }
+      
       // Allows relative callback URLs
       if (url.startsWith("/")) return `${baseUrl}${url}`;
       // Allows callback URLs on the same origin
