@@ -11,7 +11,7 @@ import { getNumericChainId } from '../constants';
  */
 export const useFaucetActions = (): {
   handleNetworkChange: (chain: Chain) => void;
-  handleClaimTokens: () => Promise<void>;
+  handleClaimTokens: () => Promise<any>;
   canClaim: boolean;
   isClaimPending: boolean;
   claimError: any;
@@ -54,13 +54,14 @@ export const useFaucetActions = (): {
       console.log('[DEBUG Frontend] Sending claim request with chainId:', numericChainId, 'wallet:', walletAddress);
       
       // Use TRPC to claim through backend (which handles rate limiting and DB)
-      await claimNativeTRPC.mutateAsync({
+      const result = await claimNativeTRPC.mutateAsync({
         walletAddress: walletAddress,
         chainId: numericChainId, // Use selected chain's numeric ID
       });
       
       resetForm();
       console.log('Tokens claimed successfully!');
+      return result;
       
     } catch (error) {
       console.error('Failed to claim tokens:', error);

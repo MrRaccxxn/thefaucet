@@ -5,6 +5,7 @@ export interface Chain {
   color: string;
   amount: string;
   slug: string;
+  blockExplorerUrl: string;
 }
 
 export interface User {

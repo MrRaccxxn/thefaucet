@@ -70,8 +70,13 @@ function DefaultErrorFallback({ error, resetError }: DefaultErrorFallbackProps) 
       return message;
     }
     
-    // Network errors
-    if (message.includes('fetch') || message.includes('network')) {
+    // Rate limiting errors - handle first to avoid generic network error
+    if (message.includes('You have already claimed') || message.includes('Please wait') || message.includes('minutes before claiming again')) {
+      return message; // Show the specific rate limit message
+    }
+    
+    // Network errors - be more specific
+    if (message.includes('Network error') || message.includes('fetch failed') || message.includes('connection failed')) {
       return 'Network error. Please check your connection and try again.';
     }
     

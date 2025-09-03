@@ -7,28 +7,32 @@ export const CHAINS: Chain[] = [
     name: 'Ethereum Sepolia', 
     color: 'bg-blue-500', 
     amount: '0.02 ETH', 
-    slug: 'ethereum-sepolia' 
+    slug: 'ethereum-sepolia',
+    blockExplorerUrl: 'https://sepolia.etherscan.io'
   },
   { 
     id: 'polygon', 
     name: 'Polygon Amoy', 
     color: 'bg-purple-500', 
     amount: '0.02 MATIC', 
-    slug: 'polygon-amoy' 
+    slug: 'polygon-amoy',
+    blockExplorerUrl: 'https://amoy.polygonscan.com'
   },
   { 
     id: 'bsc', 
     name: 'BSC Testnet', 
     color: 'bg-yellow-500', 
     amount: '0.02 BNB', 
-    slug: 'bsc-testnet' 
+    slug: 'bsc-testnet',
+    blockExplorerUrl: 'https://testnet.bscscan.com'
   },
   { 
     id: 'lisk', 
     name: 'Lisk Sepolia', 
     color: 'bg-green-500', 
     amount: '0.02 ETH', 
-    slug: 'lisk-sepolia' 
+    slug: 'lisk-sepolia',
+    blockExplorerUrl: 'https://sepolia-blockscout.lisk.com'
   },
 ];
 

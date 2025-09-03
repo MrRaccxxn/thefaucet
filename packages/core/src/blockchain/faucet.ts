@@ -150,8 +150,10 @@ export class FaucetService {
           error.message.includes("RateLimitExceeded") ||
           error.message.includes("0xf4d678b8")
         ) {
+          // This should rarely happen since our database rate limiting should catch it first
+          console.warn('Rate limit error reached blockchain - database rate limiting may have missed this');
           throw new Error(
-            "You must wait 24 hours before claiming again from this address."
+            "You have already claimed from this address recently. Please wait before claiming again."
           );
         }
         if (error.message.includes("InsufficientBalance")) {
@@ -206,20 +208,40 @@ export class FaucetService {
       };
     } catch (error) {
       console.error(`Failed to claim ERC20 token:`, error);
+      console.error("Error details:", {
+        message: error instanceof Error ? error.message : 'Unknown',
+        name: error instanceof Error ? error.name : 'Unknown',
+      });
+      
       if (error instanceof Error) {
-        if (error.message.includes("RateLimitExceeded")) {
+        // Check for the DevToken's address limit error
+        if (error.message.includes("ExceedsAddressLimit") || error.message.includes("0x1f2e1c3d")) {
           throw new Error(
-            "Rate limit exceeded. Please wait before claiming again."
+            "You have reached the maximum lifetime limit of 10,000 DEV tokens per address."
+          );
+        }
+        // Check for TokenMintFailed which could mean various things
+        if (error.message.includes("TokenMintFailed") || error.message.includes("0x6a172882")) {
+          // Try to get more specific error
+          if (error.message.includes("ExceedsAddressLimit")) {
+            throw new Error("You have reached the maximum lifetime limit of 10,000 DEV tokens per address.");
+          }
+          throw new Error("Token minting failed. You may have reached your token limit or there's an issue with the token contract.");
+        }
+        // This would be from native token claims, not ERC20
+        if (error.message.includes("RateLimitExceeded") || error.message.includes("0xf4d678b8")) {
+          console.error("WARNING: RateLimitExceeded error in ERC20 token claim - this shouldn't happen!");
+          throw new Error(
+            "Unexpected rate limit error. The smart contract may be misconfigured. Please contact support."
           );
         }
         if (error.message.includes("InsufficientBalance")) {
           throw new Error("Faucet has insufficient token balance.");
         }
-        if (error.message.includes("TokenMintFailed")) {
-          throw new Error("Token minting failed. Please try again.");
-        }
+        // Pass through any other specific error message
+        throw new Error(`Token claim failed: ${error.message}`);
       }
-      throw new Error("Failed to process ERC20 token claim");
+      throw new Error("Failed to process ERC20 token claim - unknown error");
     }
   }
 

@@ -8,7 +8,6 @@ import {
   useAuthStore,
   useFaucetActions,
 } from "@/lib/stores";
-import { useWalletConnection } from "@/lib/hooks";
 import { ErrorAlert } from "@/components/ui/error-alert";
 import { SuccessAlert } from "@/components/ui/success-alert";
 import { ErrorBoundary } from "@/components/ui/error-boundary";
@@ -18,6 +17,9 @@ import React from "react";
 import { api } from "@/lib/trpc/client";
 import { getNumericChainId } from "@/lib/stores/constants";
 import { NetworkDropdown } from "@/components/ui/network-dropdown";
+import { getRandomNFTImage } from "@/lib/utils/nft-images";
+import { ClientOnly } from "@/components/providers/client-only";
+import { WalletAddressAutofill } from "./wallet-address-autofill";
 
 function ClaimSectionContent() {
   const chains = useNetworkStore((state) => state.chains);
@@ -35,12 +37,15 @@ function ClaimSectionContent() {
   const [assetType, setAssetType] = useState<"native" | "token" | "nft">(
     "native"
   );
+  
+  // Track if user has manually edited the address
+  const [hasUserEditedAddress, setHasUserEditedAddress] = useState(false);
+  
+  // NFT preview image
+  const [nftPreview] = useState(() => getRandomNFTImage());
 
   // Use the auth hook which syncs with NextAuth
   const { isAuthenticated, isLoading: authLoading, user } = useAuth();
-  
-  // Get wallet connection info for auto-fill
-  const { address: connectedWalletAddress, isConnected: isWalletConnected } = useWalletConnection();
 
   const {
     handleNetworkChange,
@@ -51,11 +56,12 @@ function ClaimSectionContent() {
   } = useFaucetActions();
 
   // Additional TRPC mutations for tokens and NFTs
-  const claimTokenMutation = api.claim.claimERC20.useMutation();
+  const claimTokenMutation = api.claim.claimDevToken.useMutation();
   const mintNFTMutation = api.claim.mintNFT.useMutation();
 
   const [showError, setShowError] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [lastTransactionHash, setLastTransactionHash] = useState<string | null>(null);
   const { addToast } = useToast();
 
   // Determine which mutation is active
@@ -70,36 +76,37 @@ function ClaimSectionContent() {
     claimTokenMutation.isSuccess ||
     mintNFTMutation.isSuccess;
 
-  // Auto-fill wallet address when wallet connects
-  React.useEffect(() => {
-    if (isWalletConnected && connectedWalletAddress && !walletAddress) {
-      setWalletAddress(connectedWalletAddress);
-    }
-  }, [isWalletConnected, connectedWalletAddress, walletAddress, setWalletAddress]);
 
   // Show error when claim fails
   React.useEffect(() => {
     if (claimError) {
       setShowError(true);
 
-      // Also show a toast notification
+      // Only show toast for non-rate-limiting errors
       const errorMessage = claimError.message;
-      let friendlyMessage = errorMessage;
+      const isRateLimitError = errorMessage.includes("You must wait") || 
+                              errorMessage.includes("You have already claimed") || 
+                              errorMessage.includes("Rate limit") ||
+                              errorMessage.includes("TOO_MANY_REQUESTS");
 
-      // Extract user-friendly message from TRPC errors
-      if (errorMessage.includes("FaucetService error:")) {
-        const match = errorMessage.match(/FaucetService error: (.+?)(?:\n|$)/);
-        if (match) {
-          friendlyMessage = match[1];
+      if (!isRateLimitError) {
+        let friendlyMessage = errorMessage;
+
+        // Extract user-friendly message from TRPC errors
+        if (errorMessage.includes("FaucetService error:")) {
+          const match = errorMessage.match(/FaucetService error: (.+?)(?:\n|$)/);
+          if (match) {
+            friendlyMessage = match[1];
+          }
         }
-      }
 
-      addToast({
-        type: "error",
-        title: "Claim Failed",
-        message: friendlyMessage,
-        duration: 8000, // Show longer for errors
-      });
+        addToast({
+          type: "error",
+          title: "Claim Failed",
+          message: friendlyMessage,
+          duration: 8000, // Show longer for errors
+        });
+      }
     }
   }, [claimError, addToast]);
 
@@ -108,25 +115,36 @@ function ClaimSectionContent() {
     if (isClaimSuccess) {
       setShowSuccess(true);
 
-      // Show success toast
+      // Build success message
       const message =
         assetType === "native"
           ? `${selectedChain.amount} claimed successfully!`
           : assetType === "token"
             ? "100 DEV tokens claimed successfully!"
             : "Developer NFT minted successfully!";
+      
+      // Add transaction link if available
+      const txLink = lastTransactionHash 
+        ? `${selectedChain.blockExplorerUrl}/tx/${lastTransactionHash}`
+        : null;
+      
+      console.log('Transaction link generated:', txLink);
 
       addToast({
         type: "success",
-        title: "Success!",
+        title: "Success! 🎉",
         message,
+        action: txLink ? {
+          label: "View Transaction →",
+          onClick: () => window.open(txLink, "_blank")
+        } : undefined,
       });
 
       // Auto-hide alert after 5 seconds
       const timer = setTimeout(() => setShowSuccess(false), 5000);
       return () => clearTimeout(timer);
     }
-  }, [isClaimSuccess, addToast, selectedChain.amount, assetType]);
+  }, [isClaimSuccess, addToast, selectedChain, assetType, lastTransactionHash]);
 
   // Unified claim handler
   const handleClaimTokens = async () => {
@@ -145,26 +163,31 @@ function ClaimSectionContent() {
     }
 
     try {
+      let result;
       if (assetType === "native") {
-        await handleClaimNative();
+        result = await handleClaimNative();
       } else if (assetType === "token") {
-        // For now, we'll use a placeholder token ID - you'll need to get this from your assets
-        await claimTokenMutation.mutateAsync({
+        // Use the new claimDevToken endpoint that doesn't require assetId
+        result = await claimTokenMutation.mutateAsync({
           chainId: numericChainId,
-          tokenId: "dev-token", // This should be fetched from your assets
           walletAddress,
         });
       } else if (assetType === "nft") {
-        await mintNFTMutation.mutateAsync({
+        result = await mintNFTMutation.mutateAsync({
           chainId: numericChainId,
-          collectionId: "dev-nft", // This should be fetched from your assets
+          collectionId: "dev-nft", // Placeholder - backend will use the correct deployed DevNFT
           walletAddress,
           metadata: {
-            name: "Developer NFT",
-            description: "Limited edition testnet developer NFT",
-            image: "https://via.placeholder.com/512", // Placeholder image
+            name: nftPreview?.name ?? "Developer NFT",
+            description: nftPreview?.description ?? "A unique developer NFT",
+            image: nftPreview?.image ?? "/default-nft.png",
           },
         });
+      }
+      
+      // Store the transaction hash if successful
+      if (result?.transactionHash) {
+        setLastTransactionHash(result.transactionHash);
       }
     } catch (error) {
       console.error("Claim failed:", error);
@@ -247,44 +270,55 @@ function ClaimSectionContent() {
         </div>
 
         {/* NFT preview - shown only when NFT is selected */}
-        {assetType === "nft" && (
+        {assetType === "nft" && nftPreview && (
           <div className="flex items-center gap-4 mt-3 pt-3 border-t border-border/10 animate-fade-in">
-            <div className="w-24 h-24 rounded-lg bg-gradient-to-br from-primary/20 to-blue-600/20 flex items-center justify-center">
-              <span className="text-5xl">🎨</span>
+            <div className="w-32 h-32 rounded-lg overflow-hidden bg-gradient-to-br from-primary/10 to-blue-600/10">
+              <img 
+                src={nftPreview.image} 
+                alt={nftPreview.name}
+                className="w-full h-full object-cover"
+              />
             </div>
             <div className="flex-1">
               <p className="text-sm font-medium text-foreground">
-                Developer NFT
+                {nftPreview.name}
               </p>
               <p className="text-xs text-muted-foreground">
-                Limited edition testnet NFT
+                {nftPreview.description}
+              </p>
+              <p className="text-xs text-muted-foreground/60 mt-1">
+                Testnet Collection
               </p>
             </div>
           </div>
         )}
       </div>
 
-      {/* Prominent Wallet Input - 20% bigger */}
       <div className="p-7 rounded-xl bg-card/20 backdrop-blur-md border border-border/20 hover:border-border/40 transition-all duration-300">
         <div className="flex items-center justify-between mb-4">
           <label className="text-sm font-medium text-foreground">
             Wallet Address
           </label>
-          {isWalletConnected && connectedWalletAddress && walletAddress !== connectedWalletAddress && (
-            <button
-              onClick={() => setWalletAddress(connectedWalletAddress)}
-              className="text-xs text-primary hover:text-primary/80 transition-colors"
-            >
-              Use connected wallet
-            </button>
-          )}
+          <ClientOnly>
+            <WalletAddressAutofill 
+              walletAddress={walletAddress}
+              hasUserEditedAddress={hasUserEditedAddress}
+              setWalletAddress={(address) => {
+                setWalletAddress(address);
+                setHasUserEditedAddress(false);
+              }}
+            />
+          </ClientOnly>
         </div>
         <input
           type="text"
           value={walletAddress}
-          onChange={(e) => setWalletAddress(e.target.value)}
-          placeholder={isWalletConnected && connectedWalletAddress ? connectedWalletAddress : "0x..."}
-          className="w-full px-6 py-5 bg-background/60 border border-border/30 rounded-xl text-lg placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/50 focus:bg-background/80 transition-all duration-200"
+          onChange={(e) => {
+            setWalletAddress(e.target.value);
+            setHasUserEditedAddress(true);
+          }}
+          placeholder="0x..."
+          className="w-full px-6 py-5 bg-background/60 border border-border/30 rounded-xl text-lg text-muted-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/50 focus:bg-background/80 focus:text-foreground transition-all duration-200"
         />
       </div>
 

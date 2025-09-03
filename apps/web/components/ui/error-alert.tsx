@@ -13,6 +13,11 @@ export function ErrorAlert({ error, onDismiss, className }: ErrorAlertProps) {
   const getErrorMessage = (error: Error): string => {
     const message = error.message;
     
+    // Rate limiting errors - handle first to avoid generic network error
+    if (message.includes('You have already claimed') || message.includes('Please wait') || message.includes('minutes before claiming again')) {
+      return message; // Show the specific rate limit message with time
+    }
+    
     // Time-based rate limiting errors
     if (message.includes('You must wait') && message.includes('hours before claiming again')) {
       return message; // Show the exact message with hours
@@ -31,7 +36,8 @@ export function ErrorAlert({ error, onDismiss, className }: ErrorAlertProps) {
       return 'Transaction was cancelled.';
     }
     
-    if (message.includes('Network error') || message.includes('network')) {
+    // Be more specific about network errors - avoid catching rate limit messages
+    if (message.includes('Network error') || message.includes('fetch failed') || message.includes('connection failed')) {
       return 'Network error. Please check your connection and try again.';
     }
     

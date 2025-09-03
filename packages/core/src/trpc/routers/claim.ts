@@ -2,7 +2,7 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { createTRPCRouter, protectedProcedure, claimProcedure } from "../index";
 import { claims, assets, chains } from "@thefaucet/db";
-import { eq, and, desc, count } from "drizzle-orm";
+import { eq, and, desc, count, gte } from "drizzle-orm";
 import { faucetRateLimiter } from "../../rate-limiting";
 import { faucetService } from "../../blockchain/faucet";
 import type { AuthenticatedUser } from "../../types/auth";
@@ -22,17 +22,102 @@ export const claimRouter = createTRPCRouter({
         const userId = (ctx.user as AuthenticatedUser).id;
 
         // Check rate limiting
+        console.log('Checking rate limit for native tokens:', {
+          userId,
+          assetType: 'native',
+          chainId: input.chainId,
+          cooldownHours: 24
+        });
+        
         const rateLimitResult = await faucetRateLimiter.checkLimit({
           userId,
           assetType: 'native',
           chainId: input.chainId,
           cooldownHours: 24
         });
+        
+        console.log('Rate limit result for native tokens:', {
+          allowed: rateLimitResult.allowed,
+          cooldownEnds: rateLimitResult.cooldownEnds,
+          lastClaimAt: rateLimitResult.lastClaimAt
+        });
+
+        // If database rate limiting says it's allowed, also check claims table for recent native claims
+        // This handles cases where old claims weren't recorded in rate_limits table
+        if (rateLimitResult.allowed) {
+          console.log('Database rate limit allowed, checking claims table for recent native claims...');
+          console.log('Checking for wallet address:', input.walletAddress);
+          
+          const recentClaims = await ctx.db
+            .select()
+            .from(claims)
+            .innerJoin(assets, eq(claims.assetId, assets.id))
+            .where(and(
+              eq(claims.walletAddress, input.walletAddress), // Check by wallet address, not userId
+              eq(assets.type, 'native'),
+              eq(assets.chainId, input.chainId),
+              gte(claims.createdAt, new Date(Date.now() - 24 * 60 * 60 * 1000)) // 24 hours ago
+            ))
+            .limit(1);
+            
+          console.log('Recent native claims found:', recentClaims.length);
+          
+          if (recentClaims.length > 0) {
+            const lastClaim = recentClaims[0]!;
+            const claimTime = new Date(lastClaim.claims.createdAt);
+            const canClaimAt = new Date(claimTime.getTime() + 24 * 60 * 60 * 1000);
+            const now = new Date();
+            
+            console.log('Found recent claim:', {
+              claimTime: claimTime.toISOString(),
+              canClaimAt: canClaimAt.toISOString(),
+              now: now.toISOString()
+            });
+            
+            if (canClaimAt > now) {
+              const timeRemainingMs = canClaimAt.getTime() - now.getTime();
+              const totalMinutes = Math.ceil(timeRemainingMs / 1000 / 60);
+              const hours = Math.floor(totalMinutes / 60);
+              const minutes = totalMinutes % 60;
+              
+              let timeMessage;
+              if (hours > 0) {
+                timeMessage = minutes > 0 
+                  ? `${hours} hour${hours !== 1 ? 's' : ''} and ${minutes} minute${minutes !== 1 ? 's' : ''}`
+                  : `${hours} hour${hours !== 1 ? 's' : ''}`;
+              } else {
+                timeMessage = `${minutes} minute${minutes !== 1 ? 's' : ''}`;
+              }
+              
+              throw new TRPCError({
+                code: 'TOO_MANY_REQUESTS',
+                message: `You have already claimed native tokens on this network. Please wait ${timeMessage} before claiming again.`
+              });
+            }
+          }
+        }
 
         if (!rateLimitResult.allowed) {
+          const timeRemainingMs = rateLimitResult.cooldownEnds 
+            ? rateLimitResult.cooldownEnds.getTime() - Date.now()
+            : 0;
+          
+          const totalMinutes = Math.ceil(timeRemainingMs / 1000 / 60);
+          const hours = Math.floor(totalMinutes / 60);
+          const minutes = totalMinutes % 60;
+          
+          let timeMessage;
+          if (hours > 0) {
+            timeMessage = minutes > 0 
+              ? `${hours} hour${hours !== 1 ? 's' : ''} and ${minutes} minute${minutes !== 1 ? 's' : ''}`
+              : `${hours} hour${hours !== 1 ? 's' : ''}`;
+          } else {
+            timeMessage = `${minutes} minute${minutes !== 1 ? 's' : ''}`;
+          }
+          
           throw new TRPCError({
             code: 'TOO_MANY_REQUESTS',
-            message: `Rate limit exceeded. Next claim available at ${rateLimitResult.cooldownEnds?.toISOString()}`
+            message: `You have already claimed native tokens on this network. Please wait ${timeMessage} before claiming again.`
           });
         }
 
@@ -102,12 +187,21 @@ export const claimRouter = createTRPCRouter({
           .returning();
 
         // Record rate limit
+        console.log('Recording rate limit for native claim:', {
+          userId,
+          assetType: 'native',
+          chainId: input.chainId,
+          cooldownHours: 24
+        });
+        
         await faucetRateLimiter.recordClaim({
           userId,
           assetType: 'native',
           chainId: input.chainId,
           cooldownHours: 24
         });
+        
+        console.log('Rate limit recorded successfully');
 
         return claimResult;
       } catch (error) {
@@ -156,7 +250,254 @@ export const claimRouter = createTRPCRouter({
       }
     }),
 
-  // Claim ERC20 tokens
+  // Claim DevToken (simplified for dev tokens)
+  claimDevToken: claimProcedure
+    .input(
+      z.object({
+        chainId: z.number(),
+        walletAddress: z.string().regex(/^0x[a-fA-F0-9]{40}$/),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      try {
+        const userId = (ctx.user as AuthenticatedUser).id;
+        
+        console.log('DevToken claim attempt:', {
+          userId,
+          chainId: input.chainId,
+          walletAddress: input.walletAddress,
+          timestamp: new Date().toISOString()
+        });
+
+        // Check rate limiting
+        const rateLimitResult = await faucetRateLimiter.checkLimit({
+          userId,
+          assetType: 'erc20',
+          chainId: input.chainId,
+          cooldownHours: 24
+        });
+        
+        console.log('Rate limit check result:', {
+          allowed: rateLimitResult.allowed,
+          cooldownEnds: rateLimitResult.cooldownEnds,
+          lastClaimAt: rateLimitResult.lastClaimAt
+        });
+
+        if (!rateLimitResult.allowed) {
+          const timeRemainingMs = rateLimitResult.cooldownEnds 
+            ? rateLimitResult.cooldownEnds.getTime() - Date.now()
+            : 0;
+          
+          const totalMinutes = Math.ceil(timeRemainingMs / 1000 / 60);
+          const hours = Math.floor(totalMinutes / 60);
+          const minutes = totalMinutes % 60;
+          
+          let timeMessage;
+          if (hours > 0) {
+            timeMessage = minutes > 0 
+              ? `${hours} hour${hours !== 1 ? 's' : ''} and ${minutes} minute${minutes !== 1 ? 's' : ''}`
+              : `${hours} hour${hours !== 1 ? 's' : ''}`;
+          } else {
+            timeMessage = `${minutes} minute${minutes !== 1 ? 's' : ''}`;
+          }
+          
+          throw new TRPCError({
+            code: 'TOO_MANY_REQUESTS',
+            message: `You have already claimed DEV tokens on this network. Please wait ${timeMessage} before claiming again.`
+          });
+        }
+
+        // Get chain details from static config
+        const chainConfig = getChainConfig(input.chainId);
+
+        if (!chainConfig || !chainConfig.isActive) {
+          throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message: 'Chain not supported or inactive'
+          });
+        }
+
+        // Get deployed DevToken address from contracts config
+        // Use the chain id to get the network name (e.g., 'lisk-sepolia')
+        const networkName = chainConfig.id;
+        console.log('Looking up deployment for network:', networkName);
+        
+        const { getDeploymentAddresses } = await import('@thefaucet/contracts');
+        const deployment = getDeploymentAddresses(networkName);
+        
+        console.log('Deployment found:', deployment ? 'yes' : 'no', {
+          networkName,
+          devToken: deployment?.devToken,
+          faucetManager: deployment?.faucetManager
+        });
+        
+        if (!deployment?.devToken) {
+          throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message: `DevToken not deployed on network: ${networkName}. Only Lisk Sepolia is currently supported for DEV tokens.`
+          });
+        }
+
+        // Find or create DevToken asset
+        const existingAssets = await ctx.db
+          .select()
+          .from(assets)
+          .where(and(
+            eq(assets.chainId, input.chainId),
+            eq(assets.type, 'erc20'),
+            eq(assets.address, deployment.devToken)
+          ))
+          .limit(1);
+
+        let assetId: string;
+        if (existingAssets[0]) {
+          assetId = existingAssets[0].id;
+        } else {
+          // Create the DevToken asset
+          const newAsset = await ctx.db
+            .insert(assets)
+            .values({
+              chainId: input.chainId,
+              type: 'erc20',
+              address: deployment.devToken,
+              symbol: 'DEV',
+              name: 'DevToken',
+              decimals: 18,
+              isActive: true
+            })
+            .returning();
+          assetId = newAsset[0]!.id;
+        }
+
+        const amountInTokens = process.env.ERC20_TOKEN_AMOUNT || "100";
+        
+        console.log('Claiming ERC20 tokens:', {
+          amountInTokens,
+          chainId: input.chainId,
+          walletAddress: input.walletAddress
+        });
+        
+        // Process the claim
+        const claimResult = await faucetService.claimERC20Token(
+          input.walletAddress,
+          amountInTokens,
+          input.chainId,
+          chainConfig.rpcUrl
+        );
+        
+        console.log('Claim result:', claimResult);
+
+        // Record the claim in database
+        // Store the amount as a decimal string (not in wei for database)
+        console.log('Database insertion values:', {
+          userId,
+          assetId,
+          walletAddress: input.walletAddress,
+          amount: amountInTokens,
+          txHash: claimResult.transactionHash,
+          status: 'pending',
+          // Check field lengths
+          userIdLength: userId.length,
+          assetIdLength: assetId.length,
+          walletAddressLength: input.walletAddress.length,
+          amountLength: amountInTokens.length,
+          txHashLength: claimResult.transactionHash?.length || 0
+        });
+
+        // Validate amount is within decimal(30, 18) limits
+        const numAmount = parseFloat(amountInTokens);
+        if (numAmount > 999999999999.999999999999999999) { // 12 digits before decimal + 18 after
+          throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message: `Amount ${amountInTokens} exceeds database field limits (max: 999,999,999,999 tokens)`
+          });
+        }
+
+        try {
+          await ctx.db
+            .insert(claims)
+            .values({
+              userId,
+              assetId,
+              walletAddress: input.walletAddress,
+              amount: amountInTokens, // Store as "100" - let the DB handle conversion
+              txHash: claimResult.transactionHash,
+              status: 'pending'
+            });
+        } catch (dbError) {
+          console.error('Database insertion failed:', dbError);
+          throw new TRPCError({
+            code: 'INTERNAL_SERVER_ERROR',
+            message: `Database error during claim recording: ${dbError instanceof Error ? dbError.message : 'Unknown error'}`
+          });
+        }
+
+        // Record rate limit
+        await faucetRateLimiter.recordClaim({
+          userId,
+          assetType: 'erc20',
+          chainId: input.chainId,
+          cooldownHours: 24
+        });
+
+        return claimResult;
+      } catch (error) {
+        console.error('DevToken claim failed:', error);
+        
+        // Re-throw TRPC errors with their original messages
+        if (error instanceof TRPCError) {
+          throw error;
+        }
+        
+        // Handle specific error types with better messages
+        if (error instanceof Error) {
+          // Check for rate limiting in error message
+          if (error.message.includes('Rate limit') || error.message.includes('cooldown')) {
+            throw new TRPCError({
+              code: 'TOO_MANY_REQUESTS',
+              message: error.message
+            });
+          }
+          
+          // Check for deployment/configuration issues
+          if (error.message.includes('not deployed') || error.message.includes('deployment')) {
+            throw new TRPCError({
+              code: 'BAD_REQUEST',
+              message: error.message
+            });
+          }
+          
+          // Check for private key issues
+          if (error.message.includes('PRIVATE_KEY')) {
+            throw new TRPCError({
+              code: 'INTERNAL_SERVER_ERROR',
+              message: 'Faucet is not properly configured. Please contact administrator.'
+            });
+          }
+          
+          // Check for insufficient balance
+          if (error.message.includes('InsufficientBalance')) {
+            throw new TRPCError({
+              code: 'BAD_REQUEST',
+              message: 'Faucet has insufficient token balance. Please contact administrator.'
+            });
+          }
+          
+          // Default: include the actual error message for debugging
+          throw new TRPCError({
+            code: 'INTERNAL_SERVER_ERROR',
+            message: `DevToken claim failed: ${error.message}`
+          });
+        }
+        
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to process DevToken claim - unknown error'
+        });
+      }
+    }),
+
+  // Claim ERC20 tokens (generic - requires assetId)
   claimERC20: claimProcedure
     .input(
       z.object({
@@ -281,31 +622,30 @@ export const claimRouter = createTRPCRouter({
         });
 
         if (!rateLimitResult.allowed) {
+          const timeRemainingMs = rateLimitResult.cooldownEnds 
+            ? rateLimitResult.cooldownEnds.getTime() - Date.now()
+            : 0;
+          
+          const totalMinutes = Math.ceil(timeRemainingMs / 1000 / 60);
+          const hours = Math.floor(totalMinutes / 60);
+          const minutes = totalMinutes % 60;
+          
+          let timeMessage;
+          if (hours > 0) {
+            timeMessage = minutes > 0 
+              ? `${hours} hour${hours !== 1 ? 's' : ''} and ${minutes} minute${minutes !== 1 ? 's' : ''}`
+              : `${hours} hour${hours !== 1 ? 's' : ''}`;
+          } else {
+            timeMessage = `${minutes} minute${minutes !== 1 ? 's' : ''}`;
+          }
+          
           throw new TRPCError({
             code: 'TOO_MANY_REQUESTS',
-            message: `Rate limit exceeded. Next claim available at ${rateLimitResult.cooldownEnds?.toISOString()}`
+            message: `You have already minted an NFT on this network. Please wait ${timeMessage} before minting again.`
           });
         }
 
-        // Get NFT collection details
-        const nftAsset = await ctx.db
-          .select()
-          .from(assets)
-          .where(and(
-            eq(assets.id, input.collectionId),
-            eq(assets.chainId, input.chainId),
-            eq(assets.type, 'nft')
-          ))
-          .limit(1);
-
-        if (!nftAsset[0] || !nftAsset[0].isActive) {
-          throw new TRPCError({
-            code: 'BAD_REQUEST',
-            message: 'NFT collection not found or inactive'
-          });
-        }
-
-        // Get chain details from static config
+        // Get chain details first to get deployed NFT address
         const chainConfig = getChainConfig(input.chainId);
 
         if (!chainConfig || !chainConfig.isActive) {
@@ -313,6 +653,49 @@ export const claimRouter = createTRPCRouter({
             code: 'BAD_REQUEST',
             message: 'Chain not supported or inactive'
           });
+        }
+
+        // Get deployed DevNFT address from contracts config
+        const networkName = chainConfig.id;
+        const { getDeploymentAddresses } = await import('@thefaucet/contracts');
+        const deployment = getDeploymentAddresses(networkName);
+        
+        if (!deployment?.devNFT) {
+          throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message: 'DevNFT not deployed on this network'
+          });
+        }
+
+        // Find or create NFT collection asset
+        const nftAssets = await ctx.db
+          .select()
+          .from(assets)
+          .where(and(
+            eq(assets.chainId, input.chainId),
+            eq(assets.type, 'nft'),
+            eq(assets.address, deployment.devNFT)
+          ))
+          .limit(1);
+
+        let assetId: string;
+        if (nftAssets[0]) {
+          assetId = nftAssets[0].id;
+        } else {
+          // Create the DevNFT asset
+          const newAsset = await ctx.db
+            .insert(assets)
+            .values({
+              chainId: input.chainId,
+              type: 'nft',
+              address: deployment.devNFT,
+              symbol: 'DEVNFT',
+              name: 'Developer NFT Collection',
+              decimals: 0,
+              isActive: true
+            })
+            .returning();
+          assetId = newAsset[0]!.id;
         }
 
         // Create simple token URI (in production, this should be stored on IPFS)
@@ -330,7 +713,7 @@ export const claimRouter = createTRPCRouter({
           .insert(claims)
           .values({
             userId,
-            assetId: input.collectionId,
+            assetId,
             walletAddress: input.walletAddress,
             tokenId: claimResult.amount, // tokenId stored as amount for NFTs
             txHash: claimResult.transactionHash,
@@ -353,11 +736,32 @@ export const claimRouter = createTRPCRouter({
         };
       } catch (error) {
         console.error('NFT mint failed:', error);
-        if (error instanceof TRPCError) throw error;
+        
+        // Re-throw TRPC errors with their original messages
+        if (error instanceof TRPCError) {
+          throw error;
+        }
+        
+        // Handle specific error types with better messages
+        if (error instanceof Error) {
+          // Check for rate limiting
+          if (error.message.includes('Rate limit') || error.message.includes('cooldown')) {
+            throw new TRPCError({
+              code: 'TOO_MANY_REQUESTS',
+              message: error.message
+            });
+          }
+          
+          // Default: include the actual error message for debugging
+          throw new TRPCError({
+            code: 'INTERNAL_SERVER_ERROR',
+            message: `NFT mint failed: ${error.message}`
+          });
+        }
         
         throw new TRPCError({
           code: 'INTERNAL_SERVER_ERROR',
-          message: 'Failed to process NFT mint'
+          message: 'Failed to process NFT mint - unknown error'
         });
       }
     }),
