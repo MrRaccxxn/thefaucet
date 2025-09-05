@@ -65,11 +65,6 @@ export class FaucetService {
     chainId: number,
     rpcUrl: string
   ): Promise<ClaimResult> {
-    console.log("=== FaucetService.claimNativeToken ===");
-    console.log("Recipient:", recipientAddress);
-    console.log("ChainId:", chainId);
-    console.log("RPC URL:", rpcUrl);
-
     let faucetManager: ethers.Contract | null = null;
 
     try {
@@ -107,8 +102,6 @@ export class FaucetService {
         ethers.formatEther(contractBalance)
       );
 
-      // Check if user can claim from blockchain contract (24-hour cooldown)
-      console.log("Checking blockchain cooldown for user...");
       const canClaimFunction = faucetManager.getFunction("canClaimNative");
       const canClaim = await canClaimFunction(recipientAddress);
 
@@ -116,18 +109,27 @@ export class FaucetService {
         console.log("User cannot claim due to blockchain cooldown");
         const getCooldownFunction =
           faucetManager.getFunction("getNativeCooldown");
-        const remainingTime = await getCooldownFunction(recipientAddress);
-        const remainingHours = Math.ceil(Number(remainingTime) / 3600);
+        const remainingTimeSeconds = await getCooldownFunction(recipientAddress);
+        const totalMinutes = Math.ceil(Number(remainingTimeSeconds) / 60);
+        const hours = Math.floor(totalMinutes / 60);
+        const minutes = totalMinutes % 60;
+        
+        let timeMessage;
+        if (hours > 0) {
+          timeMessage = minutes > 0 
+            ? `${hours}h ${minutes}m`
+            : `${hours}h`;
+        } else {
+          timeMessage = `${minutes}m`;
+        }
+        
         throw new Error(
-          `You must wait ${remainingHours} hours before claiming again from this address.`
+          `You have already claimed native tokens on this network. Please wait ${timeMessage} before claiming again.`
         );
       }
 
-      // Call claimNativeToken on the contract
-      console.log("Calling claimNativeToken on contract...");
       const claimFunction = faucetManager.getFunction("claimNativeToken");
       const tx = await claimFunction(recipientAddress);
-      console.log("Transaction sent:", tx.hash);
 
       // Get the amount from contract
       const amountFunction = faucetManager.getFunction("nativeTokenAmount");
@@ -147,10 +149,11 @@ export class FaucetService {
         console.error("Error message:", error.message);
         console.error("Error stack:", error.stack);
 
+        //TODO: Add code errors instead of string checking
         // Check for common errors
         if (
           error.message.includes("RateLimitExceeded") ||
-          error.message.includes("0xf4d678b8")
+          error.message.includes("0xa74c1c5f")  // Correct RateLimitExceeded error selector
         ) {
           // This should rarely happen since our database rate limiting should catch it first
           console.warn('Rate limit error reached blockchain - database rate limiting may have missed this');
@@ -161,16 +164,13 @@ export class FaucetService {
               throw new Error('FaucetManager contract not initialized');
             }
             console.log('Querying contract for user cooldown time...');
-            const lastClaimTime = await faucetManager.getUserLastClaimTime(recipientAddress);
-            const cooldownPeriod = await faucetManager.CLAIM_COOLDOWN();
+            const getCooldownFunction = faucetManager.getFunction("getNativeCooldown");
+            const remainingCooldownSeconds = await getCooldownFunction(recipientAddress);
+            console.log('getNativeCooldown result:', remainingCooldownSeconds.toString(), 'seconds');
             
-            const lastClaimTimestamp = Number(lastClaimTime) * 1000; // Convert to milliseconds
-            const cooldownMs = Number(cooldownPeriod) * 1000; // Convert to milliseconds
-            const canClaimAt = new Date(lastClaimTimestamp + cooldownMs);
-            const now = new Date();
+            const timeRemainingMs = Number(remainingCooldownSeconds) * 1000; // Convert to milliseconds
             
-            if (canClaimAt > now) {
-              const timeRemainingMs = canClaimAt.getTime() - now.getTime();
+            if (timeRemainingMs > 0) {
               const totalMinutes = Math.ceil(timeRemainingMs / 1000 / 60);
               const hours = Math.floor(totalMinutes / 60);
               const minutes = totalMinutes % 60;
@@ -197,8 +197,8 @@ export class FaucetService {
             "You have already claimed from this address recently. Please wait before claiming again."
           );
         }
-        if (error.message.includes("InsufficientBalance")) {
-          throw new Error("FaucetManager contract has insufficient balance.");
+        if (error.message.includes("InsufficientBalance") || error.message.includes("0xf4d678b8")) {
+          throw new Error("The faucet is temporarily out of funds. Please try again later or contact support.");
         }
         if (error.message.includes("could not detect network")) {
           throw new Error("Network connection failed. Check RPC URL.");
