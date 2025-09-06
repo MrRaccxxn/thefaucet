@@ -16,6 +16,7 @@ export const useFaucetActions = (): {
   isClaimPending: boolean;
   claimError: any;
   isClaimSuccess: boolean;
+  claimData: any;
 } => {
   const router = useRouter();
   const { setSelectedChain, selectedChain } = useNetworkStore();
@@ -81,5 +82,6 @@ export const useFaucetActions = (): {
     isClaimPending: claimNativeTRPC.isPending,
     claimError: claimNativeTRPC.error,
     isClaimSuccess: claimNativeTRPC.isSuccess,
+    claimData: claimNativeTRPC.data,
   };
 };

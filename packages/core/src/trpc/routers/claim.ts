@@ -1,12 +1,185 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { createTRPCRouter, protectedProcedure, claimProcedure } from "../index";
-import { claims, assets, chains } from "@thefaucet/db";
+import { claims, assets, chains, userWallets, rateLimits } from "@thefaucet/db";
 import { eq, and, desc, count, gte } from "drizzle-orm";
 import { faucetRateLimiter } from "../../rate-limiting";
 import { faucetService } from "../../blockchain/faucet";
 import type { AuthenticatedUser } from "../../types/auth";
 import { getChainConfig, isChainSupported } from "../../config/chains";
+import { ethers } from "ethers";
+import { ABIS, getDeploymentAddresses } from "@thefaucet/contracts";
+
+const CHAIN_NAMES: Record<number, string> = {
+  11155111: "sepolia",
+  4202: "lisk-sepolia",
+  80002: "amoy",
+  97: "bsc-testnet",
+};
+
+// Simple in-memory cache for blockchain cooldown checks
+// Key: `${chainId}-${walletAddress}`, Value: { canClaim, cooldownSeconds, timestamp }
+const blockchainCooldownCache = new Map<string, { canClaim: boolean; cooldownSeconds: number; timestamp: number }>();
+const CACHE_TTL_MS = 60000; // 1 minute cache
+
+// Helper function to invalidate cache for a specific user/chain/asset
+function invalidateBlockchainCache(chainId: number, walletAddress: string, assetType: 'native' | 'erc20' | 'nft', contractAddress?: string) {
+  const cacheKey = `${chainId}-${walletAddress}-${assetType}${contractAddress ? '-' + contractAddress : ''}`;
+  blockchainCooldownCache.delete(cacheKey);
+  console.log(`[BLOCKCHAIN CACHE] Invalidated cache for ${assetType} asset: ${walletAddress} on chain ${chainId}`);
+}
+
+// Helper function to check blockchain cooldown for any asset type with caching
+async function checkBlockchainCooldown(chainId: number, walletAddress: string, assetType: 'native' | 'erc20' | 'nft', contractAddress?: string) {
+  const cacheKey = `${chainId}-${walletAddress}-${assetType}${contractAddress ? '-' + contractAddress : ''}`;
+  const now = Date.now();
+  
+  // Check cache first
+  const cached = blockchainCooldownCache.get(cacheKey);
+  if (cached && (now - cached.timestamp) < CACHE_TTL_MS) {
+    console.log(`[BLOCKCHAIN CACHE] Using cached result for ${walletAddress} on chain ${chainId}`);
+    return { canClaim: cached.canClaim, cooldownSeconds: cached.cooldownSeconds };
+  }
+
+  try {
+    const networkName = CHAIN_NAMES[chainId];
+    if (!networkName) {
+      return { canClaim: true, cooldownSeconds: 0 };
+    }
+
+    const deployment = getDeploymentAddresses(networkName);
+    if (!deployment) {
+      return { canClaim: true, cooldownSeconds: 0 };
+    }
+
+    const chainConfig = getChainConfig(chainId);
+    if (!chainConfig) {
+      return { canClaim: true, cooldownSeconds: 0 };
+    }
+
+    console.log(`[BLOCKCHAIN] Querying blockchain for ${assetType} asset: ${walletAddress} on chain ${chainId}`);
+    const provider = new ethers.JsonRpcProvider(chainConfig.rpcUrl);
+    
+    let canClaim = true;
+    let cooldownSeconds = 0;
+
+    if (assetType === 'native') {
+      const faucetManager = new ethers.Contract(
+        deployment.faucetManager,
+        ABIS.FaucetManager,
+        provider
+      );
+
+      // Check if user can claim native tokens
+      const canClaimFunction = faucetManager.getFunction("canClaimNative");
+      canClaim = await canClaimFunction(walletAddress);
+
+      // Get remaining cooldown time for native tokens
+      const getCooldownFunction = faucetManager.getFunction("getNativeCooldown");
+      cooldownSeconds = await getCooldownFunction(walletAddress);
+    } else if (assetType === 'erc20' && contractAddress) {
+      // For ERC20 tokens, check the specific token contract
+      try {
+        const tokenContract = new ethers.Contract(
+          contractAddress,
+          ABIS.DevToken, // Assuming DevToken ABI for ERC20 tokens
+          provider
+        );
+
+        // Check if the contract has a cooldown check method
+        // Many token contracts have `lastClaimTime` or similar methods
+        const lastClaimTimeFunction = tokenContract.getFunction("lastClaimTime");
+        const lastClaimTime = await lastClaimTimeFunction(walletAddress);
+        const lastClaimTimeMs = Number(lastClaimTime) * 1000;
+        
+        // Assuming 24 hour cooldown for ERC20 tokens
+        const cooldownPeriodMs = 24 * 60 * 60 * 1000;
+        const timeElapsed = Date.now() - lastClaimTimeMs;
+        
+        if (timeElapsed < cooldownPeriodMs) {
+          canClaim = false;
+          cooldownSeconds = Math.ceil((cooldownPeriodMs - timeElapsed) / 1000);
+        }
+      } catch (error) {
+        // If contract doesn't have cooldown methods, assume it's allowed
+        console.log(`[BLOCKCHAIN] ERC20 contract ${contractAddress} doesn't have cooldown methods, allowing claim`);
+        canClaim = true;
+        cooldownSeconds = 0;
+      }
+    } else if (assetType === 'nft' && contractAddress) {
+      // For NFTs, check the specific NFT contract
+      try {
+        const nftContract = new ethers.Contract(
+          contractAddress,
+          ABIS.DevNFT, // Assuming DevNFT ABI for NFT contracts
+          provider
+        );
+
+        // Check if the contract has a cooldown check method
+        const lastMintTimeFunction = nftContract.getFunction("lastMintTime");
+        const lastMintTime = await lastMintTimeFunction(walletAddress);
+        const lastMintTimeMs = Number(lastMintTime) * 1000;
+        
+        // Assuming 24 hour cooldown for NFTs
+        const cooldownPeriodMs = 24 * 60 * 60 * 1000;
+        const timeElapsed = Date.now() - lastMintTimeMs;
+        
+        if (timeElapsed < cooldownPeriodMs) {
+          canClaim = false;
+          cooldownSeconds = Math.ceil((cooldownPeriodMs - timeElapsed) / 1000);
+        }
+      } catch (error) {
+        // If contract doesn't have cooldown methods, assume it's allowed
+        console.log(`[BLOCKCHAIN] NFT contract ${contractAddress} doesn't have cooldown methods, allowing claim`);
+        canClaim = true;
+        cooldownSeconds = 0;
+      }
+    }
+
+    const result = {
+      canClaim: Boolean(canClaim),
+      cooldownSeconds: Number(cooldownSeconds)
+    };
+
+    // Cache the result
+    blockchainCooldownCache.set(cacheKey, { ...result, timestamp: now });
+    
+    return result;
+  } catch (error) {
+    console.error(`Failed to check blockchain cooldown for ${assetType}:`, error);
+    return { canClaim: true, cooldownSeconds: 0 };
+  }
+}
+
+// Helper function to sync database with blockchain state
+async function syncDatabaseWithBlockchain(
+  db: any, 
+  userId: string, 
+  chainId: number, 
+  assetType: 'native' | 'erc20' | 'nft', 
+  blockchainResult: { canClaim: boolean; cooldownSeconds: number }
+) {
+  if (blockchainResult.cooldownSeconds > 0) {
+    // Calculate when the claim happened based on remaining cooldown
+    const claimTime = new Date(Date.now() - (24 * 60 * 60 * 1000) + blockchainResult.cooldownSeconds * 1000);
+    const resetAt = new Date(claimTime.getTime() + 24 * 60 * 60 * 1000);
+    
+    try {
+      // Insert rate limit record directly with the correct timestamp
+      await db.insert(rateLimits).values({
+        userId,
+        assetType,
+        chainId,
+        lastClaimAt: claimTime,
+        claimCount: 1,
+        resetAt
+      });
+      console.log(`[BLOCKCHAIN SYNC] Updated database with blockchain state for ${assetType} on chain ${chainId}`);
+    } catch (syncError) {
+      console.error(`[BLOCKCHAIN SYNC] Failed to sync database for ${assetType}:`, syncError);
+    }
+  }
+}
 
 export const claimRouter = createTRPCRouter({
   // Claim native tokens
@@ -202,6 +375,9 @@ export const claimRouter = createTRPCRouter({
         });
         
         console.log('Rate limit recorded successfully');
+
+        // Invalidate blockchain cache since user just successfully claimed
+        invalidateBlockchainCache(input.chainId, input.walletAddress, 'native');
 
         return claimResult;
       } catch (error) {
@@ -440,6 +616,12 @@ export const claimRouter = createTRPCRouter({
           cooldownHours: 24
         });
 
+        // Invalidate blockchain cache since user just successfully claimed
+        // For DevToken, use the default deployment address
+        const devTokenNetworkName = CHAIN_NAMES[input.chainId];
+        const devTokenDeployment = devTokenNetworkName ? getDeploymentAddresses(devTokenNetworkName) : null;
+        invalidateBlockchainCache(input.chainId, input.walletAddress, 'erc20', devTokenDeployment?.devToken);
+
         return claimResult;
       } catch (error) {
         console.error('DevToken claim failed:', error);
@@ -582,6 +764,9 @@ export const claimRouter = createTRPCRouter({
           chainId: input.chainId,
           cooldownHours: 24
         });
+
+        // Invalidate blockchain cache since user just successfully claimed
+        invalidateBlockchainCache(input.chainId, input.walletAddress, 'erc20', asset[0].address || undefined);
 
         return claimResult;
       } catch (error) {
@@ -729,6 +914,9 @@ export const claimRouter = createTRPCRouter({
           cooldownHours: 24
         });
 
+        // Invalidate blockchain cache since user just successfully claimed
+        invalidateBlockchainCache(input.chainId, input.walletAddress, 'nft', deployment.devNFT);
+
         return {
           transactionHash: claimResult.transactionHash,
           tokenId: claimResult.amount,
@@ -841,6 +1029,7 @@ export const claimRouter = createTRPCRouter({
     .input(
       z.object({
         chainId: z.number(),
+        walletAddress: z.string().regex(/^0x[a-fA-F0-9]{40}$/).optional(),
       })
     )
     .query(async ({ input, ctx }) => {
@@ -848,8 +1037,20 @@ export const claimRouter = createTRPCRouter({
         const userId = (ctx.user as AuthenticatedUser).id;
         const result: Record<string, { remaining: number; cooldownEnds: Date | null; timeRemaining: string | null }> = {};
 
+        // Get user's primary wallet address if not provided
+        let walletAddress = input.walletAddress;
+        if (!walletAddress) {
+          const primaryWallet = await ctx.db.select().from(userWallets)
+            .where(and(
+              eq(userWallets.userId, userId),
+              eq(userWallets.isPrimary, true)
+            ))
+            .limit(1);
+          walletAddress = primaryWallet[0]?.address;
+        }
+
         // Get all asset types the user might claim
-        const assetTypes = ['native', 'erc20', 'nft'];
+        const assetTypes: ('native' | 'erc20' | 'nft')[] = ['native', 'erc20', 'nft'];
         
         for (const assetType of assetTypes) {
           // Check rate limit for this asset type
@@ -860,11 +1061,55 @@ export const claimRouter = createTRPCRouter({
             cooldownHours: 24
           });
 
-          // Calculate human-readable time remaining
+          let finalResult = rateLimitResult;
           let timeRemaining: string | null = null;
-          if (!rateLimitResult.allowed && rateLimitResult.cooldownEnds) {
+
+          // DATABASE-FIRST OPTIMIZATION: Only check blockchain when database says "allowed"
+          // This minimizes expensive blockchain calls as requested
+          if (rateLimitResult.allowed && walletAddress) {
+            console.log(`[RATE LIMITING] Database allows ${assetType} claim for user ${userId}, checking blockchain for sync`);
+            
+            // Get contract addresses for ERC20 and NFT assets if needed
+            let contractAddress: string | undefined;
+            if (assetType === 'erc20' || assetType === 'nft') {
+              // For now, we'll get the default contract addresses from deployment
+              // TODO: In production, you might want to query specific assets from database
+              const networkName = CHAIN_NAMES[input.chainId];
+              if (networkName) {
+                const deployment = getDeploymentAddresses(networkName);
+                if (deployment) {
+                  contractAddress = assetType === 'erc20' ? deployment.devToken : deployment.devNFT;
+                }
+              }
+            }
+            
+            const blockchainResult = await checkBlockchainCooldown(input.chainId, walletAddress, assetType, contractAddress);
+            
+            if (!blockchainResult.canClaim && blockchainResult.cooldownSeconds > 0) {
+              // Blockchain disagrees with database - blockchain has the truth
+              console.log(`[BLOCKCHAIN SYNC] Database-blockchain mismatch for ${assetType}. DB: allowed, Blockchain: ${blockchainResult.cooldownSeconds}s remaining`);
+              
+              const cooldownEnds = new Date(Date.now() + blockchainResult.cooldownSeconds * 1000);
+              finalResult = {
+                allowed: false,
+                cooldownEnds,
+                lastClaimAt: new Date(Date.now() - (24 * 60 * 60 * 1000) + blockchainResult.cooldownSeconds * 1000)
+              };
+
+              // Sync database with blockchain state to prevent future discrepancies
+              await syncDatabaseWithBlockchain(ctx.db, userId, input.chainId, assetType, blockchainResult);
+            } else {
+              console.log(`[RATE LIMITING] Database and blockchain in sync for ${assetType}. User can claim.`);
+            }
+          } else {
+            // Database says not allowed - trust database completely, no blockchain call needed
+            console.log(`[RATE LIMITING] Database denies ${assetType} claim for user ${userId}. Blockchain call skipped (cost optimization).`);
+          }
+
+          // Calculate human-readable time remaining
+          if (!finalResult.allowed && finalResult.cooldownEnds) {
             const now = new Date();
-            const timeRemainingMs = rateLimitResult.cooldownEnds.getTime() - now.getTime();
+            const timeRemainingMs = finalResult.cooldownEnds.getTime() - now.getTime();
             
             if (timeRemainingMs > 0) {
               const totalMinutes = Math.ceil(timeRemainingMs / 1000 / 60);
@@ -882,8 +1127,8 @@ export const claimRouter = createTRPCRouter({
           }
 
           result[assetType] = {
-            remaining: rateLimitResult.allowed ? 1 : 0,
-            cooldownEnds: rateLimitResult.cooldownEnds,
+            remaining: finalResult.allowed ? 1 : 0,
+            cooldownEnds: finalResult.cooldownEnds,
             timeRemaining,
           };
         }

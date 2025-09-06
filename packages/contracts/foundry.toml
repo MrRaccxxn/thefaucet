@@ -29,3 +29,11 @@ fs_permissions = [
     { access = "read-write", path = "./deployments" },
     { access = "read-write", path = "./src/deployments" }
 ]
+
+# RPC endpoints
+[rpc_endpoints]
+lisk_sepolia = "https://rpc.sepolia-api.lisk.com"
+
+# Etherscan API configuration for Lisk Sepolia
+[etherscan]
+lisk_sepolia = { key = "${ETHERSCAN_API_KEY}", url = "https://sepolia-blockscout.lisk.com/api" }
