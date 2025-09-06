@@ -1,6 +1,6 @@
 "use client";
 
-import { useNextNFTMetadata } from "@/lib/hooks/use-nft-metadata";
+import { useRandomNFTMetadata } from "@/lib/hooks/use-nft-metadata";
 
 interface NFTPreviewProps {
   chainId: number;
@@ -8,12 +8,12 @@ interface NFTPreviewProps {
 }
 
 export function NFTPreview({ chainId, rpcUrl }: NFTPreviewProps) {
-  const { nextNFTMetadata, loading: nftLoading } = useNextNFTMetadata(
+  const { nftMetadata, loading: nftLoading, tokenId } = useRandomNFTMetadata(
     chainId,
     rpcUrl
   );
 
-  const nftPreview = nextNFTMetadata || {
+  const nftPreview = nftMetadata || {
     name: "Developer NFT",
     description: "A unique developer NFT",
     image: "/default-nft.png",
@@ -32,14 +32,13 @@ export function NFTPreview({ chainId, rpcUrl }: NFTPreviewProps) {
             alt={nftPreview.name}
             className="w-full h-full object-cover"
             onError={(e) => {
-              e.currentTarget.src =
-                "https://via.placeholder.com/500x500/6366F1/FFFFFF?text=NFT";
+              e.currentTarget.src = "/default-nft.png";
             }}
           />
         )}
-        {nextNFTMetadata && (
-          <div className="absolute top-2 right-2 bg-green-500/80 text-white text-xs px-2 py-1 rounded-full">
-            Next
+        {nftMetadata && (
+          <div className="absolute top-2 right-2 bg-purple-500/80 text-white text-xs px-2 py-1 rounded-full">
+            Preview
           </div>
         )}
       </div>
@@ -59,7 +58,7 @@ export function NFTPreview({ chainId, rpcUrl }: NFTPreviewProps) {
               {nftPreview.description}
             </p>
             <p className="text-xs text-muted-foreground/60 mt-1">
-              {nextNFTMetadata ? "Next Available NFT" : "Testnet Collection"}
+              Sample from Collection
             </p>
           </>
         )}

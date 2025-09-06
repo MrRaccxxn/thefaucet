@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { NFT_CONFIG } from "@/lib/config/nft";
 
 interface NFTMetadata {
   name: string;
@@ -16,44 +17,20 @@ interface NFTMetadata {
   compiler?: string;
 }
 
-// Default NFT images for testnets
-const DEFAULT_NFT_IMAGES: Record<string, string> = {
-  ethereum:
-    "https://raw.githubusercontent.com/ethereum/ethereum-org-website/dev/public/images/eth-diamond-purple.png",
-  polygon:
-    "https://raw.githubusercontent.com/maticnetwork/polygon-token-assets/main/assets/tokenAssets/matic.svg",
-  bsc: "https://raw.githubusercontent.com/binance-chain/docs-site/master/docs/img/binance-chain.png",
-  lisk: "https://raw.githubusercontent.com/LiskHQ/lisk-docs/main/static/img/logo.svg",
-  default: "https://via.placeholder.com/500x500/6366F1/FFFFFF?text=NFT",
-};
-
-const CHAIN_NAMES: Record<number, string> = {
-  11155111: "sepolia",
-  4202: "lisk-sepolia",
-  80002: "amoy",
-  97: "bsc-testnet",
-};
-
 // Convert IPFS URL to HTTP URL
 function convertIpfsToHttp(ipfsUrl: string): string {
   if (ipfsUrl.startsWith("ipfs://")) {
-    return ipfsUrl.replace(
-      "ipfs://",
-      "https://jade-radical-tick-245.mypinata.cloud/ipfs/"
-    );
+    return ipfsUrl.replace("ipfs://", NFT_CONFIG.IPFS_GATEWAY);
   }
   return ipfsUrl;
 }
 
-// Hook to fetch the next available NFT metadata
-// For now, we'll use a simplified version that generates a preview
-// In the future, this can be enhanced to fetch from blockchain
-export function useNextNFTMetadata(chainId: number, rpcUrl?: string) {
-  const [nextNFTMetadata, setNextNFTMetadata] = useState<NFTMetadata | null>(
-    null
-  );
+// Hook to fetch a random NFT metadata for preview
+export function useRandomNFTMetadata(chainId: number, rpcUrl?: string) {
+  const [nftMetadata, setNftMetadata] = useState<NFTMetadata | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [tokenId, setTokenId] = useState<number | null>(null);
 
   useEffect(() => {
     if (!chainId) {
@@ -62,25 +39,24 @@ export function useNextNFTMetadata(chainId: number, rpcUrl?: string) {
 
     let isMounted = true;
 
-    async function fetchNextNFTMetadata() {
+    async function fetchRandomNFTMetadata() {
       setLoading(true);
       setError(null);
 
       try {
-        // Get network name
-        const networkName = CHAIN_NAMES[chainId] || "testnet";
+        const baseUrl = NFT_CONFIG.IPFS_BASE_URL;
 
-        // For demo purposes, we'll simulate fetching the next NFT by creating a preview
-        // This would be replaced with actual blockchain calls in production
-        await new Promise((resolve) => setTimeout(resolve, 500)); // Simulate API call
-
-        // Try to fetch a sample NFT metadata (you provided this URL structure)
-        // For the example: https://jade-radical-tick-245.mypinata.cloud/ipfs/QmShYUhLFWLcSoqpaa18evzqLTWtzfkLVQzbZRbbKGDAzV/1
-        const sampleMetadataUrl =
-          "https://jade-radical-tick-245.mypinata.cloud/ipfs/QmShYUhLFWLcSoqpaa18evzqLTWtzfkLVQzbZRbbKGDAzV/1";
+        // Generate a random ID (skipping first 10)
+        const randomId =
+          Math.floor(
+            Math.random() * (NFT_CONFIG.MAX_NFT_ID - NFT_CONFIG.MIN_NFT_ID + 1)
+          ) + NFT_CONFIG.MIN_NFT_ID;
 
         try {
-          const response = await fetch(sampleMetadataUrl);
+          const metadataUrl = `${baseUrl}${randomId}`;
+          console.log(`Fetching NFT metadata at: ${metadataUrl}`);
+
+          const response = await fetch(metadataUrl);
           if (response.ok) {
             const metadata: NFTMetadata = await response.json();
 
@@ -89,35 +65,48 @@ export function useNextNFTMetadata(chainId: number, rpcUrl?: string) {
               metadata.image = convertIpfsToHttp(metadata.image);
             }
 
+            // Update the name if needed
+            metadata.name = metadata.name || `Lab Punks #${randomId}`;
+
             if (isMounted) {
-              setNextNFTMetadata(metadata);
+              setNftMetadata(metadata);
+              setTokenId(randomId);
               return;
             }
           }
         } catch (fetchError) {
-          console.log("Could not fetch sample metadata, using fallback");
+          console.log(`NFT #${randomId} metadata not found, using fallback...`);
         }
 
-        // Fallback to a generated NFT metadata
+        // Fallback metadata if fetch fails
         const fallbackMetadata: NFTMetadata = {
-          name: `Lab Punks #${Math.floor(Math.random() * 1000) + 1}`,
+          name: `Lab Punks #${randomId}`,
           description: "Collection of fake punks only for study purposes",
-          image:
-            DEFAULT_NFT_IMAGES.default ||
-            "https://via.placeholder.com/500x500/6366F1/FFFFFF?text=NFT",
+          image: NFT_CONFIG.DEFAULT_NFT_IMAGE,
+          attributes: [
+            { trait_type: "Face", value: "face1" },
+            { trait_type: "Ears", value: "ears3" },
+            { trait_type: "Hair", value: "hair5" },
+            { trait_type: "Beard", value: "beard6" },
+            { trait_type: "Eyes", value: "eyes4" },
+            { trait_type: "Nose", value: "n1" },
+            { trait_type: "Mouth", value: "m4" },
+            { trait_type: "Access", value: "acc1" },
+          ],
           compiler: "HashLips Art Engine",
         };
 
         if (isMounted) {
-          setNextNFTMetadata(fallbackMetadata);
+          setNftMetadata(fallbackMetadata);
+          setTokenId(randomId);
         }
       } catch (err) {
-        console.error("Failed to fetch next NFT metadata:", err);
+        console.error("Failed to fetch NFT metadata:", err);
         if (isMounted) {
           setError(
             err instanceof Error ? err.message : "Failed to fetch NFT metadata"
           );
-          setNextNFTMetadata(null);
+          setNftMetadata(null);
         }
       } finally {
         if (isMounted) {
@@ -126,7 +115,7 @@ export function useNextNFTMetadata(chainId: number, rpcUrl?: string) {
       }
     }
 
-    fetchNextNFTMetadata();
+    fetchRandomNFTMetadata();
 
     return () => {
       isMounted = false;
@@ -134,8 +123,9 @@ export function useNextNFTMetadata(chainId: number, rpcUrl?: string) {
   }, [chainId, rpcUrl]);
 
   return {
-    nextNFTMetadata,
+    nftMetadata,
     loading,
     error,
+    tokenId,
   };
 }
