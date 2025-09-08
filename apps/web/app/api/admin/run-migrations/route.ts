@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@thefaucet/db';
-import { sql } from 'drizzle-orm';
+import { drizzle } from 'drizzle-orm/postgres-js';
+import { migrate } from 'drizzle-orm/postgres-js/migrator';
+import postgres from 'postgres';
+import path from 'path';
 
 export async function POST(request: NextRequest) {
   try {
@@ -12,29 +14,50 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    console.log('🚀 Testing database connection...');
+    const databaseUrl = process.env.DATABASE_URL;
+    if (!databaseUrl) {
+      return NextResponse.json({ 
+        error: 'DATABASE_URL not configured' 
+      }, { status: 500 });
+    }
+
+    console.log('🚀 Starting database migration...');
     
-    // Test the connection and check if tables exist
-    const result = await db.execute(sql`
-      SELECT table_name 
-      FROM information_schema.tables 
-      WHERE table_schema = 'public'
-    `);
-    
-    console.log('✅ Database connection successful!');
-    console.log('📊 Existing tables:', result.rows.map(r => r.table_name));
-    
-    return NextResponse.json({ 
-      success: true, 
-      message: 'Database connection successful',
-      tables: result.rows.map(r => r.table_name)
+    // Create a separate connection for migrations
+    const migrationClient = postgres(databaseUrl, { 
+      max: 1,
+      ssl: databaseUrl.includes('render.com') ? 'require' : undefined
     });
     
+    const migrationDb = drizzle(migrationClient);
+    
+    try {
+      // Run migrations from the packages/db/migrations directory
+      const migrationsPath = path.join(process.cwd(), '../../packages/db/migrations');
+      console.log('📁 Looking for migrations in:', migrationsPath);
+      
+      await migrate(migrationDb, {
+        migrationsFolder: migrationsPath,
+      });
+      
+      console.log('✅ Migrations completed successfully!');
+      
+      return NextResponse.json({ 
+        success: true, 
+        message: 'Migrations completed successfully',
+        migrationsPath
+      });
+      
+    } finally {
+      await migrationClient.end();
+    }
+    
   } catch (error) {
-    console.error('❌ Database operation failed:', error);
+    console.error('❌ Migration failed:', error);
     return NextResponse.json({ 
       success: false, 
-      error: error instanceof Error ? error.message : 'Unknown error'
+      error: error instanceof Error ? error.message : 'Unknown error',
+      details: error instanceof Error ? error.stack : undefined
     }, { status: 500 });
   }
 }

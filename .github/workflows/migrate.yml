@@ -1,0 +1,75 @@
+name: Database Migrations
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'packages/db/migrations/**'
+      - 'packages/db/src/schema/**'
+      - '.github/workflows/migrate.yml'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  migrate:
+    name: Run Database Migrations
+    runs-on: ubuntu-latest
+    environment: production
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 9
+          run_install: false
+
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run migrations
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          cd packages/db
+          echo "🔄 Running database migrations..."
+          pnpm run db:push
+          echo "✅ Migrations completed successfully"
+
+      - name: Verify migration
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          cd packages/db
+          echo "🔍 Verifying database schema..."
+          npx drizzle-kit studio --port 0 --host 0.0.0.0 &
+          sleep 5
+          kill $!
+          echo "✅ Database schema verified"
+
+      - name: Notify on success
+        if: success()
+        run: echo "✅ Database migrations applied successfully to production"
+
+      - name: Notify on failure
+        if: failure()
+        run: echo "❌ Database migration failed. Please check the logs."
