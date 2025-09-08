@@ -47,16 +47,16 @@
     "postcss": "^8.5.6",
     "typescript": "^5.9.2",
     "@tailwindcss/forms": "^0.5.10",
-    "@tailwindcss/typography": "^0.5.16"
+    "@tailwindcss/typography": "^0.5.16",
+    "@types/node": "^20.14.0",
+    "@types/react": "^18.3.0",
+    "@types/react-dom": "^18.3.0",
+    "pino-pretty": "^13.1.1"
   },
   "devDependencies": {
     "@shadcn/ui": "^0.0.4",
     "@thefaucet/eslint-config": "workspace:*",
     "@thefaucet/typescript-config": "workspace:*",
-    "@types/node": "^20.14.0",
-    "@types/react": "^18.3.0",
-    "@types/react-dom": "^18.3.0",
-    "eslint": "^8.0.0",
-    "pino-pretty": "^13.1.1"
+    "eslint": "^8.0.0"
   }
 }
