@@ -20,7 +20,7 @@
     }
   },
   "scripts": {
-    "build": "forge build",
+    "build": "forge build && node scripts/extract-abis.js",
     "test": "forge test",
     "test:gas": "forge test --gas-report",
     "test:coverage": "forge coverage",

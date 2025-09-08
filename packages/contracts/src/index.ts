@@ -1,6 +1,6 @@
-import FaucetManagerABI from '../out/FaucetManager.sol/FaucetManager.json';
-import DevTokenABI from '../out/DevToken.sol/DevToken.json';
-import DevNFTABI from '../out/DevNFT.sol/DevNFT.json';
+import FaucetManagerABI from './abis/FaucetManager.json';
+import DevTokenABI from './abis/DevToken.json';
+import DevNFTABI from './abis/DevNFT.json';
 
 export * from './types';
 export * from './chains';
