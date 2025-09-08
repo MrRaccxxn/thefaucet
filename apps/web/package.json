@@ -41,7 +41,10 @@
     "tailwind-merge": "^3.3.1",
     "viem": "^2.36.0",
     "wagmi": "^2.16.9",
-    "zustand": "^5.0.8"
+    "zustand": "^5.0.8",
+    "tailwindcss": "^3.4.0",
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.6"
   },
   "devDependencies": {
     "@shadcn/ui": "^0.0.4",
@@ -52,11 +55,8 @@
     "@types/node": "^20.14.0",
     "@types/react": "^18.3.0",
     "@types/react-dom": "^18.3.0",
-    "autoprefixer": "^10.4.21",
     "eslint": "^8.0.0",
     "pino-pretty": "^13.1.1",
-    "postcss": "^8.5.6",
-    "tailwindcss": "^3.4.0",
     "typescript": "^5.9.2"
   }
 }
