@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
 
     // Check if essential tables exist
     const essentialTables = ['users', 'accounts', 'sessions', 'claims', 'supported_chains'];
-    const existingTables = tablesResult.rows.map(r => r.table_name as string);
+    const existingTables = (tablesResult as any[]).map(r => r.table_name as string);
     const missingTables = essentialTables.filter(table => !existingTables.includes(table));
 
     // Get row counts for main tables
@@ -55,7 +55,7 @@ export async function GET(request: NextRequest) {
       if (essentialTables.includes(table)) {
         try {
           const countResult = await db.execute(sql.raw(`SELECT COUNT(*) as count FROM "${table}"`));
-          rowCounts[table] = parseInt(countResult.rows[0]?.count as string || '0');
+          rowCounts[table] = parseInt((countResult as any[])[0]?.count as string || '0');
         } catch (error) {
           rowCounts[table] = -1; // Error getting count
         }
