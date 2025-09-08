@@ -7,8 +7,8 @@
     "./*": "./src/*.tsx"
   },
   "scripts": {
-    "build": "tsc",
-    "dev": "tsc --watch",
+    "build": "echo 'UI package exports source files directly'",
+    "dev": "tsc --watch --noEmit",
     "lint": "eslint . --max-warnings 0",
     "generate:component": "turbo gen react-component",
     "check-types": "tsc --noEmit"

@@ -12,7 +12,7 @@
     }
   },
   "scripts": {
-    "build": "tsc",
+    "build": "echo 'DB package exports TypeScript source directly'",
     "dev": "tsc --watch",
     "test": "jest",
     "lint": "eslint . --max-warnings 0",

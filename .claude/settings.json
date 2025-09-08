@@ -15,7 +15,11 @@
       "Read(**/*.crt)",
       "Read(**/*.cert)",
       "Read(**/secrets/**)",
-      "Read(**/credentials/**)"
+      "Read(**/credentials/**)",
+      "Bash(git commit*)",
+      "Bash(git add*)",
+      "Bash(git commit*)",
+      "Bash(git push*)"
     ]
   }
 }

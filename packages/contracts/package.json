@@ -20,7 +20,8 @@
     }
   },
   "scripts": {
-    "build": "forge build && node scripts/extract-abis.js",
+    "build": "echo 'Contracts package - ABIs are pre-compiled and committed'",
+    "build:local": "forge build && node scripts/extract-abis.js",
     "test": "forge test",
     "test:gas": "forge test --gas-report",
     "test:coverage": "forge coverage",

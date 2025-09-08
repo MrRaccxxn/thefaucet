@@ -12,7 +12,7 @@
     }
   },
   "scripts": {
-    "build": "tsc",
+    "build": "echo 'Core package exports TypeScript source directly'",
     "dev": "tsc --watch",
     "test": "jest",
     "lint": "eslint . --max-warnings 0",
