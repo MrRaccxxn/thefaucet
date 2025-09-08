@@ -40,7 +40,9 @@
     "@thefaucet/eslint-config": "workspace:*",
     "@thefaucet/typescript-config": "workspace:*",
     "@types/node": "^20.0.0",
+    "dotenv": "^16.3.1",
     "eslint": "^8.0.0",
+    "ethers": "^6.13.0",
     "typescript": "^5.0.0"
   }
 }

@@ -806,6 +806,8 @@ export const claimRouter = createTRPCRouter({
           cooldownHours: 24
         });
 
+        console.log("rateLimitResult", rateLimitResult);
+
         if (!rateLimitResult.allowed) {
           const timeRemainingMs = rateLimitResult.cooldownEnds 
             ? rateLimitResult.cooldownEnds.getTime() - Date.now()
@@ -848,9 +850,11 @@ export const claimRouter = createTRPCRouter({
         if (!deployment?.devNFT) {
           throw new TRPCError({
             code: 'BAD_REQUEST',
-            message: 'DevNFT not deployed on this network'
+            message: `NFT minting is currently only available on Lisk Sepolia. Please switch to Lisk Sepolia network to mint NFTs.`
           });
         }
+
+        console.log("deployment NFT", deployment);
 
         // Find or create NFT collection asset
         const nftAssets = await ctx.db
@@ -882,15 +886,13 @@ export const claimRouter = createTRPCRouter({
             .returning();
           assetId = newAsset[0]!.id;
         }
-
-        // Create simple token URI (in production, this should be stored on IPFS)
-        const tokenURI = `data:application/json;base64,${Buffer.from(JSON.stringify(input.metadata)).toString('base64')}`;
         
-        // Process the NFT mint
+        // Process the NFT mint with metadata
         const claimResult = await faucetService.mintNFT(
           input.walletAddress,
           input.chainId,
-          chainConfig.rpcUrl
+          chainConfig.rpcUrl,
+          input.metadata
         );
 
         // Record the claim in database
@@ -940,10 +942,44 @@ export const claimRouter = createTRPCRouter({
             });
           }
           
-          // Default: include the actual error message for debugging
+          // Check for NFT limit errors
+          if (error.message.includes('maximum limit') || error.message.includes('10 NFTs')) {
+            throw new TRPCError({
+              code: 'BAD_REQUEST',
+              message: error.message
+            });
+          }
+          
+          // Check for transaction simulation/gas estimation failures
+          if (error.message.includes('Transaction would fail') || 
+              error.message.includes('Transaction simulation failed') ||
+              error.message.includes('NFT minting would fail')) {
+            throw new TRPCError({
+              code: 'BAD_REQUEST',
+              message: error.message
+            });
+          }
+          
+          // Check for insufficient funds
+          if (error.message.includes('insufficient ETH') || error.message.includes('insufficient funds')) {
+            throw new TRPCError({
+              code: 'BAD_REQUEST',
+              message: 'The faucet wallet has insufficient ETH for gas fees. Please contact support.'
+            });
+          }
+          
+          // Check for deployment/network issues
+          if (error.message.includes('not deployed') || error.message.includes('Only Lisk Sepolia')) {
+            throw new TRPCError({
+              code: 'BAD_REQUEST',
+              message: error.message
+            });
+          }
+          
+          // Default: pass through the error message for better debugging
           throw new TRPCError({
             code: 'INTERNAL_SERVER_ERROR',
-            message: `NFT mint failed: ${error.message}`
+            message: error.message.replace('NFT mint failed: ', '')
           });
         }
         

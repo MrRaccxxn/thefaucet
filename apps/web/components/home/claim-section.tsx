@@ -16,6 +16,8 @@ import { useToast } from "@/components/ui/toast";
 import { api } from "@/lib/trpc/client";
 import { getNumericChainId } from "@/lib/stores/constants";
 import { NetworkDropdown } from "@/components/ui/network-dropdown";
+import { NFT_CONFIG } from "@/lib/config/nft";
+import { useRandomNFTMetadata } from "@/lib/hooks/use-nft-metadata";
 import {
   AssetTypeSelector,
   ClaimButton,
@@ -38,8 +40,18 @@ function ClaimSectionContent() {
     setShowRedeemCode,
   } = useFormStore();
 
+  // Get chain ID and RPC URL (moved up to be available for useEffect)
+  const numericChainId = getNumericChainId(selectedChain.id);
+  
   // Asset type selection state
   const [assetType, setAssetType] = useState<AssetType>("native");
+  
+  // Auto-switch to native tokens when changing from Lisk Sepolia to other networks
+  React.useEffect(() => {
+    if (numericChainId !== 4202 && (assetType === "token" || assetType === "nft")) {
+      setAssetType("native");
+    }
+  }, [numericChainId, assetType]);
 
   // Track success states separately for each asset type
   const [successStates, setSuccessStates] = useState<{
@@ -54,9 +66,6 @@ function ClaimSectionContent() {
 
   // Track if user has manually edited the address
   const [hasUserEditedAddress, setHasUserEditedAddress] = useState(false);
-
-  // Get chain ID and RPC URL
-  const numericChainId = getNumericChainId(selectedChain.id);
   const rpcUrlMap: Record<number, string> = {
     11155111: "https://ethereum-sepolia-rpc.publicnode.com",
     4202: "https://rpc.sepolia-api.lisk.com",
@@ -64,6 +73,12 @@ function ClaimSectionContent() {
     97: "https://bsc-testnet.public.blastapi.io",
   };
   const rpcUrl = rpcUrlMap[numericChainId || 11155111];
+
+  // Get NFT metadata for the preview
+  const { nftMetadata } = useRandomNFTMetadata(
+    numericChainId || 11155111,
+    rpcUrl
+  );
 
   // Use the auth hook which syncs with NextAuth
   const { isAuthenticated, isLoading: authLoading, user } = useAuth();
@@ -317,9 +332,10 @@ function ClaimSectionContent() {
         });
       } else if (assetType === "nft") {
         // Get NFT metadata for minting
-        const nftName = "Developer NFT";
-        const nftDescription = "A unique developer NFT";
-        const nftImage = "/default-nft.png";
+        const nftName = nftMetadata?.name || "Developer NFT";
+        const nftDescription = nftMetadata?.description || "A unique developer NFT for testing";
+        // Use a data URI or full URL for the image
+        const nftImage = nftMetadata?.image && nftMetadata.image.startsWith("http") ? nftMetadata.image : NFT_CONFIG.DEFAULT_NFT_IMAGE;
 
         await mintNFTMutation.mutateAsync({
           chainId,
@@ -375,6 +391,7 @@ function ClaimSectionContent() {
             assetType={assetType}
             onAssetTypeChange={setAssetType}
             selectedChainAmount={selectedChain.amount}
+            chainId={numericChainId || undefined}
           />
         </div>
 
