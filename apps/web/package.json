@@ -45,12 +45,12 @@
     "tailwindcss": "^3.4.0",
     "autoprefixer": "^10.4.21",
     "postcss": "^8.5.6",
-    "typescript": "^5.9.2"
+    "typescript": "^5.9.2",
+    "@tailwindcss/forms": "^0.5.10",
+    "@tailwindcss/typography": "^0.5.16"
   },
   "devDependencies": {
     "@shadcn/ui": "^0.0.4",
-    "@tailwindcss/forms": "^0.5.10",
-    "@tailwindcss/typography": "^0.5.16",
     "@thefaucet/eslint-config": "workspace:*",
     "@thefaucet/typescript-config": "workspace:*",
     "@types/node": "^20.14.0",
