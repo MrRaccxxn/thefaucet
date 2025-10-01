@@ -1,11 +1,12 @@
-import FaucetManagerABI from './abis/FaucetManager.json';
-import DevTokenABI from './abis/DevToken.json';
-import DevNFTABI from './abis/DevNFT.json';
+import FaucetManagerABI from "./abis/FaucetManager.json";
+import DevTokenABI from "./abis/DevToken.json";
+import DevNFTABI from "./abis/DevNFT.json";
+import { DEPLOYMENT_ADDRESSES as liskSepoliaDeployments } from "./deployments/lisk-sepolia";
 
-export * from './types';
-export * from './chains';
+export * from "./types";
+export * from "./chains";
 
-export const CONTRACTS_VERSION = '0.0.1';
+export const CONTRACTS_VERSION = "0.0.1";
 
 export const ABIS = {
   FaucetManager: FaucetManagerABI.abi,
@@ -23,22 +24,19 @@ export interface DeploymentAddresses {
   deploymentTime: string;
 }
 
-let deploymentAddresses: Record<string, DeploymentAddresses> = {};
+const deploymentAddresses: Record<string, DeploymentAddresses> = {
+  ...liskSepoliaDeployments,
+};
 
-// Import deployment addresses dynamically
-try {
-  const liskSepoliaDeployment = require('./deployments/lisk-sepolia');
-  if (liskSepoliaDeployment.DEPLOYMENT_ADDRESSES) {
-    Object.assign(deploymentAddresses, liskSepoliaDeployment.DEPLOYMENT_ADDRESSES);
-  }
-} catch {
-  // Deployment file not found
-}
-
-export function getDeploymentAddresses(network: string): DeploymentAddresses | undefined {
+export function getDeploymentAddresses(
+  network: string
+): DeploymentAddresses | undefined {
   return deploymentAddresses[network];
 }
 
-export function getAllDeploymentAddresses(): Record<string, DeploymentAddresses> {
+export function getAllDeploymentAddresses(): Record<
+  string,
+  DeploymentAddresses
+> {
   return deploymentAddresses;
 }
