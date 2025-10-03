@@ -85,10 +85,9 @@ export const authOptions: NextAuthOptions = {
       try {
         // Cast profile to GitHub profile type
         const githubProfile = profile as unknown as GitHubUserProfile;
-  
-        // Validate GitHub account
+        // Validate GitHub account (pass user.email as fallback for private emails)
         const validator = new GitHubAccountValidator();
-        const validationResult = validator.validateProfile(githubProfile);
+        const validationResult = validator.validateProfile(githubProfile, user.email);
 
         if (!validationResult.isValid) {
           console.log("GitHub validation failed:", validationResult.errors);

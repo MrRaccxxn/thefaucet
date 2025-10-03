@@ -4,7 +4,7 @@ export interface GitHubUserProfile {
   id: number;
   login: string;
   name: string;
-  email: string;
+  email?: string | null; // Email can be private on GitHub even when verified
   avatar_url: string;
   created_at: string;
   followers: number;

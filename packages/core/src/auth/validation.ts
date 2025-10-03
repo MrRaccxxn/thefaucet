@@ -16,8 +16,10 @@ export class GitHubAccountValidator {
 
   /**
    * Validate a GitHub user profile against the faucet requirements
+   * @param profile - GitHub user profile
+   * @param userEmail - Optional email from NextAuth user object (fallback if profile.email is private)
    */
-  validateProfile(profile: GitHubUserProfile): AuthValidationResult {
+  validateProfile(profile: GitHubUserProfile, userEmail?: string | null): AuthValidationResult {
     const errors: string[] = [];
     const warnings: string[] = [];
 
@@ -43,8 +45,10 @@ export class GitHubAccountValidator {
       );
     }
 
-    // Check if email is verified (GitHub OAuth provides verified emails)
-    if (!profile.email) {
+    // Check if email exists (either in profile or from NextAuth)
+    // Note: GitHub emails can be private but still verified via OAuth
+    const hasEmail = !!(profile.email || userEmail);
+    if (!hasEmail) {
       errors.push('GitHub account must have a verified email address');
     }
 
