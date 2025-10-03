@@ -28,7 +28,6 @@
     "viem": "^2.36.0"
   },
   "devDependencies": {
-    "@thefaucet/typescript-config": "workspace:*",
     "typescript": "^5.9.2"
   }
 }
