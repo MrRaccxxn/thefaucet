@@ -10,7 +10,7 @@ export const claims = pgTable('claims', {
   userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
   assetId: uuid('asset_id').references(() => assets.id, { onDelete: 'cascade' }).notNull(),
   walletAddress: text('wallet_address').notNull(),
-  amount: decimal('amount', { precision: 30, scale: 18 }), // Amount for native/ERC20 tokens - up to 999,999,999,999.999999999999999999
+  amount: decimal('amount', { precision: 30, scale: 18 }), // Supports large token amounts with flexibility - up to 999,999,999,999 tokens
   tokenId: text('token_id'), // Token ID for NFTs
   txHash: text('tx_hash'),
   status: text('status').notNull().default('pending'), // 'pending', 'confirmed', 'failed'

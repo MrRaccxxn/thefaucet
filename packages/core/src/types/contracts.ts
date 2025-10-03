@@ -183,7 +183,7 @@ export const DEFAULT_FAUCET_CONFIG: FaucetConfig = {
   tokenCooldown: BigInt(86400), // 1 day (24 hours)
   nftCooldown: BigInt(7200), // 2 hours
   nativeTokenAmount: BigInt("50000000000000000"), // 0.05 ETH
-  defaultTokenAmount: BigInt("1000000000000000000000"), // 1000 tokens
+  defaultTokenAmount: BigInt("100000000000000000000"), // 100 tokens
   maxNFTsPerUser: BigInt(1),
 };
 

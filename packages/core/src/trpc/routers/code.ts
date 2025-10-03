@@ -7,6 +7,7 @@ import { faucetService } from "../../blockchain/faucet";
 import { faucetRateLimiter } from "../../rate-limiting";
 import type { AuthenticatedUser } from "../../types/auth";
 import { handleClaimError } from "../../utils/error-handler";
+import { formatAmountForDB } from "../../utils/amount-formatter";
 
 export const codeRouter = createTRPCRouter({
   // Validate a redeem code (public to check validity before auth)
@@ -170,7 +171,7 @@ export const codeRouter = createTRPCRouter({
         const boostedAmounts = redeemCode.boostedAmounts as Record<string, string> || {};
         const baseAmount = asset[0].type === 'native' 
           ? (process.env.NATIVE_TOKEN_AMOUNT || "0.05")
-          : (process.env.ERC20_TOKEN_AMOUNT || "1000");
+          : (process.env.ERC20_TOKEN_AMOUNT || "100");
         
         const boostedAmount = boostedAmounts[asset[0].type] || 
           (parseFloat(baseAmount) * 2).toString(); // Default 2x boost
@@ -212,13 +213,14 @@ export const codeRouter = createTRPCRouter({
         }
 
         // Record the claim
+        const formattedBoostedAmount = formatAmountForDB(boostedAmount);
         const newClaim = await ctx.db
           .insert(claims)
           .values({
             userId,
             assetId: input.assetId,
             walletAddress: input.walletAddress,
-            amount: boostedAmount,
+            amount: formattedBoostedAmount,
             txHash: claimResult.transactionHash,
             status: 'pending'
           })
@@ -397,7 +399,7 @@ export const codeRouter = createTRPCRouter({
 
         // Calculate boosted amounts for different asset types
         const baseNativeAmount = parseFloat(process.env.NATIVE_TOKEN_AMOUNT || "0.05");
-        const baseERC20Amount = parseFloat(process.env.ERC20_TOKEN_AMOUNT || "1000");
+        const baseERC20Amount = parseFloat(process.env.ERC20_TOKEN_AMOUNT || "100");
 
         const boostedAmounts = {
           native: (baseNativeAmount * input.boostMultiplier).toString(),

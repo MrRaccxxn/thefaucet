@@ -26,7 +26,7 @@ export const assets = pgTable('assets', {
 export const claimLimits = pgTable('claim_limits', {
   id: uuid('id').primaryKey().defaultRandom(),
   assetId: uuid('asset_id').references(() => assets.id, { onDelete: 'cascade' }).notNull(),
-  standardAmount: decimal('standard_amount', { precision: 20, scale: 18 }).notNull(),
+  standardAmount: decimal('standard_amount', { precision: 30, scale: 18 }).notNull(),
   cooldownPeriod: integer('cooldown_period').notNull(), // in hours
   maxClaimsPerPeriod: integer('max_claims_per_period').default(1).notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),

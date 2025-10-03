@@ -57,6 +57,20 @@
       "when": 1756844398866,
       "tag": "0007_harsh_penance",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1759478213500,
+      "tag": "0008_equal_toad_men",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1759478281704,
+      "tag": "0009_colorful_daredevil",
+      "breakpoints": true
     }
   ]
 }
