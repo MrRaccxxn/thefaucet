@@ -6,6 +6,7 @@ import { eq, and, gte, desc, count, lt } from "drizzle-orm";
 import { faucetService } from "../../blockchain/faucet";
 import { faucetRateLimiter } from "../../rate-limiting";
 import type { AuthenticatedUser } from "../../types/auth";
+import { handleClaimError } from "../../utils/error-handler";
 
 export const codeRouter = createTRPCRouter({
   // Validate a redeem code (public to check validity before auth)
@@ -258,11 +259,16 @@ export const codeRouter = createTRPCRouter({
         };
       } catch (error) {
         console.error('Code redemption failed:', error);
+        
+        // Re-throw existing TRPCErrors (e.g., validation, already redeemed)
         if (error instanceof TRPCError) throw error;
+        
+        // Handle and convert technical errors to user-friendly messages
+        const userMessage = handleClaimError(error, 'codeRedemption');
         
         throw new TRPCError({
           code: 'INTERNAL_SERVER_ERROR',
-          message: 'Failed to process code redemption'
+          message: userMessage
         });
       }
     }),

@@ -9,6 +9,7 @@ import type { AuthenticatedUser } from "../../types/auth";
 import { getChainConfig, isChainSupported } from "../../config/chains";
 import { ethers } from "ethers";
 import { ABIS, getDeploymentAddresses } from "@thefaucet/contract-artifacts";
+import { handleClaimError, handleDatabaseError } from "../../utils/error-handler";
 
 const CHAIN_NAMES: Record<number, string> = {
   11155111: "sepolia",
@@ -381,47 +382,15 @@ export const claimRouter = createTRPCRouter({
 
         return claimResult;
       } catch (error) {
-        if (error instanceof Error) {
-          console.error('Error Type:', error.constructor.name);
-          console.error('Error Message:', error.message);
-          console.error('Error Stack:', error.stack);
-          
-          // Check for specific error types
-          if (error.message.includes('PRIVATE_KEY')) {
-            throw new TRPCError({
-              code: 'INTERNAL_SERVER_ERROR',
-              message: 'Faucet is not properly configured. Missing PRIVATE_KEY.'
-            });
-          }
-          
-          if (error.message.includes('InsufficientBalance')) {
-            throw new TRPCError({
-              code: 'BAD_REQUEST',
-              message: 'FaucetManager contract has insufficient ETH balance. Please fund it.'
-            });
-          }
-          
-          if (error.message.includes('RateLimitExceeded') || error.message.includes('You must wait')) {
-            throw new TRPCError({
-              code: 'TOO_MANY_REQUESTS',
-              message: error.message
-            });
-          }
-          
-          // Include actual error message for debugging
-          throw new TRPCError({
-            code: 'INTERNAL_SERVER_ERROR',
-            message: `Claim failed: ${error.message}`
-          });
-        } else {
-          console.error('Unknown error type:', error);
-        }
-        
+        // Re-throw existing TRPCErrors (e.g., rate limiting, validation)
         if (error instanceof TRPCError) throw error;
+        
+        // Handle and convert technical errors to user-friendly messages
+        const userMessage = handleClaimError(error, 'claimNative');
         
         throw new TRPCError({
           code: 'INTERNAL_SERVER_ERROR',
-          message: 'Failed to process native token claim - unknown error'
+          message: userMessage
         });
       }
     }),
@@ -626,55 +595,15 @@ export const claimRouter = createTRPCRouter({
       } catch (error) {
         console.error('DevToken claim failed:', error);
         
-        // Re-throw TRPC errors with their original messages
-        if (error instanceof TRPCError) {
-          throw error;
-        }
+        // Re-throw existing TRPCErrors (e.g., rate limiting, validation)
+        if (error instanceof TRPCError) throw error;
         
-        // Handle specific error types with better messages
-        if (error instanceof Error) {
-          // Check for rate limiting in error message
-          if (error.message.includes('Rate limit') || error.message.includes('cooldown')) {
-            throw new TRPCError({
-              code: 'TOO_MANY_REQUESTS',
-              message: error.message
-            });
-          }
-          
-          // Check for deployment/configuration issues
-          if (error.message.includes('not deployed') || error.message.includes('deployment')) {
-            throw new TRPCError({
-              code: 'BAD_REQUEST',
-              message: error.message
-            });
-          }
-          
-          // Check for private key issues
-          if (error.message.includes('PRIVATE_KEY')) {
-            throw new TRPCError({
-              code: 'INTERNAL_SERVER_ERROR',
-              message: 'Faucet is not properly configured. Please contact administrator.'
-            });
-          }
-          
-          // Check for insufficient balance
-          if (error.message.includes('InsufficientBalance')) {
-            throw new TRPCError({
-              code: 'BAD_REQUEST',
-              message: 'Faucet has insufficient token balance. Please contact administrator.'
-            });
-          }
-          
-          // Default: include the actual error message for debugging
-          throw new TRPCError({
-            code: 'INTERNAL_SERVER_ERROR',
-            message: `DevToken claim failed: ${error.message}`
-          });
-        }
+        // Handle and convert technical errors to user-friendly messages
+        const userMessage = handleClaimError(error, 'claimDevToken');
         
         throw new TRPCError({
           code: 'INTERNAL_SERVER_ERROR',
-          message: 'Failed to process DevToken claim - unknown error'
+          message: userMessage
         });
       }
     }),
@@ -771,11 +700,16 @@ export const claimRouter = createTRPCRouter({
         return claimResult;
       } catch (error) {
         console.error('ERC20 token claim failed:', error);
+        
+        // Re-throw existing TRPCErrors (e.g., rate limiting, validation)
         if (error instanceof TRPCError) throw error;
+        
+        // Handle and convert technical errors to user-friendly messages
+        const userMessage = handleClaimError(error, 'claimERC20');
         
         throw new TRPCError({
           code: 'INTERNAL_SERVER_ERROR',
-          message: 'Failed to process ERC20 token claim'
+          message: userMessage
         });
       }
     }),
@@ -927,65 +861,15 @@ export const claimRouter = createTRPCRouter({
       } catch (error) {
         console.error('NFT mint failed:', error);
         
-        // Re-throw TRPC errors with their original messages
-        if (error instanceof TRPCError) {
-          throw error;
-        }
+        // Re-throw existing TRPCErrors (e.g., rate limiting, validation)
+        if (error instanceof TRPCError) throw error;
         
-        // Handle specific error types with better messages
-        if (error instanceof Error) {
-          // Check for rate limiting
-          if (error.message.includes('Rate limit') || error.message.includes('cooldown')) {
-            throw new TRPCError({
-              code: 'TOO_MANY_REQUESTS',
-              message: error.message
-            });
-          }
-          
-          // Check for NFT limit errors
-          if (error.message.includes('maximum limit') || error.message.includes('10 NFTs')) {
-            throw new TRPCError({
-              code: 'BAD_REQUEST',
-              message: error.message
-            });
-          }
-          
-          // Check for transaction simulation/gas estimation failures
-          if (error.message.includes('Transaction would fail') || 
-              error.message.includes('Transaction simulation failed') ||
-              error.message.includes('NFT minting would fail')) {
-            throw new TRPCError({
-              code: 'BAD_REQUEST',
-              message: error.message
-            });
-          }
-          
-          // Check for insufficient funds
-          if (error.message.includes('insufficient ETH') || error.message.includes('insufficient funds')) {
-            throw new TRPCError({
-              code: 'BAD_REQUEST',
-              message: 'The faucet wallet has insufficient ETH for gas fees. Please contact support.'
-            });
-          }
-          
-          // Check for deployment/network issues
-          if (error.message.includes('not deployed') || error.message.includes('Only Lisk Sepolia')) {
-            throw new TRPCError({
-              code: 'BAD_REQUEST',
-              message: error.message
-            });
-          }
-          
-          // Default: pass through the error message for better debugging
-          throw new TRPCError({
-            code: 'INTERNAL_SERVER_ERROR',
-            message: error.message.replace('NFT mint failed: ', '')
-          });
-        }
+        // Handle and convert technical errors to user-friendly messages
+        const userMessage = handleClaimError(error, 'mintNFT');
         
         throw new TRPCError({
           code: 'INTERNAL_SERVER_ERROR',
-          message: 'Failed to process NFT mint - unknown error'
+          message: userMessage
         });
       }
     }),
