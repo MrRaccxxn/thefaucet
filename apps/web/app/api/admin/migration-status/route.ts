@@ -4,6 +4,8 @@ import { sql } from 'drizzle-orm';
 import fs from 'fs';
 import path from 'path';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   try {
     // Check for admin secret in query params or header
