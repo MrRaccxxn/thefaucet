@@ -1,5 +1,5 @@
 import { sepolia, polygonAmoy, bscTestnet } from 'wagmi/chains';
-import { liskSepolia } from '@thefaucet/contracts/chains';
+import { liskSepolia } from '@thefaucet/contract-artifacts/chains';
 
 export async function addNetworkToWallet(chainId: number) {
   if (!window.ethereum) {

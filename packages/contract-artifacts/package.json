@@ -1,0 +1,35 @@
+{
+  "name": "@thefaucet/contract-artifacts",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Lightweight package containing only contract ABIs, addresses, and types for runtime use",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./chains": {
+      "import": "./dist/chains.js",
+      "types": "./dist/chains.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist",
+    "check-types": "tsc --noEmit",
+    "sync-abis": "bash ./scripts/sync-abis.sh",
+    "generate-abis": "node ./scripts/generate-abi-ts.js"
+  },
+  "dependencies": {
+    "viem": "^2.36.0"
+  },
+  "devDependencies": {
+    "@thefaucet/typescript-config": "workspace:*",
+    "typescript": "^5.9.2"
+  }
+}
+

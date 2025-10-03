@@ -54,7 +54,6 @@ export function useRandomNFTMetadata(chainId: number, rpcUrl?: string) {
 
         try {
           const metadataUrl = `${baseUrl}${randomId}`;
-          console.log(`Fetching NFT metadata at: ${metadataUrl}`);
 
           const response = await fetch(metadataUrl);
           if (response.ok) {

@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  transpilePackages: ["@thefaucet/ui", "@thefaucet/core", "@thefaucet/contracts", "@thefaucet/db"],
+  transpilePackages: ["@thefaucet/ui", "@thefaucet/core", "@thefaucet/contract-artifacts", "@thefaucet/db"],
   experimental: {
     optimizePackageImports: ["@thefaucet/ui"],
   },

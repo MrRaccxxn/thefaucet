@@ -3,7 +3,7 @@ import {
   useWriteContract,
   useWaitForTransactionReceipt,
 } from "wagmi";
-import { ABIS, getDeploymentAddresses } from "@thefaucet/contracts";
+import { ABIS, getDeploymentAddresses } from "@thefaucet/contract-artifacts";
 import type { Address } from "viem";
 import { useChainId } from "wagmi";
 

@@ -3,7 +3,7 @@
 import { useAccount, useSwitchChain } from 'wagmi'
 import { useCallback } from 'react'
 import { sepolia, polygonAmoy, bscTestnet } from 'wagmi/chains'
-import { liskSepolia } from '@thefaucet/contracts/chains'
+import { liskSepolia } from '@thefaucet/contract-artifacts/chains'
 
 type SupportedChainId = typeof sepolia.id | typeof polygonAmoy.id | typeof bscTestnet.id | typeof liskSepolia.id
 

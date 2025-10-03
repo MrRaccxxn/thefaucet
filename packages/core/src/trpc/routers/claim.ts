@@ -8,7 +8,7 @@ import { faucetService } from "../../blockchain/faucet";
 import type { AuthenticatedUser } from "../../types/auth";
 import { getChainConfig, isChainSupported } from "../../config/chains";
 import { ethers } from "ethers";
-import { ABIS, getDeploymentAddresses } from "@thefaucet/contracts";
+import { ABIS, getDeploymentAddresses } from "@thefaucet/contract-artifacts";
 
 const CHAIN_NAMES: Record<number, string> = {
   11155111: "sepolia",
@@ -498,7 +498,7 @@ export const claimRouter = createTRPCRouter({
         const networkName = chainConfig.id;
         console.log('Looking up deployment for network:', networkName);
         
-        const { getDeploymentAddresses } = await import('@thefaucet/contracts');
+        const { getDeploymentAddresses } = await import('@thefaucet/contract-artifacts');
         const deployment = getDeploymentAddresses(networkName);
         
         console.log('Deployment found:', deployment ? 'yes' : 'no', {
@@ -844,7 +844,7 @@ export const claimRouter = createTRPCRouter({
 
         // Get deployed DevNFT address from contracts config
         const networkName = chainConfig.id;
-        const { getDeploymentAddresses } = await import('@thefaucet/contracts');
+        const { getDeploymentAddresses } = await import('@thefaucet/contract-artifacts');
         const deployment = getDeploymentAddresses(networkName);
         
         if (!deployment?.devNFT) {

@@ -47,9 +47,9 @@ importers:
       '@tanstack/react-query':
         specifier: ^5.85.6
         version: 5.85.6(react@18.3.1)
-      '@thefaucet/contracts':
+      '@thefaucet/contract-artifacts':
         specifier: workspace:*
-        version: link:../../packages/contracts
+        version: link:../../packages/contract-artifacts
       '@thefaucet/core':
         specifier: workspace:*
         version: link:../../packages/core
@@ -197,6 +197,19 @@ importers:
 
   packages/config/typescript-config: {}
 
+  packages/contract-artifacts:
+    dependencies:
+      viem:
+        specifier: ^2.36.0
+        version: 2.36.0(bufferutil@4.0.9)(typescript@5.9.2)(utf-8-validate@5.0.10)(zod@3.25.76)
+    devDependencies:
+      '@thefaucet/typescript-config':
+        specifier: workspace:*
+        version: link:../config/typescript-config
+      typescript:
+        specifier: ^5.9.2
+        version: 5.9.2
+
   packages/contracts:
     dependencies:
       '@openzeppelin/contracts':
@@ -230,9 +243,9 @@ importers:
 
   packages/core:
     dependencies:
-      '@thefaucet/contracts':
+      '@thefaucet/contract-artifacts':
         specifier: workspace:*
-        version: link:../contracts
+        version: link:../contract-artifacts
       '@thefaucet/db':
         specifier: workspace:*
         version: link:../db

@@ -1,6 +1,6 @@
 import { http, createConfig, type Config } from 'wagmi'
 import { sepolia, polygonAmoy, bscTestnet } from 'wagmi/chains'
-import { liskSepolia } from '@thefaucet/contracts/chains'
+import { liskSepolia } from '@thefaucet/contract-artifacts/chains'
 import { 
   injected, 
   walletConnect, 

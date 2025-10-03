@@ -1,5 +1,5 @@
 import { ethers } from "ethers";
-import { ABIS, getDeploymentAddresses } from "@thefaucet/contracts";
+import { ABIS, getDeploymentAddresses } from "@thefaucet/contract-artifacts";
 
 export interface ClaimResult {
   transactionHash: string;
