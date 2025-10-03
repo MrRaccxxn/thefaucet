@@ -26,6 +26,9 @@ const envSchema = z.object({
   NEXTAUTH_URL: z.string().url().optional(),
   NEXTAUTH_SECRET: z.string().optional(),
 
+  // Public App URL (client-side accessible)
+  NEXT_PUBLIC_APP_URL: z.string().url().default("http://localhost:3000"),
+
   // Faucet Configuration
   NATIVE_TOKEN_AMOUNT: z.coerce.number().default(0.02),
   ERC20_TOKEN_AMOUNT: z.coerce.number().default(100),
@@ -63,6 +66,7 @@ function validateEnv(): Env {
       GITHUB_CLIENT_SECRET: process.env.GITHUB_CLIENT_SECRET,
       NEXTAUTH_URL: process.env.NEXTAUTH_URL,
       NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
+      NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
       NATIVE_TOKEN_AMOUNT: 0.02,
       ERC20_TOKEN_AMOUNT: 100,
       NFT_MINT_LIMIT: 5,

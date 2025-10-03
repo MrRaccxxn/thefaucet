@@ -29,6 +29,8 @@ const literata = Literata({
   weight: ["200", "300", "400", "500", "600", "700", "800", "900"],
 });
 
+const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+
 export const metadata: Metadata = {
   title: {
     default: "The faucet - Multichain Testnet Faucet",
@@ -50,7 +52,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://thefaucet.dev",
+    url: appUrl,
     title: "The faucet - Multichain Testnet Faucet",
     description:
       "Get test tokens for Ethereum, Polygon, BSC, and more. A multichain testnet faucet for developers.",

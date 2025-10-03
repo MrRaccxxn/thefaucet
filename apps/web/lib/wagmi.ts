@@ -27,8 +27,8 @@ function createWagmiConfig(): Config {
         metadata: {
           name: 'The faucet',
           description: 'Multichain testnet faucet',
-          url: 'https://thefaucet.dev',
-          icons: ['https://thefaucet.dev/favicon.ico'],
+          url: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
+          icons: [`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/favicon.ico`],
         },
       }),
       coinbaseWallet({

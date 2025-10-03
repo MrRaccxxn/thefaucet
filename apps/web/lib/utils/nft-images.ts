@@ -49,12 +49,13 @@ export function getNFTImageByTokenId(tokenId: number) {
 // Generate metadata for NFT
 export function generateNFTMetadata(tokenId: number, walletAddress: string) {
   const nft = getNFTImageByTokenId(tokenId);
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
   
   return {
     name: `${nft?.name ?? 'Developer NFT'} #${tokenId}`,
     description: nft?.description ?? 'A unique developer NFT',
     image: nft?.image ?? '/default-nft.png',
-    external_url: `https://thefaucet.dev/nft/${tokenId}`,
+    external_url: `${appUrl}/nft/${tokenId}`,
     attributes: [
       {
         trait_type: "Type",
